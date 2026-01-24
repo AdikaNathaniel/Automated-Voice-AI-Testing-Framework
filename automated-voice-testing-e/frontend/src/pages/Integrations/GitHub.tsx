@@ -10,6 +10,7 @@ import {
   clearGitHubIntegrationError,
   disconnectGitHubIntegration,
   fetchGitHubIntegrationStatus,
+  refreshGitHubRepositories,
   startGitHubConnection,
   updateGitHubSyncSettings,
   type GitHubIntegrationState,
@@ -48,6 +49,7 @@ const GitHubIntegrationPage = () => {
     lastSyncedAt,
     loading,
     savingSettings,
+    refreshingRepos,
     error,
   } = useSelector<RootState, GitHubIntegrationState>((state) => state.githubIntegration);
 
@@ -139,6 +141,16 @@ const GitHubIntegrationPage = () => {
       await dispatch(disconnectGitHubIntegration()).unwrap();
     } catch (err: unknown) {
       const message = typeof err === 'string' ? err : 'Failed to disconnect GitHub integration';
+      setLocalError(message);
+    }
+  };
+
+  const handleRefreshRepos = async () => {
+    setLocalError(null);
+    try {
+      await dispatch(refreshGitHubRepositories()).unwrap();
+    } catch (err: unknown) {
+      const message = typeof err === 'string' ? err : 'Failed to refresh repositories';
       setLocalError(message);
     }
   };
@@ -320,7 +332,14 @@ const GitHubIntegrationPage = () => {
             )}
           </div>
           {isConnected && (
-            <div className="flex justify-end mt-4 pt-4 border-t border-[var(--color-border-default)]">
+            <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-[var(--color-border-default)]">
+              <button
+                onClick={handleConnect}
+                disabled={loading}
+                className="px-4 py-2 text-sm font-medium text-[var(--color-content-secondary)] hover:text-[var(--color-content-primary)] border border-[var(--color-border-default)] rounded-lg transition-colors disabled:opacity-50"
+              >
+                {loading ? 'Connecting...' : 'Switch Account'}
+              </button>
               <button
                 onClick={handleDisconnect}
                 disabled={loading}
@@ -346,17 +365,38 @@ const GitHubIntegrationPage = () => {
               <label htmlFor="github-repository-select" className="block text-sm font-medium text-[var(--color-content-secondary)] mb-2">
                 Repository
               </label>
-              <Dropdown
-                id="github-repository-select"
-                value={formState.repository}
-                onChange={handleRepositoryChange}
-                disabled={!isConnected || availableRepositories.length === 0 || loading}
-                placeholder={availableRepositories.length === 0 ? 'No repositories available' : 'Select repository'}
-                options={availableRepositories.map((repo) => ({
-                  value: repo.fullName,
-                  label: `${repo.fullName}${repo.private ? ' (Private)' : ''}`,
-                }))}
-              />
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <Dropdown
+                    id="github-repository-select"
+                    value={formState.repository}
+                    onChange={handleRepositoryChange}
+                    disabled={!isConnected || availableRepositories.length === 0 || loading || refreshingRepos}
+                    placeholder={availableRepositories.length === 0 ? 'No repositories available' : 'Select repository'}
+                    options={availableRepositories.map((repo) => ({
+                      value: repo.fullName,
+                      label: `${repo.fullName}${repo.private ? ' (Private)' : ''}`,
+                    }))}
+                  />
+                </div>
+                {isConnected && (
+                  <button
+                    type="button"
+                    onClick={handleRefreshRepos}
+                    disabled={refreshingRepos || loading}
+                    className="px-3 py-2.5 text-sm font-medium text-[var(--color-content-secondary)] hover:text-[var(--color-content-primary)] border-2 border-[var(--color-border-default)] hover:border-[var(--color-border-strong)] rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Refresh repository list"
+                  >
+                    {refreshingRepos ? 'Refreshing...' : 'Refresh'}
+                  </button>
+                )}
+              </div>
+              {isConnected && availableRepositories.length === 0 && !refreshingRepos && (
+                <p className="text-xs text-[var(--color-status-warning)] mt-2 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  No repositories found. Click &quot;Refresh&quot; to fetch your repositories, or check your GitHub permissions.
+                </p>
+              )}
             </div>
 
             <div className="bg-[var(--color-surface-inset)]/50 rounded-lg p-4 border border-[var(--color-border-default)]">

@@ -229,3 +229,101 @@ class GitHubOAuthClient:
             None,
         )
         return fallback_email
+
+    async def fetch_user_repositories(self, *, token: str, per_page: int = 100) -> List[dict]:
+        """
+        Fetch the user's repositories from GitHub.
+
+        Returns a list of repository objects with id, name, full_name, private, and default_branch.
+        Fetches repos the user owns, collaborates on, or is a member of the org.
+        """
+        if not token:
+            raise ValueError("Access token is required to fetch repositories")
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+        }
+
+        repositories = []
+        seen_ids = set()  # Track unique repos
+        page = 1
+
+        try:
+            async with httpx.AsyncClient() as client:
+                while True:
+                    logger.debug(f"[GITHUB] Fetching repos page {page}")
+                    response = await client.get(
+                        f"{self.API_BASE_URL}/user/repos",
+                        headers=headers,
+                        params={
+                            "per_page": per_page,
+                            "page": page,
+                            "sort": "updated",
+                            "direction": "desc",
+                            "affiliation": "owner,collaborator,organization_member",
+                            "visibility": "all",
+                        },
+                        timeout=self._timeout,
+                    )
+
+                    # Log response status for debugging
+                    logger.debug(f"[GITHUB] Repos API response status: {response.status_code}")
+
+                    if response.status_code == 401:
+                        logger.error("[GITHUB] Unauthorized - token may be invalid or expired")
+                        raise GitHubOAuthError("GitHub token is invalid or expired")
+
+                    if response.status_code == 403:
+                        # Check for rate limiting
+                        remaining = response.headers.get("x-ratelimit-remaining", "unknown")
+                        logger.warning(f"[GITHUB] Forbidden response, rate limit remaining: {remaining}")
+                        if remaining == "0":
+                            raise GitHubOAuthError("GitHub API rate limit exceeded")
+                        raise GitHubOAuthError("Access forbidden - insufficient permissions")
+
+                    response.raise_for_status()
+                    repos_page = response.json()
+
+                    logger.debug(f"[GITHUB] Received {len(repos_page)} repos on page {page}")
+
+                    if not repos_page:
+                        break
+
+                    for repo in repos_page:
+                        repo_id = repo.get("id")
+                        # Avoid duplicates
+                        if repo_id and repo_id not in seen_ids:
+                            seen_ids.add(repo_id)
+                            repositories.append({
+                                "id": repo_id,
+                                "name": repo.get("name"),
+                                "fullName": repo.get("full_name"),
+                                "private": repo.get("private", False),
+                                "defaultBranch": repo.get("default_branch", "main"),
+                            })
+
+                    # Fetch up to 3 pages to get a good selection of repos
+                    if len(repos_page) < per_page or page >= 3:
+                        break
+                    page += 1
+
+                logger.info(f"[GITHUB] Fetched {len(repositories)} total repositories from GitHub")
+                return repositories
+
+        except GitHubOAuthError:
+            # Re-raise our custom errors
+            raise
+        except httpx.HTTPStatusError as exc:
+            message = f"Failed to fetch GitHub repositories: HTTP {exc.response.status_code}"
+            logger.error(f"[GITHUB] {message}")
+            raise GitHubOAuthError(message) from exc
+        except httpx.RequestError as exc:
+            message = f"Failed to fetch GitHub repositories: {exc}"
+            logger.error(f"[GITHUB] {message}")
+            raise GitHubOAuthError(message) from exc
+        except Exception as exc:
+            message = f"Unexpected error fetching GitHub repositories: {exc}"
+            logger.error(f"[GITHUB] {message}")
+            raise GitHubOAuthError(message) from exc

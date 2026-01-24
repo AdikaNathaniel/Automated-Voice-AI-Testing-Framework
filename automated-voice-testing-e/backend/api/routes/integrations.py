@@ -169,17 +169,29 @@ async def get_github_status(
     logger.info(f"[INTEGRATIONS] Getting GitHub status for tenant {tenant_id}")
 
     config = await _get_or_create_integration_config(db, tenant_id, "github")
+    logger.debug(f"[INTEGRATIONS] GitHub config: connected={config.is_connected}, username={config.github_username}, settings_keys={list(config.settings.keys()) if config.settings else []}")
 
     # Build response matching frontend expectations
-    repositories = []
-    for idx, repo_name in enumerate(config.github_repositories or []):
-        repositories.append({
-            "id": idx + 1,
-            "name": repo_name.split("/")[-1] if "/" in repo_name else repo_name,
-            "fullName": repo_name,
-            "private": False,
-            "defaultBranch": "main",
-        })
+    # Get repositories from settings (stored during OAuth)
+    repositories = config.get_setting("github_repositories", [])
+    logger.info(f"[INTEGRATIONS] Retrieved {len(repositories)} repositories from github_repositories setting")
+
+    # Fallback to legacy github_repositories field if settings is empty
+    # (this checks settings["repositories"] which is a different key - for backward compatibility)
+    if not repositories and config.github_repositories:
+        logger.info(f"[INTEGRATIONS] Using legacy repositories field with {len(config.github_repositories)} items")
+        repositories = []
+        for idx, repo_name in enumerate(config.github_repositories):
+            repositories.append({
+                "id": idx + 1,
+                "name": repo_name.split("/")[-1] if "/" in repo_name else repo_name,
+                "fullName": repo_name,
+                "private": False,
+                "defaultBranch": "main",
+            })
+
+    if not repositories:
+        logger.warning(f"[INTEGRATIONS] No repositories found for tenant {tenant_id} - user may need to reconnect")
 
     account = None
     if config.is_connected and config.github_username:
@@ -328,6 +340,20 @@ async def github_oauth_callback(
         user = await oauth_client.fetch_user_profile(token=token.access_token)
         logger.info(f"[GITHUB OAUTH] Fetched user profile: {user.login}")
 
+        # Fetch user's repositories - this is critical for the integration to work
+        repositories = []
+        try:
+            repositories = await oauth_client.fetch_user_repositories(token=token.access_token)
+            logger.info(f"[GITHUB OAUTH] Successfully fetched {len(repositories)} repositories for user {user.login}")
+            if repositories:
+                logger.debug(f"[GITHUB OAUTH] First few repos: {[r.get('fullName') for r in repositories[:3]]}")
+            else:
+                logger.warning(f"[GITHUB OAUTH] No repositories found for user {user.login} - user may have no accessible repos")
+        except Exception as repo_error:
+            logger.error(f"[GITHUB OAUTH] Failed to fetch repositories for user {user.login}: {repo_error}")
+            # Continue with empty repos - user can still connect but won't see repos
+            # They can try reconnecting later
+
     except GitHubOAuthError as e:
         logger.error(f"[GITHUB OAUTH] OAuth error: {e}")
         error_url = f"{frontend_url}/integrations/github?error=oauth_failed&message={str(e)}"
@@ -342,6 +368,7 @@ async def github_oauth_callback(
     # Store the connection in database
     try:
         config = await _get_or_create_integration_config(db, tenant_id, "github")
+        logger.info(f"[GITHUB OAUTH] Storing connection for tenant {tenant_id}, config id: {config.id}")
 
         # Encrypt and store the access token
         config.set_access_token(token.access_token)
@@ -350,20 +377,32 @@ async def github_oauth_callback(
         config.is_enabled = True
         config.last_sync_at = datetime.now(timezone.utc)
 
-        # Store additional user info in settings
-        config.set_setting("github_user_id", user.id)
-        config.set_setting("github_email", user.email)
-        config.set_setting("github_avatar_url", user.avatar_url)
-        config.set_setting("github_scopes", token.scopes)
+        # Initialize settings dict if needed
+        if config.settings is None:
+            config.settings = {}
 
-        # Mark settings as modified
+        # Store additional user info in settings using update_settings for atomic update
+        new_settings = {
+            "github_user_id": user.id,
+            "github_email": user.email,
+            "github_avatar_url": user.avatar_url,
+            "github_scopes": token.scopes,
+            "github_repositories": repositories,
+        }
+        config.update_settings(new_settings)
+
+        logger.info(f"[GITHUB OAUTH] Storing {len(repositories)} repositories in settings")
+
+        # Mark settings as modified to ensure SQLAlchemy detects the JSONB change
         from sqlalchemy.orm.attributes import flag_modified
         flag_modified(config, "settings")
 
         await db.commit()
         await db.refresh(config)
 
-        logger.info(f"[GITHUB OAUTH] Successfully connected GitHub for tenant {tenant_id}, user {user.login}")
+        # Verify the data was saved correctly
+        saved_repos = config.get_setting("github_repositories", [])
+        logger.info(f"[GITHUB OAUTH] Verified {len(saved_repos)} repositories saved for tenant {tenant_id}, user {user.login}")
 
         # Redirect to frontend with success
         success_url = f"{frontend_url}/integrations/github?success=true&username={user.login}"
@@ -434,6 +473,84 @@ async def update_github_sync_settings(
             "createIssues": settings_data.createIssues,
         }
     )
+
+
+@router.post("/github/refresh-repos")
+async def refresh_github_repositories(
+    db: AsyncSession = Depends(get_db),
+    current_user: UserResponse = Depends(get_current_user_with_db),
+) -> SuccessResponse:
+    """
+    Refresh the list of GitHub repositories for the connected account.
+
+    This endpoint fetches the latest list of repositories from GitHub
+    without requiring a full OAuth reconnection.
+    """
+    from integrations.github.oauth import GitHubOAuthClient, GitHubOAuthError
+
+    tenant_id = _get_effective_tenant_id(current_user)
+    logger.info(f"[INTEGRATIONS] Refreshing GitHub repositories for tenant {tenant_id}")
+
+    config = await _get_or_create_integration_config(db, tenant_id, "github")
+
+    if not config.is_connected:
+        raise HTTPException(
+            status_code=400,
+            detail="GitHub is not connected. Please connect your GitHub account first."
+        )
+
+    # Get the stored access token
+    access_token = config.get_access_token()
+    if not access_token:
+        raise HTTPException(
+            status_code=400,
+            detail="No access token found. Please reconnect your GitHub account."
+        )
+
+    # Fetch repositories using the stored token
+    from api.config import get_settings
+    settings = get_settings()
+
+    try:
+        oauth_client = GitHubOAuthClient(
+            client_id=settings.GITHUB_CLIENT_ID or "",
+            client_secret=settings.GITHUB_CLIENT_SECRET or "",
+            redirect_uri=settings.GITHUB_REDIRECT_URI or "",
+        )
+
+        repositories = await oauth_client.fetch_user_repositories(token=access_token)
+        logger.info(f"[INTEGRATIONS] Refreshed {len(repositories)} repositories for tenant {tenant_id}")
+
+        # Update the stored repositories
+        config.set_setting("github_repositories", repositories)
+        config.last_sync_at = datetime.now(timezone.utc)
+
+        from sqlalchemy.orm.attributes import flag_modified
+        flag_modified(config, "settings")
+
+        await db.commit()
+        await db.refresh(config)
+
+        return SuccessResponse(
+            data={
+                "message": f"Successfully refreshed {len(repositories)} repositories",
+                "repositories": repositories,
+                "count": len(repositories),
+            }
+        )
+
+    except GitHubOAuthError as e:
+        logger.error(f"[INTEGRATIONS] Failed to refresh repositories: {e}")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Failed to fetch repositories from GitHub: {str(e)}"
+        )
+    except Exception as e:
+        logger.error(f"[INTEGRATIONS] Unexpected error refreshing repositories: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="An unexpected error occurred while refreshing repositories"
+        )
 
 
 @router.post("/github/config")

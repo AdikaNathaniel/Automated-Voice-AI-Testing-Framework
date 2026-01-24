@@ -35,6 +35,7 @@ export interface GitHubIntegrationState {
   lastSyncedAt: string | null;
   loading: boolean;
   savingSettings: boolean;
+  refreshingRepos: boolean;
   error: string | null;
 }
 
@@ -52,6 +53,7 @@ export const initialState: GitHubIntegrationState = {
   lastSyncedAt: null,
   loading: false,
   savingSettings: false,
+  refreshingRepos: false,
   error: null,
 };
 
@@ -77,13 +79,14 @@ export const fetchGitHubIntegrationStatus = createAsyncThunk<
   { rejectValue: string }
 >('githubIntegration/fetchStatus', async (_, { rejectWithValue }) => {
   try {
-    const response = await axios.get<GitHubIntegrationStatusResponse>(
+    const response = await axios.get<{ success: boolean; data: GitHubIntegrationStatusResponse }>(
       `${API_BASE_URL}/integrations/github/status`,
       {
         headers: authorizationHeaders(),
       }
     );
-    return response.data;
+    // Extract data from SuccessResponse wrapper
+    return response.data.data;
   } catch (error: unknown) {
     let message = 'Failed to fetch GitHub integration status';
     if (error && typeof error === 'object' && 'response' in error) {
@@ -164,6 +167,36 @@ export const updateGitHubSyncSettings = createAsyncThunk<
   }
 });
 
+interface RefreshRepositoriesResponse {
+  message: string;
+  repositories: GitHubRepositorySummary[];
+  count: number;
+}
+
+export const refreshGitHubRepositories = createAsyncThunk<
+  RefreshRepositoriesResponse,
+  void,
+  { rejectValue: string }
+>('githubIntegration/refreshRepositories', async (_, { rejectWithValue }) => {
+  try {
+    const response = await axios.post<{ success: boolean; data: RefreshRepositoriesResponse }>(
+      `${API_BASE_URL}/integrations/github/refresh-repos`,
+      undefined,
+      {
+        headers: authorizationHeaders(),
+      }
+    );
+    return response.data.data;
+  } catch (error: unknown) {
+    let message = 'Failed to refresh repositories';
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as { response?: { data?: { detail?: string } } };
+      message = axiosError.response?.data?.detail ?? message;
+    }
+    return rejectWithValue(message);
+  }
+});
+
 const githubIntegrationSlice = createSlice({
   name: 'githubIntegration',
   initialState,
@@ -232,6 +265,19 @@ const githubIntegrationSlice = createSlice({
       .addCase(updateGitHubSyncSettings.rejected, (state, action) => {
         state.savingSettings = false;
         state.error = action.payload ?? 'Failed to update GitHub sync settings';
+      })
+      .addCase(refreshGitHubRepositories.pending, (state) => {
+        state.refreshingRepos = true;
+        state.error = null;
+      })
+      .addCase(refreshGitHubRepositories.fulfilled, (state, action) => {
+        state.refreshingRepos = false;
+        state.repositories = action.payload.repositories;
+        state.error = null;
+      })
+      .addCase(refreshGitHubRepositories.rejected, (state, action) => {
+        state.refreshingRepos = false;
+        state.error = action.payload ?? 'Failed to refresh repositories';
       });
   },
 });
