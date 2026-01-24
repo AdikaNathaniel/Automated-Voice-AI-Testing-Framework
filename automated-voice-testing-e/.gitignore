@@ -466,3 +466,26 @@ docs/.doctrees/
 
 # Alembic (database migration) - keep version files
 !backend/alembic/versions/*.py
+
+# ============================================================================
+# Windows Reserved Names & Misc
+# ============================================================================
+
+# Windows reserved filenames (nul, con, prn, aux, etc.)
+nul
+NUL
+con
+CON
+prn
+PRN
+aux
+AUX
+
+# Accidental files
+cd
+
+# Mac OS X archive artifacts
+__MACOSX/
+
+# Claude Code local settings
+.claude/

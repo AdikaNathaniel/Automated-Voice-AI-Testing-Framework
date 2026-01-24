@@ -4,6 +4,7 @@ Edge case library API routes.
 
 from __future__ import annotations
 
+import logging
 from datetime import date
 from typing import Dict, List, Optional, TypeVar, Callable
 from uuid import UUID
@@ -13,6 +14,8 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.database import get_db
+
+logger = logging.getLogger(__name__)
 from api.dependencies import get_current_user_with_db
 from api.schemas.auth import UserResponse
 from api.schemas.edge_case import (
@@ -495,10 +498,41 @@ async def rerun_edge_case_scenario(
         )
         await db.commit()
 
-        # Determine if the execution passed
-        passed = execution.status == "completed" and all(
-            step.validation_passed for step in execution.step_executions
+        # Re-query execution with step_executions eagerly loaded to avoid lazy loading issues
+        from sqlalchemy.orm import selectinload
+        from models.multi_turn_execution import MultiTurnExecution
+
+        # Store execution ID before re-query
+        execution_id = execution.id
+
+        execution_result = await db.execute(
+            select(MultiTurnExecution)
+            .where(MultiTurnExecution.id == execution_id)
+            .options(selectinload(MultiTurnExecution.step_executions))
         )
+        execution = execution_result.scalar_one_or_none()
+
+        if not execution:
+            # Execution was created but couldn't be retrieved - return basic success
+            return {
+                "edge_case_id": str(edge_case_id),
+                "execution_id": str(execution_id),
+                "script_id": str(edge_case.script_id),
+                "script_name": script.name,
+                "status": "completed",
+                "result": "unknown",
+                "passed": False,
+                "message": "Execution completed but results could not be retrieved.",
+            }
+
+        # Determine if the execution passed
+        if execution.step_executions:
+            passed = execution.status == "completed" and all(
+                step.validation_passed for step in execution.step_executions
+            )
+        else:
+            # Fallback: use overall_result if step_executions not available
+            passed = execution.status == "completed" and execution.overall_result == "pass"
 
         return {
             "edge_case_id": str(edge_case_id),
@@ -516,6 +550,7 @@ async def rerun_edge_case_scenario(
         }
     except Exception as e:
         await db.rollback()
+        logger.error(f"[EDGE CASES] Re-run failed for edge case {edge_case_id}: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Scenario execution failed: {str(e)}"
