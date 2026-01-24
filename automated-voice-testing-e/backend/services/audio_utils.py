@@ -9,6 +9,7 @@ Functions:
 - add_noise: Add Gaussian noise to audio at specified SNR
 - validate_audio_format: Check if audio data is in a valid format
 - get_audio_duration: Get the duration of audio in seconds
+- normalize_audio_peak: Normalize audio using peak normalization
 
 Required libraries:
 - soundfile: For reading/writing audio files
@@ -60,6 +61,10 @@ class AudioUtils:
     def get_audio_duration(self, audio_bytes: bytes) -> float:
         """Get the duration of audio in seconds."""
         return get_audio_duration(audio_bytes)
+
+    def normalize_audio_peak(self, audio_bytes: bytes, target_db: float = -3.0) -> bytes:
+        """Normalize audio using peak normalization to target dB level."""
+        return normalize_audio_peak(audio_bytes, target_db)
 
 
 def convert_to_pcm(audio_bytes: bytes, target_rate: int = 16000, raw: bool = False) -> bytes:
@@ -535,3 +540,75 @@ def numpy_to_audio_bytes(
     except Exception as e:
         logger.error(f"Error converting numpy to audio bytes: {e}")
         raise RuntimeError(f"Failed to convert numpy to audio bytes: {str(e)}") from e
+
+
+def normalize_audio_peak(audio_bytes: bytes, target_db: float = -3.0) -> bytes:
+    """
+    Normalize audio using peak normalization.
+
+    Peak normalization scales the entire audio so that the maximum peak
+    (positive or negative) reaches the target dB level. This ensures
+    consistent volume levels across different audio files without
+    affecting dynamic range.
+
+    Args:
+        audio_bytes: Raw audio data in bytes (WAV, FLAC, MP3, etc.)
+        target_db: Target peak level in dB (default: -3.0)
+                   - 0 dB: Maximum level (full scale, may clip)
+                   - -3 dB: Common target leaving headroom
+                   - -6 dB: Conservative level for safety margin
+
+    Returns:
+        bytes: Normalized audio data in WAV format
+
+    Raises:
+        ValueError: If audio_bytes is empty or invalid
+        RuntimeError: If normalization fails
+
+    Example:
+        >>> audio = load_audio("quiet_voice.wav")
+        >>> normalized = normalize_audio_peak(audio, target_db=-3.0)
+        >>> # normalized audio now has peak at -3 dB
+    """
+    if not audio_bytes:
+        raise ValueError("audio_bytes cannot be empty")
+
+    try:
+        # Convert to numpy for processing
+        audio_data = audio_bytes_to_numpy(audio_bytes)
+
+        # Find the maximum absolute peak
+        max_peak = np.max(np.abs(audio_data))
+
+        if max_peak == 0:
+            logger.warning("Audio is silent (all zeros), skipping normalization")
+            return audio_bytes
+
+        # Calculate target linear amplitude from dB
+        # dB = 20 * log10(amplitude)
+        # amplitude = 10 ** (dB / 20)
+        target_amplitude = 10 ** (target_db / 20)
+
+        # Calculate scaling factor
+        scaling_factor = target_amplitude / max_peak
+
+        logger.debug(
+            f"Peak normalization: max_peak={max_peak:.4f}, "
+            f"target_db={target_db}dB, scaling_factor={scaling_factor:.4f}"
+        )
+
+        # Apply scaling
+        normalized_audio = audio_data * scaling_factor
+
+        # Clip to prevent any overflow (should not happen with proper target_db <= 0)
+        normalized_audio = np.clip(normalized_audio, -1.0, 1.0)
+
+        # Convert back to bytes
+        result = numpy_to_audio_bytes(normalized_audio, output_format="wav")
+
+        logger.debug(f"Normalized audio: {len(result)} bytes output")
+        return result
+
+    except Exception as e:
+        logger.error(f"Error normalizing audio: {e}")
+        raise RuntimeError(f"Failed to normalize audio: {str(e)}") from e

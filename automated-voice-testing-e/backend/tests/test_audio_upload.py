@@ -17,6 +17,7 @@ from api.routes.scenarios import (
     upload_step_audio,
     get_step_audio,
     delete_step_audio,
+    batch_upload_step_audio,
 )
 from api.schemas.auth import UserResponse
 from api.auth.roles import Role
@@ -1047,3 +1048,349 @@ class TestErrorRecovery:
             # Neither S3 nor DB should be called
             mock_storage_instance.upload_audio.assert_not_called()
             mock_service.update_step_audio.assert_not_called()
+
+
+# =============================================================================
+# TestAudioNormalization
+# =============================================================================
+
+class TestAudioNormalization:
+    """Tests for audio peak normalization feature."""
+
+    @pytest.mark.asyncio
+    async def test_upload_with_normalization_enabled(
+        self, mock_db, admin_user, sample_scenario_id, sample_step_id,
+        mock_mp3_file, mock_scenario, mock_step, mock_transcription_result
+    ):
+        """Upload with normalization flag applies peak normalization."""
+        with patch('api.routes.scenarios.scenario_service') as mock_service, \
+             patch('services.audio_utils.validate_audio_format', return_value=True), \
+             patch('services.audio_utils.get_audio_duration', return_value=2.5), \
+             patch('services.audio_utils.normalize_audio_peak') as mock_normalize, \
+             patch('services.stt_service.get_stt_service') as mock_stt, \
+             patch('services.storage_service.get_storage_service') as mock_storage:
+
+            mock_service.get = AsyncMock(return_value=mock_scenario)
+            mock_service.get_step = AsyncMock(return_value=mock_step)
+            mock_service.update_step_audio = AsyncMock()
+
+            # Normalization returns processed audio
+            mock_normalize.return_value = b'\x00' * 500
+
+            mock_stt_instance = MagicMock()
+            mock_stt_instance.transcribe.return_value = mock_transcription_result
+            mock_stt.return_value = mock_stt_instance
+
+            mock_storage_instance = AsyncMock()
+            mock_storage_instance.upload_audio = AsyncMock()
+            mock_storage.return_value = mock_storage_instance
+
+            result = await upload_step_audio(
+                scenario_id=sample_scenario_id,
+                step_id=sample_step_id,
+                file=mock_mp3_file,
+                language_code="en-US",
+                normalize=True,
+                normalize_target_db=-3.0,
+                db=mock_db,
+                current_user=admin_user
+            )
+
+            # Verify normalization was applied
+            assert result.normalization_applied is not None
+            assert result.normalization_applied.type == "peak"
+            assert result.normalization_applied.target_db == -3.0
+
+    @pytest.mark.asyncio
+    async def test_upload_without_normalization(
+        self, mock_db, admin_user, sample_scenario_id, sample_step_id,
+        mock_mp3_file, mock_scenario, mock_step, mock_transcription_result
+    ):
+        """Upload without normalization flag does not apply normalization."""
+        with patch('api.routes.scenarios.scenario_service') as mock_service, \
+             patch('services.audio_utils.validate_audio_format', return_value=True), \
+             patch('services.audio_utils.get_audio_duration', return_value=2.5), \
+             patch('services.stt_service.get_stt_service') as mock_stt, \
+             patch('services.storage_service.get_storage_service') as mock_storage:
+
+            mock_service.get = AsyncMock(return_value=mock_scenario)
+            mock_service.get_step = AsyncMock(return_value=mock_step)
+            mock_service.update_step_audio = AsyncMock()
+
+            mock_stt_instance = MagicMock()
+            mock_stt_instance.transcribe.return_value = mock_transcription_result
+            mock_stt.return_value = mock_stt_instance
+
+            mock_storage_instance = AsyncMock()
+            mock_storage_instance.upload_audio = AsyncMock()
+            mock_storage.return_value = mock_storage_instance
+
+            result = await upload_step_audio(
+                scenario_id=sample_scenario_id,
+                step_id=sample_step_id,
+                file=mock_mp3_file,
+                language_code="en-US",
+                normalize=False,
+                db=mock_db,
+                current_user=admin_user
+            )
+
+            # Normalization should not be applied
+            assert result.normalization_applied is None
+
+    @pytest.mark.asyncio
+    async def test_normalization_failure_uses_original_audio(
+        self, mock_db, admin_user, sample_scenario_id, sample_step_id,
+        mock_mp3_file, mock_scenario, mock_step, mock_transcription_result
+    ):
+        """When normalization fails, original audio is used."""
+        with patch('api.routes.scenarios.scenario_service') as mock_service, \
+             patch('services.audio_utils.validate_audio_format', return_value=True), \
+             patch('services.audio_utils.get_audio_duration', return_value=2.5), \
+             patch('services.audio_utils.normalize_audio_peak') as mock_normalize, \
+             patch('services.stt_service.get_stt_service') as mock_stt, \
+             patch('services.storage_service.get_storage_service') as mock_storage:
+
+            mock_service.get = AsyncMock(return_value=mock_scenario)
+            mock_service.get_step = AsyncMock(return_value=mock_step)
+            mock_service.update_step_audio = AsyncMock()
+
+            # Normalization fails
+            mock_normalize.side_effect = Exception("Normalization error")
+
+            mock_stt_instance = MagicMock()
+            mock_stt_instance.transcribe.return_value = mock_transcription_result
+            mock_stt.return_value = mock_stt_instance
+
+            mock_storage_instance = AsyncMock()
+            mock_storage_instance.upload_audio = AsyncMock()
+            mock_storage.return_value = mock_storage_instance
+
+            # Should still succeed with original audio
+            result = await upload_step_audio(
+                scenario_id=sample_scenario_id,
+                step_id=sample_step_id,
+                file=mock_mp3_file,
+                language_code="en-US",
+                normalize=True,
+                db=mock_db,
+                current_user=admin_user
+            )
+
+            # Normalization not applied due to failure
+            assert result.normalization_applied is None
+            # But upload still succeeds
+            assert result.transcription is not None
+
+
+# =============================================================================
+# TestBatchUpload
+# =============================================================================
+
+class TestBatchUpload:
+    """Tests for batch audio upload endpoint."""
+
+    @pytest.fixture
+    def mock_batch_files(self):
+        """Create mock batch upload files."""
+        files = []
+        for lang in ["en-US", "es-ES", "fr-FR"]:
+            file = MagicMock(spec=UploadFile)
+            file.filename = f"{lang}.mp3"
+            file.content_type = "audio/mpeg"
+            file.read = AsyncMock(return_value=b'\xff\xfb\x90\x00' + b'\x00' * 1000)
+            files.append(file)
+        return files
+
+    @pytest.mark.asyncio
+    async def test_batch_upload_all_success(
+        self, mock_db, admin_user, sample_scenario_id, sample_step_id,
+        mock_batch_files, mock_scenario, mock_step, mock_transcription_result
+    ):
+        """Batch upload with all files succeeding."""
+        with patch('api.routes.scenarios.scenario_service') as mock_service, \
+             patch('services.audio_utils.validate_audio_format', return_value=True), \
+             patch('services.audio_utils.get_audio_duration', return_value=2.0), \
+             patch('services.stt_service.get_stt_service') as mock_stt, \
+             patch('services.storage_service.get_storage_service') as mock_storage:
+
+            mock_service.get = AsyncMock(return_value=mock_scenario)
+            mock_service.get_step = AsyncMock(return_value=mock_step)
+            mock_service.update_step_audio = AsyncMock()
+
+            mock_stt_instance = MagicMock()
+            mock_stt_instance.transcribe.return_value = mock_transcription_result
+            mock_stt.return_value = mock_stt_instance
+
+            mock_storage_instance = AsyncMock()
+            mock_storage_instance.upload_audio = AsyncMock()
+            mock_storage.return_value = mock_storage_instance
+
+            result = await batch_upload_step_audio(
+                scenario_id=sample_scenario_id,
+                step_id=sample_step_id,
+                files=mock_batch_files,
+                normalize=False,
+                db=mock_db,
+                current_user=admin_user
+            )
+
+            assert result.total == 3
+            assert result.successful == 3
+            assert result.failed == 0
+            assert len(result.results) == 3
+
+            # Verify language codes extracted from filenames
+            langs = [r.language_code for r in result.results]
+            assert "en-US" in langs
+            assert "es-ES" in langs
+            assert "fr-FR" in langs
+
+    @pytest.mark.asyncio
+    async def test_batch_upload_partial_failure(
+        self, mock_db, admin_user, sample_scenario_id, sample_step_id,
+        mock_scenario, mock_step, mock_transcription_result
+    ):
+        """Batch upload with some files failing."""
+        # Create files with one invalid
+        files = []
+        for i, lang in enumerate(["en-US", "es-ES"]):
+            file = MagicMock(spec=UploadFile)
+            file.filename = f"{lang}.mp3"
+            file.content_type = "audio/mpeg"
+            file.read = AsyncMock(return_value=b'\xff\xfb\x90\x00' + b'\x00' * 1000)
+            files.append(file)
+
+        # Add invalid file
+        invalid_file = MagicMock(spec=UploadFile)
+        invalid_file.filename = "fr-FR.pdf"
+        invalid_file.content_type = "application/pdf"  # Invalid type
+        invalid_file.read = AsyncMock(return_value=b'%PDF-1.4')
+        files.append(invalid_file)
+
+        with patch('api.routes.scenarios.scenario_service') as mock_service, \
+             patch('services.audio_utils.validate_audio_format', return_value=True), \
+             patch('services.audio_utils.get_audio_duration', return_value=2.0), \
+             patch('services.stt_service.get_stt_service') as mock_stt, \
+             patch('services.storage_service.get_storage_service') as mock_storage:
+
+            mock_service.get = AsyncMock(return_value=mock_scenario)
+            mock_service.get_step = AsyncMock(return_value=mock_step)
+            mock_service.update_step_audio = AsyncMock()
+
+            mock_stt_instance = MagicMock()
+            mock_stt_instance.transcribe.return_value = mock_transcription_result
+            mock_stt.return_value = mock_stt_instance
+
+            mock_storage_instance = AsyncMock()
+            mock_storage_instance.upload_audio = AsyncMock()
+            mock_storage.return_value = mock_storage_instance
+
+            result = await batch_upload_step_audio(
+                scenario_id=sample_scenario_id,
+                step_id=sample_step_id,
+                files=files,
+                normalize=False,
+                db=mock_db,
+                current_user=admin_user
+            )
+
+            assert result.total == 3
+            assert result.successful == 2
+            assert result.failed == 1
+
+            # Find the failed result
+            failed_results = [r for r in result.results if not r.success]
+            assert len(failed_results) == 1
+            assert failed_results[0].language_code == "fr-FR"
+            assert failed_results[0].error is not None
+
+    @pytest.mark.asyncio
+    async def test_batch_upload_with_normalization(
+        self, mock_db, admin_user, sample_scenario_id, sample_step_id,
+        mock_batch_files, mock_scenario, mock_step, mock_transcription_result
+    ):
+        """Batch upload with normalization enabled."""
+        with patch('api.routes.scenarios.scenario_service') as mock_service, \
+             patch('services.audio_utils.validate_audio_format', return_value=True), \
+             patch('services.audio_utils.get_audio_duration', return_value=2.0), \
+             patch('services.audio_utils.normalize_audio_peak') as mock_normalize, \
+             patch('services.stt_service.get_stt_service') as mock_stt, \
+             patch('services.storage_service.get_storage_service') as mock_storage:
+
+            mock_service.get = AsyncMock(return_value=mock_scenario)
+            mock_service.get_step = AsyncMock(return_value=mock_step)
+            mock_service.update_step_audio = AsyncMock()
+
+            mock_normalize.return_value = b'\x00' * 500
+
+            mock_stt_instance = MagicMock()
+            mock_stt_instance.transcribe.return_value = mock_transcription_result
+            mock_stt.return_value = mock_stt_instance
+
+            mock_storage_instance = AsyncMock()
+            mock_storage_instance.upload_audio = AsyncMock()
+            mock_storage.return_value = mock_storage_instance
+
+            result = await batch_upload_step_audio(
+                scenario_id=sample_scenario_id,
+                step_id=sample_step_id,
+                files=mock_batch_files,
+                normalize=True,
+                normalize_target_db=-3.0,
+                db=mock_db,
+                current_user=admin_user
+            )
+
+            # All results should have normalization applied
+            for r in result.results:
+                if r.success:
+                    assert r.data.normalization_applied is not None
+                    assert r.data.normalization_applied.target_db == -3.0
+
+    @pytest.mark.asyncio
+    async def test_batch_upload_scenario_not_found(
+        self, mock_db, admin_user, sample_scenario_id, sample_step_id, mock_batch_files
+    ):
+        """Batch upload returns 404 when scenario not found."""
+        with patch('api.routes.scenarios.scenario_service') as mock_service:
+            mock_service.get = AsyncMock(return_value=None)
+
+            with pytest.raises(HTTPException) as exc_info:
+                await batch_upload_step_audio(
+                    scenario_id=sample_scenario_id,
+                    step_id=sample_step_id,
+                    files=mock_batch_files,
+                    db=mock_db,
+                    current_user=admin_user
+                )
+
+            assert exc_info.value.status_code == status.HTTP_404_NOT_FOUND
+
+    @pytest.mark.asyncio
+    async def test_batch_upload_permission_denied(
+        self, mock_db, viewer_user, sample_scenario_id, sample_step_id, mock_batch_files
+    ):
+        """Viewer cannot batch upload audio."""
+        with pytest.raises(HTTPException) as exc_info:
+            await batch_upload_step_audio(
+                scenario_id=sample_scenario_id,
+                step_id=sample_step_id,
+                files=mock_batch_files,
+                db=mock_db,
+                current_user=viewer_user
+            )
+
+        assert exc_info.value.status_code == status.HTTP_403_FORBIDDEN
+
+    @pytest.fixture
+    def mock_batch_files(self):
+        """Create mock batch upload files."""
+        files = []
+        for lang in ["en-US", "es-ES", "fr-FR"]:
+            file = MagicMock(spec=UploadFile)
+            file.filename = f"{lang}.mp3"
+            file.content_type = "audio/mpeg"
+            file.read = AsyncMock(return_value=b'\xff\xfb\x90\x00' + b'\x00' * 1000)
+            files.append(file)
+        return files

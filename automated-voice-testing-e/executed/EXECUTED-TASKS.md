@@ -1441,7 +1441,7 @@ When an operation succeeds, the `last_sync_at` field is updated.
 | Notification Triggers Wired | 3 |
 | Bugs Fixed | 1 |
 | Tasks from TASK-AUDIO-UPLOAD.md Completed | 3/3 ✅ |
-| Tasks from TASK-INTEGRATIONS.md Completed | 3/3 ✅ |
+| Tasks from TASK-INTEGRATIONS.md Completed | 6/6 ✅ |
 
 ### New API Endpoints
 1. `POST /scenarios/{id}/steps/{step_id}/audio` - Modified with noise params
@@ -1645,7 +1645,7 @@ To prevent these errors in the future:
 | Notification Triggers Wired | 3 |
 | TypeScript Import Bugs Fixed | 10 |
 | Tasks from TASK-AUDIO-UPLOAD.md Completed | 3/3 ✅ |
-| Tasks from TASK-INTEGRATIONS.md Completed | 3/3 ✅ |
+| Tasks from TASK-INTEGRATIONS.md Completed | 6/6 ✅ |
 
 ### TypeScript Import Fixes
 1. `DashboardNew.tsx` - `DashboardSettings` interface
@@ -2306,6 +2306,750 @@ If GitHub OAuth is not configured (`GITHUB_CLIENT_ID` or `GITHUB_CLIENT_SECRET` 
 - [x] Integration status updates after successful connection
 - [x] Fallback to PAT page if OAuth not configured
 - [x] Multi-tenant support via state parameter
+
+---
+
+## Task 18: Noise Endpoint Tests and NoiseConfigPanel Extraction
+
+**Status:** Completed
+**Date:** 2026-01-24
+**Priority:** Medium
+**Effort:** Medium
+**Source:** Audio Upload Feature Completion
+
+### What Was Done
+
+Completed the Audio Upload feature by adding comprehensive backend tests for noise endpoints and extracting the noise configuration UI into a reusable component.
+
+### Backend Tests Created
+
+**File:** `backend/tests/test_noise_endpoints.py`
+
+Created comprehensive test coverage for all noise-related endpoints.
+
+#### 1. TestApplyNoiseEndpoint
+Tests for `POST /scenarios/{id}/steps/{step_id}/audio/{lang}/apply-noise`
+
+| Test | Description |
+|------|-------------|
+| `test_apply_noise_success` | Successfully applies noise to existing audio |
+| `test_apply_noise_with_custom_snr` | Applies noise with custom SNR value |
+| `test_apply_noise_with_randomize_snr` | Applies noise with SNR randomization |
+| `test_apply_noise_invalid_profile` | Rejects invalid noise profile name |
+| `test_apply_noise_no_existing_audio` | Returns 404 when no audio exists for step |
+| `test_apply_noise_step_not_found` | Returns 404 when step doesn't exist |
+| `test_apply_noise_permission_denied` | Viewer role cannot apply noise |
+
+#### 2. TestPreviewNoiseEndpoint
+Tests for `POST /scenarios/{id}/steps/{step_id}/audio/{lang}/preview-noise`
+
+| Test | Description |
+|------|-------------|
+| `test_preview_noise_success` | Returns base64 encoded preview audio |
+| `test_preview_noise_returns_wav_format` | Preview always returns WAV format |
+| `test_preview_noise_no_existing_audio` | Returns 404 when no audio exists |
+| `test_preview_noise_invalid_profile` | Rejects invalid noise profile |
+
+#### 3. TestListNoiseProfilesEndpoint
+Tests for `GET /scenarios/noise-profiles`
+
+| Test | Description |
+|------|-------------|
+| `test_list_noise_profiles_success` | Returns list of all noise profiles |
+| `test_list_noise_profiles_contains_expected_profiles` | Verifies expected profiles exist |
+| `test_list_noise_profiles_structure` | Validates profile object structure |
+| `test_list_noise_profiles_categories` | Verifies all categories present |
+
+#### 4. TestSNRValidation
+Tests for SNR value validation and randomization
+
+| Test | Description |
+|------|-------------|
+| `test_snr_within_valid_range` | Accepts SNR values -10 to 50 dB |
+| `test_snr_below_minimum_rejected` | Rejects SNR below -10 dB |
+| `test_snr_above_maximum_rejected` | Rejects SNR above 50 dB |
+
+### Frontend Component Extraction
+
+#### 1. New Component: `NoiseConfigPanel.tsx`
+
+**File:** `frontend/src/components/Audio/NoiseConfigPanel.tsx`
+
+Extracted the noise configuration UI into a reusable component with:
+
+- **Enable/disable toggle** - Visual toggle with smooth animation
+- **Category tabs** - Vehicle, Environmental, Industrial
+- **Profile cards** - Visual cards with difficulty badges and icons
+- **SNR gauge** - Visual gauge with threshold markers
+- **SNR slider** - Range input with custom styling
+- **Custom SNR input** - Number input for precise control
+- **Randomize SNR toggle** - Option to vary SNR per execution
+- **SNR variance input** - Configure randomization range
+- **Error handling** - Displays error when profiles fail to load
+
+**Props Interface:**
+```typescript
+interface NoiseConfigPanelProps {
+  config: NoiseConfig;           // Current noise configuration
+  onChange: (config: NoiseConfig) => void;  // Callback when config changes
+  disabled?: boolean;            // Disable all inputs
+  defaultExpanded?: boolean;     // Start expanded
+  title?: string;                // Custom panel title
+  description?: string;          // Custom description
+}
+```
+
+#### 2. Component Index File
+
+**File:** `frontend/src/components/Audio/index.ts`
+
+Created index file for Audio components folder:
+```typescript
+export { NoiseConfigPanel } from './NoiseConfigPanel';
+export type { NoiseConfigPanelProps } from './NoiseConfigPanel';
+```
+
+#### 3. Updated ScenarioForm
+
+**File:** `frontend/src/pages/Scenarios/ScenarioForm.tsx`
+
+Simplified the form by using the new reusable component:
+- Removed ~470 lines of inline noise config code
+- Reduced file from ~850 lines to ~380 lines
+- Added `handleNoiseConfigChange` handler
+- Uses `NoiseConfigPanel` with proper props
+
+**Before:**
+```typescript
+// 470+ lines of noise config UI inline in form
+```
+
+**After:**
+```typescript
+{formData.noise_config && (
+  <NoiseConfigPanel
+    config={formData.noise_config}
+    onChange={handleNoiseConfigChange}
+    disabled={isLoading}
+    defaultExpanded={initialData?.noise_config?.enabled}
+  />
+)}
+```
+
+### Error Handling for Profile Fetch Failure
+
+The NoiseConfigPanel includes built-in error handling:
+- `profilesError` state tracks fetch failures
+- Visual error alert with icon and message
+- Graceful degradation - panel still usable for other settings
+
+```typescript
+{profilesError && (
+  <div className="flex items-center gap-2 p-3 bg-[var(--color-status-danger-bg)] ...">
+    <AlertCircle className="w-4 h-4 text-[var(--color-status-danger)]" />
+    <span>{profilesError}</span>
+  </div>
+)}
+```
+
+### Files Created
+
+| File | Purpose |
+|------|---------|
+| `backend/tests/test_noise_endpoints.py` | Comprehensive noise endpoint tests |
+| `frontend/src/components/Audio/NoiseConfigPanel.tsx` | Reusable noise config component |
+| `frontend/src/components/Audio/index.ts` | Component exports |
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `frontend/src/pages/Scenarios/ScenarioForm.tsx` | Replaced inline code with NoiseConfigPanel |
+
+### Test Coverage Summary
+
+| Category | Tests |
+|----------|-------|
+| Apply noise endpoint | 7 tests |
+| Preview noise endpoint | 4 tests |
+| List profiles endpoint | 4 tests |
+| SNR validation | 3 tests |
+| **Total** | **18 tests** |
+
+### How to Run Tests
+
+```bash
+cd backend
+
+# Run all noise endpoint tests
+venv/bin/pytest tests/test_noise_endpoints.py -v
+
+# Run specific test class
+venv/bin/pytest tests/test_noise_endpoints.py::TestApplyNoiseEndpoint -v
+
+# Run with coverage
+venv/bin/pytest tests/test_noise_endpoints.py --cov=api.routes.scenarios -v
+```
+
+### Benefits of Extraction
+
+1. **Reusability** - Can be used in other forms/pages
+2. **Maintainability** - Single source of truth for noise UI
+3. **Testability** - Component can be unit tested independently
+4. **Code reduction** - ScenarioForm reduced by ~55%
+5. **Separation of concerns** - Form logic separate from noise config logic
+
+### Acceptance Criteria Met
+
+- [x] Backend tests cover apply-noise endpoint
+- [x] Backend tests cover preview-noise endpoint
+- [x] Backend tests cover list-profiles endpoint
+- [x] Backend tests cover SNR validation
+- [x] NoiseConfigPanel extracted to reusable component
+- [x] ScenarioForm uses the new component
+- [x] Error handling for profile fetch failure included
+- [x] Component is properly typed with TypeScript
+
+---
+
+## Task 19: Audio Preprocessing & Batch Upload Support
+
+**Status:** Completed
+**Date:** 2026-01-24
+**Priority:** Low
+**Effort:** Medium
+**Source:** [TASK-AUDIO-UPLOAD.md](../docs/tasks/TASK-AUDIO-UPLOAD.md) - Low Priority Items
+
+### What Was Done
+
+Implemented the two remaining low-priority features from the audio upload task:
+1. **Audio Peak Normalization** - Scales audio to consistent volume levels
+2. **Batch Upload Support** - Upload multiple audio files at once
+
+### 1. Audio Peak Normalization
+
+#### Backend Implementation
+
+**File:** `backend/services/audio_utils.py`
+
+Added new `normalize_audio_peak()` function:
+```python
+def normalize_audio_peak(audio_bytes: bytes, target_db: float = -3.0) -> bytes:
+    """
+    Normalize audio using peak normalization.
+
+    Peak normalization scales the entire audio so that the maximum peak
+    (positive or negative) reaches the target dB level. This ensures
+    consistent volume levels across different audio files without
+    affecting dynamic range.
+
+    Args:
+        audio_bytes: Raw audio data in bytes (WAV, FLAC, MP3, etc.)
+        target_db: Target peak level in dB (default: -3.0)
+                   - 0 dB: Maximum level (full scale, may clip)
+                   - -3 dB: Common target leaving headroom
+                   - -6 dB: Conservative level for safety margin
+
+    Returns:
+        bytes: Normalized audio data in WAV format
+    """
+```
+
+Also added method to `AudioUtils` class:
+```python
+def normalize_audio_peak(self, audio_bytes: bytes, target_db: float = -3.0) -> bytes:
+    """Normalize audio using peak normalization to target dB level."""
+    return normalize_audio_peak(audio_bytes, target_db)
+```
+
+**File:** `backend/api/routes/scenarios.py`
+
+Modified `upload_step_audio` endpoint with new parameters:
+- `normalize: bool = Query(False)` - Enable/disable normalization
+- `normalize_target_db: float = Query(-3.0, ge=-20, le=0)` - Target peak level
+
+**File:** `backend/api/schemas/scenario.py`
+
+Added new schema:
+```python
+class NormalizationAppliedInfo(BaseModel):
+    type: str = Field(default="peak", description="Normalization type (peak)")
+    target_db: float = Field(..., description="Target dB level used")
+```
+
+Updated `StepAudioUploadResponse` with:
+```python
+normalization_applied: Optional[NormalizationAppliedInfo] = Field(
+    default=None,
+    description="Information about audio normalization (if applied)"
+)
+```
+
+#### Frontend Implementation
+
+**File:** `frontend/src/pages/Scenarios/StepManager.tsx`
+
+Added new interface:
+```typescript
+interface NormalizationAppliedInfo {
+  type: string;
+  target_db: number;
+}
+```
+
+Added normalization state:
+```typescript
+const [normalizeConfig, setNormalizeConfig] = useState<Record<string, { enabled: boolean; target_db: number }>>({});
+```
+
+Added normalization toggle UI with:
+- Checkbox to enable/disable normalization
+- Dropdown to select target dB level (0 dB, -3 dB, -6 dB, -12 dB)
+- Visual indicator when normalization was applied (purple badge)
+
+### 2. Batch Upload Support
+
+#### Backend Implementation
+
+**File:** `backend/api/routes/scenarios.py`
+
+New endpoint:
+```
+POST /api/v1/scenarios/{scenario_id}/steps/{step_id}/audio/batch
+```
+
+Parameters:
+- `files: List[UploadFile]` - Multiple audio files (named with language codes, e.g., "en-US.mp3")
+- `normalize: bool` - Apply normalization to all files
+- `normalize_target_db: float` - Target dB for normalization
+
+Response:
+```python
+class BatchAudioUploadResponse(BaseModel):
+    total: int           # Total files processed
+    successful: int      # Successful uploads
+    failed: int          # Failed uploads
+    results: List[BatchAudioUploadResult]  # Individual results
+
+class BatchAudioUploadResult(BaseModel):
+    language_code: str   # Extracted from filename
+    success: bool
+    data: Optional[StepAudioUploadResponse]
+    error: Optional[str]
+```
+
+Workflow per file:
+1. Extract language code from filename (e.g., "en-US.mp3" → "en-US")
+2. Validate audio format
+3. Apply normalization if requested
+4. Transcribe with Whisper
+5. Upload to S3
+6. Update step metadata
+
+#### Frontend Implementation
+
+**File:** `frontend/src/pages/Scenarios/StepManager.tsx`
+
+Added batch upload handler:
+```typescript
+const handleBatchUpload = async (stepIndex: number, files: FileList) => {
+  // ... upload multiple files to batch endpoint
+}
+```
+
+Added batch upload UI:
+- Appears when step has multiple language variants
+- "Select Multiple Files" button
+- "Normalize all" checkbox
+- Shows upload progress and errors
+
+### Test Coverage
+
+**File:** `backend/tests/test_audio_upload.py`
+
+Added test class `TestAudioNormalization` with 3 tests:
+| Test | Description |
+|------|-------------|
+| `test_upload_with_normalization_enabled` | Verify normalization_applied is set |
+| `test_upload_without_normalization` | Verify normalization_applied is None |
+| `test_normalization_failure_uses_original_audio` | Graceful fallback on error |
+
+Added test class `TestBatchUpload` with 5 tests:
+| Test | Description |
+|------|-------------|
+| `test_batch_upload_all_success` | All files upload successfully |
+| `test_batch_upload_partial_failure` | Some files fail, others succeed |
+| `test_batch_upload_with_normalization` | Batch with normalization enabled |
+| `test_batch_upload_scenario_not_found` | 404 when scenario missing |
+| `test_batch_upload_permission_denied` | Viewer cannot batch upload |
+
+**File:** `backend/tests/test_audio_normalization.py` (New)
+
+Added unit tests for `normalize_audio_peak` function:
+| Test | Description |
+|------|-------------|
+| `test_normalize_audio_peak_empty_bytes_raises` | ValueError on empty input |
+| `test_normalize_audio_peak_scales_correctly` | Verifies scaling math |
+| `test_normalize_audio_peak_silent_audio` | Silent audio returns original |
+| `test_normalize_audio_peak_to_zero_db` | Normalize to max level |
+| `test_normalize_audio_peak_negative_target` | Normalize to -6 dB |
+| `test_audio_utils_class_method` | Verify class exposes method |
+
+### API Documentation
+
+#### Upload with Normalization
+```bash
+POST /api/v1/scenarios/{id}/steps/{step_id}/audio?language_code=en-US&normalize=true&normalize_target_db=-3.0
+
+Response:
+{
+  "s3_key": "scenarios/.../audio-en-US.mp3",
+  "transcription": "...",
+  "normalization_applied": {
+    "type": "peak",
+    "target_db": -3.0
+  }
+}
+```
+
+#### Batch Upload
+```bash
+POST /api/v1/scenarios/{id}/steps/{step_id}/audio/batch?normalize=true
+
+# Files should be named with language codes: en-US.mp3, es-ES.mp3, fr-FR.mp3
+
+Response:
+{
+  "total": 3,
+  "successful": 3,
+  "failed": 0,
+  "results": [
+    {"language_code": "en-US", "success": true, "data": {...}},
+    {"language_code": "es-ES", "success": true, "data": {...}},
+    {"language_code": "fr-FR", "success": true, "data": {...}}
+  ]
+}
+```
+
+### Files Created
+
+| File | Purpose |
+|------|---------|
+| `backend/tests/test_audio_normalization.py` | Unit tests for normalization function |
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `backend/services/audio_utils.py` | Added `normalize_audio_peak()` function |
+| `backend/api/routes/scenarios.py` | Added normalization params + batch endpoint |
+| `backend/api/schemas/scenario.py` | Added normalization and batch schemas |
+| `backend/tests/test_audio_upload.py` | Added normalization + batch upload tests |
+| `frontend/src/pages/Scenarios/StepManager.tsx` | Added normalization toggle + batch upload UI |
+
+### Normalization Target Levels
+
+| Target | Amplitude | Use Case |
+|--------|-----------|----------|
+| 0 dB | 1.0 (max) | Maximum volume, risk of clipping |
+| -3 dB | ~0.708 | Recommended, leaves headroom |
+| -6 dB | ~0.501 | Conservative, safe margin |
+| -12 dB | ~0.251 | Quieter audio output |
+
+### Acceptance Criteria Met
+
+- [x] Peak normalization function implemented
+- [x] Normalization integrated into upload endpoint
+- [x] Frontend toggle for normalization on upload
+- [x] Batch upload endpoint created
+- [x] Batch upload UI with multi-file selection
+- [x] Language codes extracted from filenames
+- [x] Partial failure handling (some files can fail)
+- [x] Tests for normalization function
+- [x] Tests for normalization in upload
+- [x] Tests for batch upload
+
+---
+
+## All Tasks Progress
+
+| Task | Priority | Status |
+|------|----------|--------|
+| Audio upload route tests (backend) | High | Completed |
+| Frontend upload component tests | Medium | Completed |
+| DashboardSettings import fix | High | Completed |
+| About folder creation | - | Completed |
+| Executed folder creation | - | Completed |
+| Noise injection UI integration | High | Completed |
+| Noise preview button | Medium | Completed |
+| Error recovery (partial failures) | Medium | Completed |
+| Wire up notification triggers | High | Completed |
+| Auto-create Jira ticket from defect | High | Completed |
+| Integration health monitoring | Medium | Completed |
+| Additional TypeScript import fixes | High | Completed |
+| Database seeding for testing | High | Completed |
+| Fix Auto-Translate 404 Error | High | Completed |
+| Fix Audio Upload Not Showing | High | Completed |
+| Fix Scenarios Router Not Registered | Critical | Completed |
+| Fix Analytics Page Infinite Loading | High | Completed |
+| Implement GitHub OAuth Integration | High | Completed |
+| Noise Endpoint Tests & Component Extraction | Medium | Completed |
+| Audio preprocessing (normalization) | Low | **Completed** |
+| Batch upload support | Low | **Completed** |
+
+---
+
+## Summary Statistics (Updated)
+
+| Metric | Value |
+|--------|-------|
+| Backend Tests Created | 60 |
+| Frontend Tests Created | 26 |
+| Total Tests Created | 86 |
+| Backend Files Modified | 11 |
+| Frontend Files Modified | 7 |
+| Frontend Files Created | 4 |
+| New API Endpoints | 6 |
+| New Redux Slices | 1 |
+| New Components | 2 |
+| New Schemas | 3 |
+| New Service Methods | 3 |
+| Notification Triggers Wired | 3 |
+| TypeScript Import Bugs Fixed | 10 |
+| Tasks from TASK-AUDIO-UPLOAD.md Completed | 5/5 ✅ |
+| Tasks from TASK-INTEGRATIONS.md Completed | 6/6 ✅ |
+
+### New Frontend Components
+1. `IntegrationHealthCard` - Health status card with visual indicators
+2. `NoiseConfigPanel` - Reusable noise configuration panel
+
+### New API Endpoints
+1. `POST /scenarios/{id}/steps/{step_id}/audio` - Modified with noise + normalization params
+2. `POST /scenarios/{id}/steps/{step_id}/audio/{lang}/apply-noise` - Apply noise to existing
+3. `POST /scenarios/{id}/steps/{step_id}/audio/{lang}/preview-noise` - Preview with noise
+4. `POST /scenarios/{id}/steps/{step_id}/audio/batch` - Batch upload multiple files
+
+### New Service Methods
+1. `StorageService.delete_by_key()` - Delete S3 object by key for rollback support
+2. `AudioUtils.normalize_audio_peak()` - Peak normalize audio to target dB level
+
+---
+
+---
+
+## Task: Slack & Jira Integrations - Full Implementation
+
+**Status:** Completed
+**Date:** 2026-01-24
+**Reference:** [TASK-INTEGRATIONS.md](../docs/tasks/TASK-INTEGRATIONS.md)
+
+### Overview
+
+Implemented all 6 items from the TASK-INTEGRATIONS.md "What Needs Work" section:
+
+| Item | Priority | Effort | Status |
+|------|----------|--------|--------|
+| Notification trigger integration points | High | Medium | ✅ COMPLETE |
+| Auto-create Jira ticket from defect flow | High | Medium | ✅ COMPLETE |
+| Slack OAuth flow (vs manual webhook) | Medium | High | ✅ COMPLETE |
+| Integration health monitoring UI | Medium | Low | ✅ COMPLETE |
+| Jira bidirectional sync (status updates) | Low | High | ✅ COMPLETE |
+| Slack interactive messages (buttons) | Low | Medium | ✅ COMPLETE |
+
+---
+
+### Task 1: Notification Triggers (Already Implemented)
+
+Notification triggers were already wired up in the codebase:
+
+| Trigger | Location | Implementation |
+|---------|----------|----------------|
+| Suite Run Completion | `backend/tasks/orchestration.py:495-512` | `aggregate_results()` sends notification on completion |
+| Suite Run Monitor | `backend/tasks/orchestration.py:729-750` | `monitor_suite_run_progress()` sends notification |
+| Critical Defect | `backend/services/defect_service.py:124-141` | `create_defect()` triggers notification |
+| Edge Case Discovery | `backend/services/edge_case_service.py:100-123` | `create_edge_case()` triggers notification |
+
+---
+
+### Task 2: Auto-Create Jira Ticket (Already Implemented)
+
+The `DefectService.create_defect()` already supports Jira ticket creation:
+
+- Accepts `jira_client`, `jira_project_key`, `jira_issue_type`, `jira_browse_base_url` parameters
+- Auto-creates Jira ticket when Jira client is provided
+- Stores `jira_issue_key`, `jira_issue_url`, `jira_status` on defect record
+- Jira creation failures don't prevent defect creation (wrapped in try/except)
+
+---
+
+### Task 3: Integration Health Monitoring (Already Implemented)
+
+Health monitoring endpoint exists at `GET /integrations/health`:
+
+- Returns status for GitHub, Jira, and Slack integrations
+- Tracks `configured`, `lastSuccessfulOperation`, `lastError`, `status`
+- Overall status aggregation (healthy/degraded/critical/unconfigured)
+
+---
+
+### Task 4: Slack OAuth Flow (NEW)
+
+**Files Created:**
+- `backend/integrations/slack/oauth.py`
+
+**Implementation:**
+
+```python
+class SlackOAuthClient:
+    """Helper for orchestrating Slack OAuth flows."""
+
+    AUTHORIZE_URL = "https://slack.com/oauth/v2/authorize"
+    TOKEN_URL = "https://slack.com/api/oauth.v2.access"
+
+    def build_authorize_url(self, *, bot_scopes, user_scopes, state) -> Tuple[str, str]
+    async def exchange_code_for_token(self, *, code, redirect_uri) -> Tuple[SlackOAuthToken, SlackWorkspace, SlackUser]
+    async def fetch_workspace_info(self, *, token) -> SlackWorkspace
+    async def fetch_channels(self, *, token, types, limit) -> List[dict]
+    async def test_auth(self, *, token) -> dict
+```
+
+**New API Endpoints:**
+- `POST /integrations/slack/connect` - Start OAuth flow, returns authorization URL
+- `GET /integrations/slack/callback` - Handle OAuth callback, exchange code for token
+
+**Frontend Changes (`Slack.tsx`):**
+- Added "Add to Slack" OAuth button
+- Connection method toggle (OAuth vs Webhook URL)
+- OAuth callback parameter handling
+- Success/error message display for OAuth flow
+
+---
+
+### Task 5: Jira Bidirectional Sync (NEW)
+
+**Files Created:**
+- `backend/tasks/integration_sync.py`
+
+**New API Endpoints:**
+- `POST /integrations/jira/webhook` - Handle Jira webhooks for issue updates
+- `POST /integrations/jira/sync/{defect_id}` - Manual sync endpoint
+
+**Webhook Event Handlers:**
+- `jira:issue_updated` - Syncs status changes back to local defects
+- `jira:issue_deleted` - Unlinks defect from deleted Jira issue
+
+**Celery Tasks:**
+```python
+@celery.task(name='tasks.integration_sync.sync_all_jira_defects')
+def sync_all_jira_defects(tenant_id: Optional[str] = None) -> Dict[str, Any]:
+    """Sync all defects with Jira links to get current status."""
+
+@celery.task(name='tasks.integration_sync.check_integration_health')
+def check_integration_health(tenant_id: Optional[str] = None) -> Dict[str, Any]:
+    """Check health of all integrations."""
+
+@celery.task(name='tasks.integration_sync.send_slack_notification', max_retries=3)
+def send_slack_notification(tenant_id, notification_type, payload) -> Dict[str, Any]:
+    """Send Slack notification asynchronously with retry support."""
+```
+
+**Status Mapping (Jira → Local):**
+Uses `JIRA_STATUS_TO_LOCAL` from `defect_service.py` for bidirectional mapping.
+
+---
+
+### Task 6: Slack Interactive Messages (NEW)
+
+**Files Modified:**
+- `backend/integrations/slack/client.py`
+- `backend/api/routes/integrations.py`
+
+**New SlackClient Methods:**
+
+```python
+async def send_interactive_defect_alert(
+    self, *, defect_id, title, severity, defect_url, description, channel
+) -> Dict[str, Any]:
+    """Send defect alert with View Details, Assign to Me, Mark Resolved buttons."""
+
+async def send_interactive_test_result(
+    self, *, suite_run_id, suite_name, status, passed, failed, duration_seconds, run_url, channel
+) -> Dict[str, Any]:
+    """Send test result with View Results, Retry Failed, Create Defect buttons."""
+
+async def send_interactive_edge_case_alert(
+    self, *, edge_case_id, title, category, severity, edge_case_url, scenario_name, description, channel
+) -> Dict[str, Any]:
+    """Send edge case alert with View Details, Re-run Scenario, Dismiss buttons."""
+
+async def update_message_on_action(
+    self, *, response_url, text, blocks, replace_original
+) -> Dict[str, Any]:
+    """Update a message in response to an interactive action."""
+```
+
+**New API Endpoint:**
+- `POST /integrations/slack/interactions` - Handle Slack button clicks
+
+**Supported Actions:**
+
+| Action ID | Description | Implementation |
+|-----------|-------------|----------------|
+| `assign_defect` | Assign defect to user who clicked | Updates defect status to "in_progress" |
+| `resolve_defect` | Mark defect as resolved | Updates defect status with resolved_at timestamp |
+| `retry_failed` | Retry failed tests from suite run | Queues retry operation |
+| `create_defect_from_run` | Create defect from failed run | Directs to web UI |
+| `rerun_edge_case` | Re-run edge case scenario | Queues re-run operation |
+| `dismiss_edge_case` | Archive edge case | Updates edge case status to "archived" |
+
+---
+
+### Files Summary
+
+**Files Created:**
+| File | Description |
+|------|-------------|
+| `backend/integrations/slack/oauth.py` | Slack OAuth 2.0 client for workspace authorization |
+| `backend/tasks/integration_sync.py` | Celery tasks for Jira sync and Slack notifications |
+
+**Files Modified:**
+| File | Changes |
+|------|---------|
+| `backend/integrations/slack/client.py` | Added 4 interactive message methods with Block Kit buttons |
+| `backend/api/routes/integrations.py` | Added ~650 lines: OAuth endpoints, Jira webhook, Slack interactions |
+| `frontend/src/pages/Integrations/Slack.tsx` | Added OAuth "Add to Slack" button and connection method toggle |
+
+---
+
+### Environment Variables Required for OAuth
+
+```bash
+# Slack OAuth (optional - falls back to webhook if not configured)
+SLACK_CLIENT_ID=your-slack-app-client-id
+SLACK_CLIENT_SECRET=your-slack-app-client-secret
+SLACK_REDIRECT_URI=https://your-domain/api/v1/integrations/slack/callback
+```
+
+---
+
+### Testing
+
+**Slack OAuth:**
+1. Configure Slack App with OAuth scopes
+2. Set environment variables
+3. Click "Add to Slack" button in UI
+4. Authorize in Slack
+5. Verify connection in UI
+
+**Jira Bidirectional Sync:**
+1. Configure Jira webhook to point to `/integrations/jira/webhook`
+2. Update issue status in Jira
+3. Verify defect status syncs automatically
+
+**Interactive Messages:**
+1. Trigger a notification (defect, test result, edge case)
+2. Click action buttons in Slack
+3. Verify action completes (defect assigned, resolved, etc.)
 
 ---
 

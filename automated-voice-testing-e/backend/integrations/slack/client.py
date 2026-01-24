@@ -415,3 +415,348 @@ class SlackClient:
             message = f"Failed to communicate with Slack: {str(exc)}"
             logger.error(message)
             raise SlackClientError(message) from exc
+
+    # -------------------------------------------------------------------------
+    # Interactive Messages (Block Kit with buttons/actions)
+    # -------------------------------------------------------------------------
+
+    async def send_message(
+        self,
+        *,
+        text: str,
+        channel: Optional[str] = None,
+        blocks: Optional[List[Dict[str, Any]]] = None,
+    ) -> Dict[str, Any]:
+        """
+        Send a simple message to Slack.
+
+        Args:
+            text: Message text (also serves as fallback for blocks)
+            channel: Target channel
+            blocks: Optional Block Kit blocks
+
+        Returns:
+            Slack API response
+        """
+        payload: Dict[str, Any] = {"text": text}
+        if blocks:
+            payload["blocks"] = blocks
+        return await self._dispatch(payload, channel=channel)
+
+    async def send_interactive_defect_alert(
+        self,
+        *,
+        defect_id: str,
+        title: str,
+        severity: str,
+        defect_url: str,
+        description: Optional[str] = None,
+        channel: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Send a defect alert with interactive buttons.
+
+        Includes "View Details", "Assign to Me", and "Mark Resolved" buttons.
+        """
+        severity_display = severity.upper()
+        summary = (
+            f":rotating_light: Critical defect detected – "
+            f"[{severity_display}] {title}"
+        )
+
+        blocks: List[Dict[str, Any]] = [
+            {
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": summary},
+            }
+        ]
+
+        if description:
+            blocks.append({
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": description[:500]},
+            })
+
+        # Add context with defect details
+        blocks.append({
+            "type": "context",
+            "elements": [
+                {"type": "mrkdwn", "text": f"*Defect ID:* `{defect_id}`"},
+                {"type": "mrkdwn", "text": f"*Severity:* {severity_display}"},
+            ],
+        })
+
+        # Add interactive buttons
+        blocks.append({
+            "type": "actions",
+            "block_id": f"defect_actions_{defect_id}",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "View Details", "emoji": True},
+                    "style": "primary",
+                    "url": defect_url,
+                    "action_id": "view_defect",
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "Assign to Me", "emoji": True},
+                    "action_id": "assign_defect",
+                    "value": defect_id,
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "Mark Resolved", "emoji": True},
+                    "style": "danger",
+                    "action_id": "resolve_defect",
+                    "value": defect_id,
+                    "confirm": {
+                        "title": {"type": "plain_text", "text": "Resolve Defect?"},
+                        "text": {"type": "mrkdwn", "text": f"Are you sure you want to mark defect *{title}* as resolved?"},
+                        "confirm": {"type": "plain_text", "text": "Yes, Resolve"},
+                        "deny": {"type": "plain_text", "text": "Cancel"},
+                    },
+                },
+            ],
+        })
+
+        payload: Dict[str, Any] = {
+            "text": summary,
+            "blocks": blocks,
+        }
+
+        return await self._dispatch(payload, channel=channel)
+
+    async def send_interactive_test_result(
+        self,
+        *,
+        suite_run_id: str,
+        suite_name: str,
+        status: str,
+        passed: int,
+        failed: int,
+        duration_seconds: float,
+        run_url: str,
+        channel: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Send a test run result with interactive buttons.
+
+        Includes "View Results", "Retry Failed", and "Create Defect" buttons.
+        """
+        emoji = self.STATUS_EMOJI.get(status, ":information_source:")
+        label = self.STATUS_LABEL.get(status, "completed")
+        total = passed + failed
+        duration_str = self._format_duration(duration_seconds)
+
+        summary = (
+            f"{emoji} Test run {label} – {passed} passed, {failed} failed "
+            f"({total} total) in {duration_str}"
+        )
+
+        blocks: List[Dict[str, Any]] = [
+            {
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": summary},
+            },
+            {
+                "type": "context",
+                "elements": [
+                    {"type": "mrkdwn", "text": f"*Suite:* {suite_name}"},
+                    {"type": "mrkdwn", "text": f"*Passed:* {passed}"},
+                    {"type": "mrkdwn", "text": f"*Failed:* {failed}"},
+                    {"type": "mrkdwn", "text": f"*Duration:* {duration_str}"},
+                ],
+            },
+        ]
+
+        # Build action buttons based on status
+        action_elements: List[Dict[str, Any]] = [
+            {
+                "type": "button",
+                "text": {"type": "plain_text", "text": "View Results", "emoji": True},
+                "style": "primary",
+                "url": run_url,
+                "action_id": "view_results",
+            },
+        ]
+
+        # Add "Retry Failed" button if there are failures
+        if failed > 0:
+            action_elements.append({
+                "type": "button",
+                "text": {"type": "plain_text", "text": "Retry Failed", "emoji": True},
+                "action_id": "retry_failed",
+                "value": suite_run_id,
+            })
+            action_elements.append({
+                "type": "button",
+                "text": {"type": "plain_text", "text": "Create Defect", "emoji": True},
+                "style": "danger",
+                "action_id": "create_defect_from_run",
+                "value": suite_run_id,
+            })
+
+        blocks.append({
+            "type": "actions",
+            "block_id": f"suite_run_actions_{suite_run_id}",
+            "elements": action_elements,
+        })
+
+        payload: Dict[str, Any] = {
+            "text": summary,
+            "blocks": blocks,
+        }
+
+        return await self._dispatch(payload, channel=channel)
+
+    async def send_interactive_edge_case_alert(
+        self,
+        *,
+        edge_case_id: str,
+        title: str,
+        category: str,
+        severity: str,
+        edge_case_url: str,
+        scenario_name: Optional[str] = None,
+        description: Optional[str] = None,
+        channel: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Send an edge case alert with interactive buttons.
+
+        Includes "View Details", "Re-run Scenario", and "Dismiss" buttons.
+        """
+        severity_lower = severity.lower()
+        severity_display = severity.upper()
+        category_display = category.replace("_", " ").title()
+
+        severity_emoji = {
+            "critical": ":rotating_light:",
+            "high": ":warning:",
+            "medium": ":large_yellow_circle:",
+            "low": ":information_source:",
+        }
+        emoji = severity_emoji.get(severity_lower, ":speech_balloon:")
+
+        summary = f"{emoji} New Edge Case – [{severity_display}] {title}"
+
+        blocks: List[Dict[str, Any]] = [
+            {
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": summary},
+            }
+        ]
+
+        if description:
+            blocks.append({
+                "type": "section",
+                "text": {"type": "mrkdwn", "text": f"_{description[:500]}_"},
+            })
+
+        context_elements: List[Dict[str, Any]] = [
+            {"type": "mrkdwn", "text": f"*ID:* `{edge_case_id}`"},
+            {"type": "mrkdwn", "text": f"*Category:* {category_display}"},
+            {"type": "mrkdwn", "text": f"*Severity:* {severity_display}"},
+        ]
+
+        if scenario_name:
+            context_elements.append(
+                {"type": "mrkdwn", "text": f"*Scenario:* {scenario_name}"}
+            )
+
+        blocks.append({
+            "type": "context",
+            "elements": context_elements,
+        })
+
+        # Add interactive buttons
+        blocks.append({
+            "type": "actions",
+            "block_id": f"edge_case_actions_{edge_case_id}",
+            "elements": [
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "View Details", "emoji": True},
+                    "style": "primary",
+                    "url": edge_case_url,
+                    "action_id": "view_edge_case",
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "Re-run Scenario", "emoji": True},
+                    "action_id": "rerun_edge_case",
+                    "value": edge_case_id,
+                },
+                {
+                    "type": "button",
+                    "text": {"type": "plain_text", "text": "Dismiss", "emoji": True},
+                    "action_id": "dismiss_edge_case",
+                    "value": edge_case_id,
+                },
+            ],
+        })
+
+        payload: Dict[str, Any] = {
+            "text": summary,
+            "blocks": blocks,
+        }
+
+        return await self._dispatch(payload, channel=channel)
+
+    async def update_message_on_action(
+        self,
+        *,
+        response_url: str,
+        text: str,
+        blocks: Optional[List[Dict[str, Any]]] = None,
+        replace_original: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Update a message in response to an interactive action.
+
+        This is used to update the original message after a button click.
+
+        Args:
+            response_url: The response_url from the interaction payload
+            text: New message text
+            blocks: Optional new Block Kit blocks
+            replace_original: Whether to replace the original message
+
+        Returns:
+            Response from Slack
+
+        Raises:
+            SlackClientError: If the update fails
+        """
+        payload: Dict[str, Any] = {
+            "text": text,
+            "replace_original": replace_original,
+        }
+        if blocks:
+            payload["blocks"] = blocks
+
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    response_url,
+                    json=payload,
+                    timeout=self._timeout,
+                )
+                response.raise_for_status()
+                text_response = response.text.strip()
+                if text_response == "ok":
+                    return {"ok": True}
+                try:
+                    return response.json()
+                except Exception:
+                    return {"ok": True, "response": text_response}
+
+        except httpx.HTTPStatusError as exc:
+            message = f"Failed to update Slack message: {str(exc)}"
+            logger.error(message)
+            raise SlackClientError(message) from exc
+        except httpx.RequestError as exc:
+            message = f"Failed to update Slack message: {str(exc)}"
+            logger.error(message)
+            raise SlackClientError(message) from exc

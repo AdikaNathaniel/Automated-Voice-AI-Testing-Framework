@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { ArrowLeft, CheckCircle2, AlertCircle, Zap, Link2 } from 'lucide-react';
 import { SiSlack } from 'react-icons/si';
 import type { AppDispatch, RootState } from '../../store';
 import {
@@ -13,16 +13,42 @@ import {
   type SlackIntegrationState,
   type SlackIntegrationUpdatePayload,
 } from '../../store/slices/slackIntegrationSlice';
+import api from '../../services/api';
 
 type PreferenceKey = keyof SlackIntegrationState['config']['notificationPreferences'];
 
 const SlackIntegrationPage = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { config, loading, saving, disconnecting, error, success } = useSelector<
     RootState,
     SlackIntegrationState
   >((state) => state.slackIntegration);
+
+  const [connectingOAuth, setConnectingOAuth] = useState(false);
+  const [oauthError, setOauthError] = useState<string | null>(null);
+  const [oauthSuccess, setOauthSuccess] = useState<string | null>(null);
+  const [connectionMethod, setConnectionMethod] = useState<'oauth' | 'webhook'>('oauth');
+
+  // Handle OAuth callback parameters
+  useEffect(() => {
+    const successParam = searchParams.get('success');
+    const errorParam = searchParams.get('error');
+    const workspace = searchParams.get('workspace');
+    const message = searchParams.get('message');
+
+    if (successParam === 'true' && workspace) {
+      setOauthSuccess(`Successfully connected to Slack workspace: ${workspace}`);
+      dispatch(fetchSlackIntegrationConfig());
+      // Clear URL params
+      navigate('/integrations/slack', { replace: true });
+    } else if (errorParam) {
+      const errorMessage = message || errorParam.replace(/_/g, ' ');
+      setOauthError(`Slack connection failed: ${errorMessage}`);
+      navigate('/integrations/slack', { replace: true });
+    }
+  }, [searchParams, dispatch, navigate]);
 
   const [formState, setFormState] = useState(() => ({
     defaultChannel: config.defaultChannel,
@@ -161,6 +187,37 @@ const SlackIntegrationPage = () => {
     }
   };
 
+  const handleOAuthConnect = async () => {
+    setConnectingOAuth(true);
+    setOauthError(null);
+    try {
+      const response = await api.post('/integrations/slack/connect');
+      const { authorizationUrl, oauthConfigured } = response.data.data;
+
+      if (oauthConfigured && authorizationUrl) {
+        // Redirect to Slack OAuth
+        window.location.href = authorizationUrl;
+      } else {
+        // OAuth not configured - fall back to webhook method
+        setConnectionMethod('webhook');
+        setOauthError('Slack OAuth is not configured. Please use the webhook URL method below.');
+        setConnectingOAuth(false);
+      }
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to start Slack connection';
+      setOauthError(errorMessage);
+      setConnectingOAuth(false);
+    }
+  };
+
+  const handleDismissOAuthError = () => {
+    setOauthError(null);
+  };
+
+  const handleDismissOAuthSuccess = () => {
+    setOauthSuccess(null);
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       {/* Back Button */}
@@ -188,19 +245,19 @@ const SlackIntegrationPage = () => {
           </div>
         </div>
 
-        {error && (
+        {(error || oauthError) && (
           <div className="bg-[var(--color-status-danger-bg)] border border-[var(--color-status-danger)] rounded-lg p-4 flex items-start justify-between">
-            <p className="text-[var(--color-status-danger)]">{error}</p>
-            <button onClick={handleDismissError} className="text-[var(--color-status-danger)] hover:text-[var(--color-status-danger)]">
+            <p className="text-[var(--color-status-danger)]">{error || oauthError}</p>
+            <button onClick={error ? handleDismissError : handleDismissOAuthError} className="text-[var(--color-status-danger)] hover:text-[var(--color-status-danger)]">
               Dismiss
             </button>
           </div>
         )}
 
-        {success && (
+        {(success || oauthSuccess) && (
           <div className="bg-[var(--color-status-success-bg)] border border-[var(--color-status-success)] rounded-lg p-4 flex items-start justify-between">
-            <p className="text-[var(--color-status-success)]">{success}</p>
-            <button onClick={handleDismissSuccess} className="text-[var(--color-status-success)] hover:text-[var(--color-status-success)]">
+            <p className="text-[var(--color-status-success)]">{success || oauthSuccess}</p>
+            <button onClick={success ? handleDismissSuccess : handleDismissOAuthSuccess} className="text-[var(--color-status-success)] hover:text-[var(--color-status-success)]">
               Dismiss
             </button>
           </div>
@@ -237,40 +294,106 @@ const SlackIntegrationPage = () => {
               </div>
               {!config.isConnected && (
                 <p className="text-sm text-[var(--color-content-secondary)]">
-                  Add a webhook URL below to enable Slack notifications for your team.
+                  Connect with Slack to enable notifications for your team.
                 </p>
               )}
             </div>
           </div>
           <hr className="my-4 border-[var(--color-border-default)]" />
 
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="webhookUrl" className="block text-sm font-medium text-[var(--color-content-secondary)] mb-2">
-                Slack Webhook URL
-              </label>
-              <input
-                type="password"
-                id="webhookUrl"
-                value={formState.webhookUrl}
-                onChange={handleWebhookUrlChange}
-                disabled={isFormDisabled}
-                placeholder={config.isConnected ? '(webhook configured - enter new URL to update)' : 'https://hooks.slack.com/services/...'}
-                className="w-full px-3 py-2 border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] text-[var(--color-content-primary)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-status-info)]"
-              />
-              <p className="text-sm text-[var(--color-content-muted)] mt-1">
-                Create an incoming webhook in your Slack workspace settings.
-                <a
-                  href="https://api.slack.com/messaging/webhooks"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[var(--color-status-info)] hover:underline ml-1"
+          {/* Connection Method Selection */}
+          {!config.isConnected && (
+            <>
+              <div className="flex gap-2 mb-4">
+                <button
+                  type="button"
+                  onClick={() => setConnectionMethod('oauth')}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
+                    connectionMethod === 'oauth'
+                      ? 'border-[var(--color-status-info)] bg-[var(--color-status-info)]/10 text-[var(--color-status-info)]'
+                      : 'border-[var(--color-border-default)] text-[var(--color-content-secondary)] hover:border-[var(--color-border-strong)]'
+                  }`}
                 >
-                  Learn more
-                </a>
-              </p>
+                  <Zap className="w-4 h-4" />
+                  <span className="font-medium">OAuth (Recommended)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConnectionMethod('webhook')}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg border-2 transition-all ${
+                    connectionMethod === 'webhook'
+                      ? 'border-[var(--color-status-info)] bg-[var(--color-status-info)]/10 text-[var(--color-status-info)]'
+                      : 'border-[var(--color-border-default)] text-[var(--color-content-secondary)] hover:border-[var(--color-border-strong)]'
+                  }`}
+                >
+                  <Link2 className="w-4 h-4" />
+                  <span className="font-medium">Webhook URL</span>
+                </button>
+              </div>
+
+              {connectionMethod === 'oauth' && (
+                <div className="bg-[var(--color-surface-inset)]/50 rounded-lg p-6 border border-[var(--color-border-default)]">
+                  <div className="text-center space-y-4">
+                    <div className="flex justify-center">
+                      <div className="p-4 bg-[var(--color-status-purple)] rounded-2xl">
+                        <SiSlack className="w-8 h-8 text-white" />
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-[var(--color-content-primary)] mb-1">Connect with Slack</h3>
+                      <p className="text-sm text-[var(--color-content-secondary)]">
+                        Authorize the Voice AI Testing app to send notifications to your workspace.
+                        This enables interactive messages with action buttons.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleOAuthConnect}
+                      disabled={connectingOAuth || isFormDisabled}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-[#4A154B] hover:bg-[#611f69] text-white rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <SiSlack className="w-5 h-5" />
+                      {connectingOAuth ? 'Connecting...' : 'Add to Slack'}
+                    </button>
+                    <p className="text-xs text-[var(--color-content-muted)]">
+                      You will be redirected to Slack to authorize the connection
+                    </p>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Webhook URL Input (shown when webhook method selected or already connected) */}
+          {(connectionMethod === 'webhook' || config.isConnected) && (
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="webhookUrl" className="block text-sm font-medium text-[var(--color-content-secondary)] mb-2">
+                  Slack Webhook URL
+                </label>
+                <input
+                  type="password"
+                  id="webhookUrl"
+                  value={formState.webhookUrl}
+                  onChange={handleWebhookUrlChange}
+                  disabled={isFormDisabled}
+                  placeholder={config.isConnected ? '(webhook configured - enter new URL to update)' : 'https://hooks.slack.com/services/...'}
+                  className="w-full px-3 py-2 border border-[var(--color-border-strong)] bg-[var(--color-surface-raised)] text-[var(--color-content-primary)] rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--color-status-info)]"
+                />
+                <p className="text-sm text-[var(--color-content-muted)] mt-1">
+                  Create an incoming webhook in your Slack workspace settings.
+                  <a
+                    href="https://api.slack.com/messaging/webhooks"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[var(--color-status-info)] hover:underline ml-1"
+                  >
+                    Learn more
+                  </a>
+                </p>
+              </div>
             </div>
-          </div>
+          )}
 
           {config.isConnected && (
             <>

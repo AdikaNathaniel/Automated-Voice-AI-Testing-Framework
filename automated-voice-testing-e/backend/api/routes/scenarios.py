@@ -42,6 +42,9 @@ from api.schemas.scenario import (
     NoiseProfileInfo,
     NoiseConfigCreate,
     NoiseAppliedInfo,
+    NormalizationAppliedInfo,
+    BatchAudioUploadResponse,
+    BatchAudioUploadResult,
 )
 from api.schemas.auth import UserResponse
 from services.scenario_service import scenario_service
@@ -602,7 +605,7 @@ SUPPORTED_EXTENSIONS = {".mp3", ".wav", ".ogg", ".flac"}
     response_model=StepAudioUploadResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Upload audio for step",
-    description="Upload audio file for a scenario step, transcribe with Whisper, optionally apply noise"
+    description="Upload audio file for a scenario step, transcribe with Whisper, optionally apply noise and normalization"
 )
 async def upload_step_audio(
     scenario_id: UUID,
@@ -611,6 +614,8 @@ async def upload_step_audio(
     language_code: str = Query("en-US", description="Language code for the audio"),
     noise_profile: Optional[str] = Query(None, description="Noise profile to apply (e.g., 'car_cabin_highway')"),
     noise_snr_db: Optional[float] = Query(None, ge=-10, le=50, description="SNR in dB for noise injection"),
+    normalize: bool = Query(False, description="Apply peak normalization to audio"),
+    normalize_target_db: float = Query(-3.0, ge=-20, le=0, description="Target peak level in dB for normalization"),
     db: Annotated[AsyncSession, Depends(get_db)] = None,
     current_user: Annotated[UserResponse, Depends(get_current_user_with_db)] = None,
 ) -> StepAudioUploadResponse:
@@ -620,9 +625,10 @@ async def upload_step_audio(
     Workflow:
     1. Validate audio format
     2. Transcribe with local Whisper (faster-whisper)
-    3. Optionally apply noise injection
-    4. Store in S3/MinIO
-    5. Update step metadata with audio info
+    3. Optionally apply peak normalization
+    4. Optionally apply noise injection
+    5. Store in S3/MinIO
+    6. Update step metadata with audio info
 
     Args:
         scenario_id: Scenario UUID
@@ -631,11 +637,13 @@ async def upload_step_audio(
         language_code: Language code (e.g., "en-US", "es-ES")
         noise_profile: Optional noise profile to apply (e.g., "car_cabin_highway")
         noise_snr_db: Optional SNR in dB (-10 to 50), uses profile default if not set
+        normalize: Whether to apply peak normalization (default: False)
+        normalize_target_db: Target peak level in dB for normalization (default: -3.0)
         db: Database session
         current_user: Authenticated user
 
     Returns:
-        Audio upload response with transcription and noise info
+        Audio upload response with transcription, noise, and normalization info
 
     Raises:
         HTTPException: 400 if audio format invalid
@@ -734,9 +742,32 @@ async def upload_step_audio(
     }
     original_format = format_map.get(file.content_type, ext.lstrip(".") or "mp3")
 
+    # Apply peak normalization if requested
+    normalization_applied = None
+    audio_to_process = audio_bytes
+    if normalize:
+        try:
+            from services.audio_utils import normalize_audio_peak
+
+            loop = asyncio.get_event_loop()
+            audio_to_process = await loop.run_in_executor(
+                None,
+                lambda: normalize_audio_peak(audio_bytes, target_db=normalize_target_db)
+            )
+
+            normalization_applied = {
+                "type": "peak",
+                "target_db": normalize_target_db,
+            }
+
+            logger.info(f"Applied peak normalization with target {normalize_target_db} dB")
+        except Exception as e:
+            logger.warning(f"Peak normalization failed, using original audio: {e}")
+            audio_to_process = audio_bytes
+
     # Apply noise injection if requested
     noise_applied = None
-    audio_to_store = audio_bytes
+    audio_to_store = audio_to_process
     if noise_profile:
         try:
             from services.noise_profile_library_service import NoiseProfileLibraryService
@@ -758,7 +789,7 @@ async def upload_step_audio(
             loop = asyncio.get_event_loop()
             audio_numpy = await loop.run_in_executor(
                 None,
-                lambda: audio_bytes_to_numpy(audio_bytes)
+                lambda: audio_bytes_to_numpy(audio_to_process)
             )
 
             noisy_audio = await loop.run_in_executor(
@@ -822,6 +853,7 @@ async def upload_step_audio(
         "original_format": original_format,
         "stt_confidence": stt_confidence,
         "noise_applied": noise_applied,
+        "normalization_applied": normalization_applied,
     }
 
     try:
@@ -875,6 +907,14 @@ async def upload_step_audio(
             category=noise_applied.get("category")
         )
 
+    # Build normalization_applied response if normalization was applied
+    normalization_applied_response = None
+    if normalization_applied:
+        normalization_applied_response = NormalizationAppliedInfo(
+            type=normalization_applied["type"],
+            target_db=normalization_applied["target_db"]
+        )
+
     return StepAudioUploadResponse(
         s3_key=s3_key,
         transcription=transcription,
@@ -882,7 +922,214 @@ async def upload_step_audio(
         original_format=original_format,
         stt_confidence=stt_confidence,
         language_code=language_code,
-        noise_applied=noise_applied_response
+        noise_applied=noise_applied_response,
+        normalization_applied=normalization_applied_response
+    )
+
+
+@router.post(
+    "/{scenario_id}/steps/{step_id}/audio/batch",
+    response_model=BatchAudioUploadResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Batch upload audio for step",
+    description="Upload multiple audio files for different language variants in a single request"
+)
+async def batch_upload_step_audio(
+    scenario_id: UUID,
+    step_id: UUID,
+    files: List[UploadFile] = File(..., description="Audio files (each named with language code, e.g., 'en-US.mp3')"),
+    normalize: bool = Query(False, description="Apply peak normalization to all audio files"),
+    normalize_target_db: float = Query(-3.0, ge=-20, le=0, description="Target peak level in dB for normalization"),
+    db: Annotated[AsyncSession, Depends(get_db)] = None,
+    current_user: Annotated[UserResponse, Depends(get_current_user_with_db)] = None,
+) -> BatchAudioUploadResponse:
+    """
+    Batch upload multiple audio files for a scenario step.
+
+    Each file should be named with the language code (e.g., 'en-US.mp3', 'es-ES.wav').
+    The language code is extracted from the filename.
+
+    Workflow for each file:
+    1. Extract language code from filename
+    2. Validate audio format
+    3. Transcribe with local Whisper
+    4. Optionally apply normalization
+    5. Store in S3/MinIO
+    6. Update step metadata
+
+    Args:
+        scenario_id: Scenario UUID
+        step_id: Step UUID
+        files: List of audio files to upload
+        normalize: Whether to apply peak normalization to all files
+        normalize_target_db: Target peak level in dB for normalization
+        db: Database session
+        current_user: Authenticated user
+
+    Returns:
+        Batch upload response with results for each file
+
+    Raises:
+        HTTPException: 403 if user lacks required role
+        HTTPException: 404 if scenario/step not found
+    """
+    _ensure_can_mutate_scenario(current_user)
+    tenant_id = _get_effective_tenant_id(current_user)
+
+    # Verify scenario and step exist
+    scenario = await scenario_service.get(
+        db=db, scenario_id=scenario_id, tenant_id=tenant_id
+    )
+    if not scenario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Scenario {scenario_id} not found"
+        )
+
+    step = await scenario_service.get_step(
+        db=db, step_id=step_id, scenario_id=scenario_id, tenant_id=tenant_id
+    )
+    if not step:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Step {step_id} not found in scenario {scenario_id}"
+        )
+
+    results: List[BatchAudioUploadResult] = []
+    successful = 0
+    failed = 0
+
+    for file in files:
+        # Extract language code from filename (e.g., 'en-US.mp3' -> 'en-US')
+        filename = file.filename or "unknown.mp3"
+        name_without_ext = filename.rsplit(".", 1)[0] if "." in filename else filename
+        language_code = name_without_ext
+
+        try:
+            # Validate content type
+            if file.content_type not in SUPPORTED_AUDIO_FORMATS:
+                raise ValueError(f"Unsupported format: {file.content_type}")
+
+            # Read audio data
+            audio_bytes = await file.read()
+
+            # Validate audio
+            from services.audio_utils import validate_audio_format, get_audio_duration, normalize_audio_peak
+            if not validate_audio_format(audio_bytes):
+                raise ValueError("Invalid audio data - could not decode")
+
+            duration_seconds = get_audio_duration(audio_bytes)
+            duration_ms = int(duration_seconds * 1000)
+
+            # Apply normalization if requested
+            normalization_applied = None
+            audio_to_process = audio_bytes
+            if normalize:
+                try:
+                    loop = asyncio.get_event_loop()
+                    audio_to_process = await loop.run_in_executor(
+                        None,
+                        lambda ab=audio_bytes: normalize_audio_peak(ab, target_db=normalize_target_db)
+                    )
+                    normalization_applied = {
+                        "type": "peak",
+                        "target_db": normalize_target_db,
+                    }
+                except Exception as e:
+                    logger.warning(f"Normalization failed for {filename}: {e}")
+                    audio_to_process = audio_bytes
+
+            # Transcribe with Whisper
+            from services.stt_service import get_stt_service
+            stt = get_stt_service()
+            loop = asyncio.get_event_loop()
+            lang_short = language_code.split("-")[0]
+            result = await loop.run_in_executor(
+                None,
+                lambda: stt.transcribe(audio_to_process, language=lang_short)
+            )
+            transcription = result.text
+            stt_confidence = result.language_probability
+
+            # Determine format
+            ext = "." + filename.rsplit(".", 1)[-1].lower() if "." in filename else ".mp3"
+            format_map = {
+                "audio/mpeg": "mp3",
+                "audio/mp3": "mp3",
+                "audio/wav": "wav",
+                "audio/ogg": "ogg",
+                "audio/flac": "flac",
+            }
+            original_format = format_map.get(file.content_type, ext.lstrip(".") or "mp3")
+
+            # Generate S3 key and upload
+            s3_key = f"scenarios/{scenario_id}/steps/{step_id}/audio-{language_code}.{original_format}"
+
+            from services.storage_service import get_storage_service
+            storage = get_storage_service()
+            await storage.upload_audio(
+                key=s3_key,
+                audio_data=audio_to_process,
+                content_type=file.content_type or "audio/mpeg"
+            )
+
+            # Update step metadata
+            uploaded_audio_info = {
+                "s3_key": s3_key,
+                "transcription": transcription,
+                "duration_ms": duration_ms,
+                "original_format": original_format,
+                "stt_confidence": stt_confidence,
+                "normalization_applied": normalization_applied,
+            }
+
+            await scenario_service.update_step_audio(
+                db=db,
+                step_id=step_id,
+                language_code=language_code,
+                audio_info=uploaded_audio_info,
+                tenant_id=tenant_id
+            )
+
+            # Build response
+            normalization_response = None
+            if normalization_applied:
+                normalization_response = NormalizationAppliedInfo(
+                    type=normalization_applied["type"],
+                    target_db=normalization_applied["target_db"]
+                )
+
+            results.append(BatchAudioUploadResult(
+                language_code=language_code,
+                success=True,
+                data=StepAudioUploadResponse(
+                    s3_key=s3_key,
+                    transcription=transcription,
+                    duration_ms=duration_ms,
+                    original_format=original_format,
+                    stt_confidence=stt_confidence,
+                    language_code=language_code,
+                    normalization_applied=normalization_response
+                ),
+                error=None
+            ))
+            successful += 1
+
+        except Exception as e:
+            logger.error(f"Batch upload failed for {filename}: {e}")
+            results.append(BatchAudioUploadResult(
+                language_code=language_code,
+                success=False,
+                data=None,
+                error=str(e)
+            ))
+            failed += 1
+
+    return BatchAudioUploadResponse(
+        total=len(files),
+        successful=successful,
+        failed=failed,
+        results=results
     )
 
 

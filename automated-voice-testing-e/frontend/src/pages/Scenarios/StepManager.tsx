@@ -48,6 +48,11 @@ export interface NoiseAppliedInfo {
   category?: string;
 }
 
+export interface NormalizationAppliedInfo {
+  type: string;
+  target_db: number;
+}
+
 export interface NoiseProfile {
   name: string;
   category: string;
@@ -64,6 +69,7 @@ export interface UploadedAudioInfo {
   stt_confidence: number;
   language_code: string;
   noise_applied?: NoiseAppliedInfo;
+  normalization_applied?: NormalizationAppliedInfo;
 }
 
 export interface ScenarioStepData {
@@ -273,6 +279,28 @@ const AudioPlayerCard: React.FC<{
         </p>
       </div>
 
+      {/* Normalization Applied Indicator */}
+      {audioInfo.normalization_applied && (
+        <div className="p-3 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 rounded-lg border border-purple-500/20">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Volume2 size={14} className="text-purple-500" />
+              <span className="text-xs font-medium text-purple-600 uppercase tracking-wide">
+                Normalized
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-[var(--color-content-secondary)]">
+                Peak normalization
+              </span>
+              <span className="text-xs font-mono px-2 py-0.5 bg-purple-500/20 text-purple-600 rounded">
+                {audioInfo.normalization_applied.target_db.toFixed(1)} dB
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Noise Applied Indicator */}
       {audioInfo.noise_applied && (
         <div className="p-3 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-lg border border-amber-500/20">
@@ -466,6 +494,9 @@ export const StepManager: React.FC<StepManagerProps> = ({
   const [previewLoading, setPreviewLoading] = useState<Record<string, boolean>>({});
   const [previewPlaying, setPreviewPlaying] = useState<Record<string, boolean>>({});
   const previewAudioRef = useRef<Record<string, HTMLAudioElement | null>>({});
+  const [normalizeConfig, setNormalizeConfig] = useState<Record<string, { enabled: boolean; target_db: number }>>({});
+  const [batchUploading, setBatchUploading] = useState<Record<string, boolean>>({});
+  const [batchNormalizeEnabled, setBatchNormalizeEnabled] = useState<Record<string, boolean>>({});
 
   // Fetch noise profiles on mount
   useEffect(() => {
@@ -589,8 +620,15 @@ export const StepManager: React.FC<StepManagerProps> = ({
       const formData = new FormData();
       formData.append('file', file);
 
+      // Build query params including normalization settings
+      const normConfig = normalizeConfig[uploadKey] || { enabled: false, target_db: -3.0 };
+      let queryParams = `language_code=${langCode}`;
+      if (normConfig.enabled) {
+        queryParams += `&normalize=true&normalize_target_db=${normConfig.target_db}`;
+      }
+
       const response = await apiClient.post<{ success: boolean; data: UploadedAudioInfo }>(
-        `/scenarios/${scenarioId}/steps/${step.id}/audio?language_code=${langCode}`,
+        `/scenarios/${scenarioId}/steps/${step.id}/audio?${queryParams}`,
         formData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
@@ -632,7 +670,7 @@ export const StepManager: React.FC<StepManagerProps> = ({
       const updatedMetadata = {
         ...step.step_metadata,
         uploaded_audio: Object.keys(uploadedAudio).length > 0 ? uploadedAudio : undefined,
-        audio_source: Object.keys(uploadedAudio).length > 0 ? 'uploaded' : 'tts',
+        audio_source: (Object.keys(uploadedAudio).length > 0 ? 'uploaded' : 'tts') as 'tts' | 'uploaded',
       };
 
       updateStep(stepIndex, { step_metadata: updatedMetadata });
@@ -760,6 +798,91 @@ export const StepManager: React.FC<StepManagerProps> = ({
       audio.currentTime = 0;
     }
     setPreviewPlaying({ ...previewPlaying, [configKey]: false });
+  };
+
+  // Batch upload handler
+  const handleBatchUpload = async (stepIndex: number, files: FileList) => {
+    const step = steps[stepIndex];
+    const batchKey = `batch-${stepIndex}`;
+
+    if (!scenarioId || !step.id) {
+      setUploadErrors({
+        ...uploadErrors,
+        [batchKey]: 'Please save the scenario first before uploading audio',
+      });
+      return;
+    }
+
+    setBatchUploading({ ...batchUploading, [batchKey]: true });
+    setUploadErrors({ ...uploadErrors, [batchKey]: '' });
+
+    try {
+      const formData = new FormData();
+      Array.from(files).forEach((file) => {
+        formData.append('files', file);
+      });
+
+      // Build query params including normalization settings
+      const normalizeEnabled = batchNormalizeEnabled[batchKey] || false;
+      let queryParams = '';
+      if (normalizeEnabled) {
+        queryParams = '?normalize=true&normalize_target_db=-3.0';
+      }
+
+      const response = await apiClient.post<{
+        success: boolean;
+        data: {
+          total: number;
+          successful: number;
+          failed: number;
+          results: Array<{
+            language_code: string;
+            success: boolean;
+            data?: UploadedAudioInfo;
+            error?: string;
+          }>;
+        };
+      }>(
+        `/scenarios/${scenarioId}/steps/${step.id}/audio/batch${queryParams}`,
+        formData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+
+      const { results } = response.data.data;
+
+      // Update step metadata with successful uploads
+      const uploadedAudio = { ...step.step_metadata?.uploaded_audio };
+      results.forEach((result) => {
+        if (result.success && result.data) {
+          uploadedAudio[result.language_code] = result.data;
+        }
+      });
+
+      const updatedMetadata = {
+        ...step.step_metadata,
+        audio_source: 'uploaded' as const,
+        uploaded_audio: uploadedAudio,
+      };
+
+      updateStep(stepIndex, { step_metadata: updatedMetadata });
+
+      // Show error if any failed
+      const failedResults = results.filter((r) => !r.success);
+      if (failedResults.length > 0) {
+        setUploadErrors({
+          ...uploadErrors,
+          [batchKey]: `${failedResults.length} file(s) failed: ${failedResults.map((r) => r.error).join(', ')}`,
+        });
+      }
+    } catch (error: any) {
+      console.error('Batch upload failed:', error);
+      setUploadErrors({
+        ...uploadErrors,
+        [batchKey]: error.response?.data?.detail || 'Failed to upload audio files',
+      });
+    } finally {
+      setBatchUploading({ ...batchUploading, [batchKey]: false });
+    }
   };
 
   // Noise Config Panel Component
@@ -949,6 +1072,78 @@ export const StepManager: React.FC<StepManagerProps> = ({
         </div>
 
         <div className="p-4 space-y-4">
+          {/* Batch Upload Section */}
+          {canUpload && variants.length > 1 && (
+            <div className="p-3 bg-gradient-to-r from-indigo-500/5 to-purple-500/5 rounded-lg border border-indigo-500/20">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <CloudUpload size={16} className="text-indigo-500" />
+                  <span className="text-sm font-medium text-[var(--color-content-primary)]">
+                    Batch Upload
+                  </span>
+                  <span className="text-xs text-[var(--color-content-muted)]">
+                    (Name files with language codes, e.g., en-US.mp3)
+                  </span>
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={batchNormalizeEnabled[`batch-${stepIndex}`] || false}
+                    onChange={(e) => {
+                      setBatchNormalizeEnabled({
+                        ...batchNormalizeEnabled,
+                        [`batch-${stepIndex}`]: e.target.checked,
+                      });
+                    }}
+                    className="w-4 h-4 rounded border-[var(--color-border-default)] accent-purple-500"
+                  />
+                  <span className="text-xs text-[var(--color-content-secondary)]">Normalize all</span>
+                </label>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="file"
+                  accept="audio/*"
+                  multiple
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      handleBatchUpload(stepIndex, e.target.files);
+                      e.target.value = '';
+                    }
+                  }}
+                  disabled={batchUploading[`batch-${stepIndex}`]}
+                  className="hidden"
+                  id={`batch-upload-${stepIndex}`}
+                />
+                <label
+                  htmlFor={`batch-upload-${stepIndex}`}
+                  className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white text-sm font-medium rounded-lg cursor-pointer hover:from-indigo-600 hover:to-purple-600 transition-all ${
+                    batchUploading[`batch-${stepIndex}`] ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {batchUploading[`batch-${stepIndex}`] ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Upload size={14} />
+                      Select Multiple Files
+                    </>
+                  )}
+                </label>
+              </div>
+              {uploadErrors[`batch-${stepIndex}`] && (
+                <div className="flex items-center gap-2 mt-2 text-sm text-[var(--color-status-danger)]">
+                  <AlertCircle size={14} />
+                  {uploadErrors[`batch-${stepIndex}`]}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Individual Language Uploads */}
           {variants.map((variant) => {
             const langCode = variant.language_code;
             const uploadKey = getUploadKey(stepIndex, langCode);
@@ -1001,13 +1196,71 @@ export const StepManager: React.FC<StepManagerProps> = ({
                     )}
                   </>
                 ) : (
-                  <AudioUploadZone
-                    onUpload={(file) => handleAudioUpload(stepIndex, langCode, file)}
-                    isUploading={isUploading}
-                    uploadProgress={progress}
-                    disabled={!canUpload}
-                    disabledMessage="Save scenario first to enable audio upload"
-                  />
+                  <div className="space-y-3">
+                    {/* Normalization Toggle */}
+                    <div className="p-3 bg-[var(--color-surface-inset)]/50 rounded-lg border border-[var(--color-border-default)]">
+                      <div className="flex items-center justify-between">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={normalizeConfig[uploadKey]?.enabled || false}
+                            onChange={(e) => {
+                              setNormalizeConfig({
+                                ...normalizeConfig,
+                                [uploadKey]: {
+                                  enabled: e.target.checked,
+                                  target_db: normalizeConfig[uploadKey]?.target_db || -3.0,
+                                },
+                              });
+                            }}
+                            className="w-4 h-4 rounded border-[var(--color-border-default)] accent-purple-500"
+                          />
+                          <div className="flex items-center gap-1.5">
+                            <Volume2 size={14} className="text-purple-500" />
+                            <span className="text-sm text-[var(--color-content-secondary)]">
+                              Normalize audio volume
+                            </span>
+                          </div>
+                        </label>
+                        {normalizeConfig[uploadKey]?.enabled && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-[var(--color-content-muted)]">Target:</span>
+                            <select
+                              value={normalizeConfig[uploadKey]?.target_db || -3.0}
+                              onChange={(e) => {
+                                setNormalizeConfig({
+                                  ...normalizeConfig,
+                                  [uploadKey]: {
+                                    enabled: true,
+                                    target_db: parseFloat(e.target.value),
+                                  },
+                                });
+                              }}
+                              className="px-2 py-1 text-xs bg-[var(--color-surface-raised)] border border-[var(--color-border-default)] rounded text-[var(--color-content-primary)]"
+                            >
+                              <option value={0}>0 dB (Max)</option>
+                              <option value={-3}>-3 dB (Recommended)</option>
+                              <option value={-6}>-6 dB (Conservative)</option>
+                              <option value={-12}>-12 dB (Quiet)</option>
+                            </select>
+                          </div>
+                        )}
+                      </div>
+                      {normalizeConfig[uploadKey]?.enabled && (
+                        <p className="text-xs text-[var(--color-content-muted)] mt-2 ml-6">
+                          Peak normalization scales audio to consistent volume levels
+                        </p>
+                      )}
+                    </div>
+
+                    <AudioUploadZone
+                      onUpload={(file) => handleAudioUpload(stepIndex, langCode, file)}
+                      isUploading={isUploading}
+                      uploadProgress={progress}
+                      disabled={!canUpload}
+                      disabledMessage="Save scenario first to enable audio upload"
+                    />
+                  </div>
                 )}
 
                 {error && (

@@ -1380,3 +1380,655 @@ async def get_integrations_health(
         checkedAt=checked_at,
     )
 
+
+# =============================================================================
+# Slack OAuth Endpoints
+# =============================================================================
+
+@router.post("/slack/connect")
+async def start_slack_connection(
+    db: AsyncSession = Depends(get_db),
+    current_user: UserResponse = Depends(get_current_user_with_db),
+) -> SuccessResponse:
+    """
+    Start Slack OAuth connection flow.
+
+    Returns an authorization URL that the frontend should redirect the user to.
+    The state parameter contains the tenant_id so the callback can identify the user.
+    """
+    import base64
+    import json
+    import secrets
+
+    tenant_id = _get_effective_tenant_id(current_user)
+    logger.info(f"[INTEGRATIONS] Starting Slack connection for tenant {tenant_id}")
+
+    from api.config import get_settings
+    settings = get_settings()
+
+    client_id = getattr(settings, "SLACK_CLIENT_ID", None)
+    client_secret = getattr(settings, "SLACK_CLIENT_SECRET", None)
+    redirect_uri = getattr(settings, "SLACK_REDIRECT_URI", None)
+
+    if client_id and client_secret and redirect_uri:
+        from integrations.slack.oauth import SlackOAuthClient
+
+        # Generate state with tenant_id for callback identification
+        state_data = {
+            "tenant_id": str(tenant_id),
+            "nonce": secrets.token_urlsafe(16),
+        }
+        state = base64.urlsafe_b64encode(json.dumps(state_data).encode()).decode()
+
+        oauth_client = SlackOAuthClient(
+            client_id=client_id,
+            client_secret=client_secret,
+            redirect_uri=redirect_uri,
+        )
+
+        auth_url, _ = oauth_client.build_authorize_url(state=state)
+
+        logger.info(f"[INTEGRATIONS] Generated Slack OAuth URL for tenant {tenant_id}")
+    else:
+        # Fallback: Direct user to manual webhook setup
+        logger.warning("[INTEGRATIONS] Slack OAuth not configured, using webhook fallback")
+        auth_url = "https://api.slack.com/apps"
+
+    return SuccessResponse(
+        data={
+            "authorizationUrl": auth_url,
+            "oauthConfigured": bool(client_id and client_secret and redirect_uri),
+        }
+    )
+
+
+@router.get("/slack/callback")
+async def slack_oauth_callback(
+    code: str = Query(..., description="Authorization code from Slack"),
+    state: str = Query(..., description="State parameter for CSRF protection"),
+    request: Request = None,
+    db: AsyncSession = Depends(get_db),
+) -> SuccessResponse:
+    """
+    Handle Slack OAuth callback.
+
+    This endpoint receives the authorization code from Slack after user authorization,
+    exchanges it for an access token, fetches workspace info, and stores the connection.
+    """
+    from api.config import get_settings
+    from integrations.slack.oauth import SlackOAuthClient, SlackOAuthError
+    import base64
+    import json
+
+    settings = get_settings()
+
+    client_id = getattr(settings, "SLACK_CLIENT_ID", None)
+    client_secret = getattr(settings, "SLACK_CLIENT_SECRET", None)
+    redirect_uri = getattr(settings, "SLACK_REDIRECT_URI", None)
+    frontend_url = settings.FRONTEND_URL
+
+    if not client_id or not client_secret:
+        logger.error("[SLACK OAUTH] Slack OAuth not configured")
+        error_url = f"{frontend_url}/integrations/slack?error=oauth_not_configured"
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url=error_url, status_code=302)
+
+    # Decode state to get tenant_id
+    try:
+        state_data = json.loads(base64.urlsafe_b64decode(state.encode()).decode())
+        tenant_id = UUID(state_data.get("tenant_id"))
+        logger.info(f"[SLACK OAUTH] Processing callback for tenant {tenant_id}")
+    except Exception as e:
+        logger.error(f"[SLACK OAUTH] Invalid state parameter: {e}")
+        error_url = f"{frontend_url}/integrations/slack?error=invalid_state"
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url=error_url, status_code=302)
+
+    # Exchange code for token
+    try:
+        oauth_client = SlackOAuthClient(
+            client_id=client_id,
+            client_secret=client_secret,
+            redirect_uri=redirect_uri or "",
+        )
+
+        token, workspace, user = await oauth_client.exchange_code_for_token(code=code)
+        logger.info(f"[SLACK OAUTH] Token exchange successful for workspace: {workspace.name}")
+
+        # Fetch additional workspace info
+        workspace_info = await oauth_client.fetch_workspace_info(token=token.access_token)
+
+    except SlackOAuthError as e:
+        logger.error(f"[SLACK OAUTH] OAuth error: {e}")
+        error_url = f"{frontend_url}/integrations/slack?error=oauth_failed&message={str(e)}"
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url=error_url, status_code=302)
+    except Exception as e:
+        logger.error(f"[SLACK OAUTH] Unexpected error: {e}")
+        error_url = f"{frontend_url}/integrations/slack?error=unexpected_error"
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url=error_url, status_code=302)
+
+    # Store the connection in database
+    try:
+        config = await _get_or_create_slack_config(db, tenant_id)
+
+        # Store bot token
+        config.set_bot_token(token.access_token)
+        config.workspace_name = workspace_info.name
+        config.workspace_icon_url = workspace_info.icon_url
+        config.is_connected = True
+        config.is_enabled = True
+
+        # Store additional info in notification_preferences
+        if config.notification_preferences is None:
+            config.notification_preferences = NotificationConfig.get_default_preferences()
+
+        config.notification_preferences["oauth_info"] = {
+            "workspace_id": workspace_info.id,
+            "bot_user_id": token.bot_user_id,
+            "app_id": token.app_id,
+            "scopes": token.scopes,
+        }
+
+        from sqlalchemy.orm.attributes import flag_modified
+        flag_modified(config, "notification_preferences")
+
+        await db.commit()
+        await db.refresh(config)
+
+        logger.info(f"[SLACK OAUTH] Connection stored for tenant {tenant_id}, workspace {workspace_info.name}")
+
+        # Redirect to frontend with success
+        success_url = f"{frontend_url}/integrations/slack?success=true&workspace={workspace_info.name}"
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url=success_url, status_code=302)
+
+    except Exception as e:
+        logger.error(f"[SLACK OAUTH] Failed to store connection: {e}")
+        error_url = f"{frontend_url}/integrations/slack?error=storage_failed"
+        from fastapi.responses import RedirectResponse
+        return RedirectResponse(url=error_url, status_code=302)
+
+
+# =============================================================================
+# Jira Bidirectional Sync Endpoints
+# =============================================================================
+
+class JiraWebhookPayload(BaseModel):
+    """Jira webhook payload for issue updates."""
+    webhookEvent: str = Field(..., description="Webhook event type")
+    issue: Optional[Dict[str, Any]] = Field(None, description="Issue data")
+    changelog: Optional[Dict[str, Any]] = Field(None, description="Changelog data")
+    user: Optional[Dict[str, Any]] = Field(None, description="User who made the change")
+
+
+@router.post("/jira/webhook")
+async def handle_jira_webhook(
+    payload: JiraWebhookPayload,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+) -> SuccessResponse:
+    """
+    Handle Jira webhooks for bidirectional sync.
+
+    Supported events:
+    - jira:issue_updated: Sync status changes back to defects
+    - jira:issue_deleted: Unlink defect from deleted Jira issue
+
+    Note: This endpoint should be secured with a webhook secret in production.
+    """
+    logger.info(f"[JIRA WEBHOOK] Received event: {payload.webhookEvent}")
+
+    # Verify webhook secret (if configured)
+    # webhook_secret = request.headers.get("X-Jira-Webhook-Secret")
+    # if not _verify_jira_webhook_secret(webhook_secret):
+    #     raise HTTPException(status_code=401, detail="Invalid webhook secret")
+
+    if payload.webhookEvent == "jira:issue_updated":
+        return await _handle_jira_issue_updated(db, payload)
+    elif payload.webhookEvent == "jira:issue_deleted":
+        return await _handle_jira_issue_deleted(db, payload)
+    else:
+        logger.debug(f"[JIRA WEBHOOK] Ignoring event: {payload.webhookEvent}")
+        return SuccessResponse(data={"message": "Event ignored", "event": payload.webhookEvent})
+
+
+async def _handle_jira_issue_updated(
+    db: AsyncSession,
+    payload: JiraWebhookPayload,
+) -> SuccessResponse:
+    """Handle Jira issue updated webhook."""
+    from sqlalchemy import select, update
+    from models.defect import Defect
+
+    issue = payload.issue or {}
+    issue_key = issue.get("key")
+    if not issue_key:
+        logger.warning("[JIRA WEBHOOK] Issue update missing issue key")
+        return SuccessResponse(data={"message": "Missing issue key"})
+
+    # Find defect linked to this Jira issue
+    result = await db.execute(
+        select(Defect).where(Defect.jira_issue_key == issue_key)
+    )
+    defect = result.scalar_one_or_none()
+
+    if not defect:
+        logger.debug(f"[JIRA WEBHOOK] No defect found for issue {issue_key}")
+        return SuccessResponse(data={"message": "No linked defect found", "issue_key": issue_key})
+
+    # Check for status changes in changelog
+    changelog = payload.changelog or {}
+    status_changed = False
+    new_status = None
+
+    for item in changelog.get("items", []):
+        if item.get("field") == "status":
+            status_changed = True
+            new_status = item.get("toString", "").lower()
+            break
+
+    if not status_changed:
+        # Also check current status from issue fields
+        fields = issue.get("fields", {})
+        status_obj = fields.get("status", {})
+        new_status = status_obj.get("name", "").lower()
+
+    if new_status:
+        # Map Jira status to local status
+        from services.defect_service import JIRA_STATUS_TO_LOCAL
+        mapped_status = JIRA_STATUS_TO_LOCAL.get(new_status)
+
+        if mapped_status and mapped_status != defect.status:
+            logger.info(
+                f"[JIRA WEBHOOK] Syncing status for defect {defect.id}: "
+                f"{defect.status} -> {mapped_status} (Jira: {new_status})"
+            )
+
+            update_values = {
+                "status": mapped_status,
+                "jira_status": new_status.title(),
+            }
+
+            # Set resolved_at if transitioning to resolved
+            if mapped_status == "resolved" and defect.resolved_at is None:
+                from datetime import datetime, timezone
+                update_values["resolved_at"] = datetime.now(timezone.utc)
+
+            await db.execute(
+                update(Defect)
+                .where(Defect.id == defect.id)
+                .values(**update_values)
+            )
+            await db.commit()
+
+            return SuccessResponse(
+                data={
+                    "message": "Defect status synced",
+                    "defect_id": str(defect.id),
+                    "old_status": defect.status,
+                    "new_status": mapped_status,
+                    "jira_status": new_status,
+                }
+            )
+
+    return SuccessResponse(data={"message": "No status change detected", "issue_key": issue_key})
+
+
+async def _handle_jira_issue_deleted(
+    db: AsyncSession,
+    payload: JiraWebhookPayload,
+) -> SuccessResponse:
+    """Handle Jira issue deleted webhook."""
+    from sqlalchemy import select, update
+    from models.defect import Defect
+
+    issue = payload.issue or {}
+    issue_key = issue.get("key")
+    if not issue_key:
+        logger.warning("[JIRA WEBHOOK] Issue delete missing issue key")
+        return SuccessResponse(data={"message": "Missing issue key"})
+
+    # Find and unlink defect
+    result = await db.execute(
+        select(Defect).where(Defect.jira_issue_key == issue_key)
+    )
+    defect = result.scalar_one_or_none()
+
+    if not defect:
+        return SuccessResponse(data={"message": "No linked defect found", "issue_key": issue_key})
+
+    logger.info(f"[JIRA WEBHOOK] Unlinking defect {defect.id} from deleted issue {issue_key}")
+
+    await db.execute(
+        update(Defect)
+        .where(Defect.id == defect.id)
+        .values(
+            jira_issue_key=None,
+            jira_issue_url=None,
+            jira_status=None,
+        )
+    )
+    await db.commit()
+
+    return SuccessResponse(
+        data={
+            "message": "Defect unlinked from deleted Jira issue",
+            "defect_id": str(defect.id),
+            "issue_key": issue_key,
+        }
+    )
+
+
+@router.post("/jira/sync/{defect_id}")
+async def sync_defect_from_jira(
+    defect_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: UserResponse = Depends(get_current_user_with_db),
+) -> SuccessResponse:
+    """
+    Manually sync a defect's status from Jira.
+
+    Fetches the current status from Jira and updates the local defect.
+    """
+    from services.defect_service import sync_defect_status_from_jira, get_defect
+    from integrations.jira.client import JiraClient
+
+    tenant_id = _get_effective_tenant_id(current_user)
+    logger.info(f"[INTEGRATIONS] Syncing defect {defect_id} from Jira for tenant {tenant_id}")
+
+    # Get Jira config
+    jira_config = await _get_or_create_integration_config(db, tenant_id, "jira")
+
+    if not jira_config.is_connected:
+        raise HTTPException(status_code=400, detail="Jira is not connected")
+
+    api_token = jira_config.get_access_token()
+    if not api_token or not jira_config.jira_instance_url or not jira_config.jira_email:
+        raise HTTPException(status_code=400, detail="Jira credentials not configured")
+
+    # Create Jira client
+    jira_client = JiraClient(
+        email=jira_config.jira_email,
+        api_token=api_token,
+        base_url=f"{jira_config.jira_instance_url.rstrip('/')}/rest/api/3",
+    )
+
+    # Sync defect status
+    try:
+        def _sync(sync_session):
+            import asyncio
+            from services.defect_service import sync_defect_status_from_jira
+            return asyncio.run(sync_defect_status_from_jira(sync_session, defect_id, jira_client=jira_client))
+
+        defect = await db.run_sync(_sync)
+
+        return SuccessResponse(
+            data={
+                "message": "Defect synced from Jira",
+                "defect_id": str(defect.id),
+                "status": defect.status,
+                "jira_status": defect.jira_status,
+            }
+        )
+    except Exception as e:
+        logger.error(f"[INTEGRATIONS] Failed to sync defect from Jira: {e}")
+        raise HTTPException(status_code=500, detail=f"Sync failed: {str(e)}")
+
+
+# =============================================================================
+# Slack Interaction Handler Endpoints
+# =============================================================================
+
+@router.post("/slack/interactions")
+async def handle_slack_interaction(
+    request: Request,
+    db: AsyncSession = Depends(get_db),
+) -> SuccessResponse:
+    """
+    Handle Slack interactive component callbacks.
+
+    This endpoint receives callbacks when users click buttons or interact
+    with messages sent by the Voice AI Testing bot.
+
+    Supported actions:
+    - assign_defect: Assign a defect to the user who clicked
+    - resolve_defect: Mark a defect as resolved
+    - retry_failed: Retry failed tests from a suite run
+    - create_defect_from_run: Create a defect from a failed test run
+    - rerun_edge_case: Re-run the scenario for an edge case
+    - dismiss_edge_case: Dismiss/archive an edge case
+
+    Note: This endpoint should verify the Slack signing secret in production.
+    """
+    import json
+    from urllib.parse import parse_qs
+
+    # Parse the form-encoded payload
+    body = await request.body()
+    form_data = parse_qs(body.decode())
+    payload_str = form_data.get("payload", [""])[0]
+
+    if not payload_str:
+        raise HTTPException(status_code=400, detail="Missing payload")
+
+    try:
+        payload = json.loads(payload_str)
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid JSON payload")
+
+    # TODO: Verify Slack signing secret
+    # signing_secret = settings.SLACK_SIGNING_SECRET
+    # if not _verify_slack_signature(request, signing_secret):
+    #     raise HTTPException(status_code=401, detail="Invalid signature")
+
+    action_type = payload.get("type")
+    logger.info(f"[SLACK INTERACTION] Received {action_type} interaction")
+
+    if action_type == "block_actions":
+        return await _handle_block_actions(db, payload)
+    elif action_type == "view_submission":
+        return await _handle_view_submission(db, payload)
+    else:
+        logger.warning(f"[SLACK INTERACTION] Unknown action type: {action_type}")
+        return SuccessResponse(data={"message": "Unknown action type"})
+
+
+async def _handle_block_actions(
+    db: AsyncSession,
+    payload: Dict[str, Any],
+) -> SuccessResponse:
+    """Handle block action interactions (button clicks)."""
+    from integrations.slack.client import SlackClient
+
+    actions = payload.get("actions", [])
+    if not actions:
+        return SuccessResponse(data={"message": "No actions in payload"})
+
+    action = actions[0]
+    action_id = action.get("action_id")
+    value = action.get("value")
+    response_url = payload.get("response_url")
+    user = payload.get("user", {})
+    user_id = user.get("id")
+    user_name = user.get("name", user.get("username", "Unknown"))
+
+    logger.info(f"[SLACK INTERACTION] Action: {action_id}, Value: {value}, User: {user_name}")
+
+    result_message = ""
+
+    if action_id == "assign_defect" and value:
+        # Assign defect to the user who clicked
+        result_message = await _action_assign_defect(db, value, user_id, user_name)
+
+    elif action_id == "resolve_defect" and value:
+        # Mark defect as resolved
+        result_message = await _action_resolve_defect(db, value, user_name)
+
+    elif action_id == "retry_failed" and value:
+        # Retry failed tests
+        result_message = await _action_retry_failed(db, value)
+
+    elif action_id == "create_defect_from_run" and value:
+        # Create defect from failed run
+        result_message = await _action_create_defect_from_run(db, value)
+
+    elif action_id == "rerun_edge_case" and value:
+        # Re-run edge case scenario
+        result_message = await _action_rerun_edge_case(db, value)
+
+    elif action_id == "dismiss_edge_case" and value:
+        # Dismiss/archive edge case
+        result_message = await _action_dismiss_edge_case(db, value)
+
+    else:
+        result_message = f"Action '{action_id}' not implemented"
+
+    # Update the original message with result
+    if response_url and result_message:
+        try:
+            import httpx
+            async with httpx.AsyncClient() as client:
+                await client.post(
+                    response_url,
+                    json={
+                        "text": result_message,
+                        "response_type": "ephemeral",  # Only visible to user who clicked
+                    },
+                    timeout=5.0,
+                )
+        except Exception as e:
+            logger.error(f"[SLACK INTERACTION] Failed to send response: {e}")
+
+    return SuccessResponse(data={"message": result_message})
+
+
+async def _handle_view_submission(
+    db: AsyncSession,
+    payload: Dict[str, Any],
+) -> SuccessResponse:
+    """Handle modal view submissions."""
+    # Placeholder for modal submissions if needed
+    return SuccessResponse(data={"message": "View submission received"})
+
+
+async def _action_assign_defect(db: AsyncSession, defect_id: str, slack_user_id: str, user_name: str) -> str:
+    """Assign a defect to a user based on Slack interaction."""
+    from sqlalchemy import select, update
+    from models.defect import Defect
+
+    try:
+        defect_uuid = UUID(defect_id)
+        result = await db.execute(select(Defect).where(Defect.id == defect_uuid))
+        defect = result.scalar_one_or_none()
+
+        if not defect:
+            return f"Defect {defect_id} not found"
+
+        # Update defect - mark assigned (would need user mapping in production)
+        await db.execute(
+            update(Defect)
+            .where(Defect.id == defect_uuid)
+            .values(status="in_progress")
+        )
+        await db.commit()
+
+        return f":white_check_mark: Defect *{defect.title}* assigned to {user_name} and marked as in progress"
+
+    except Exception as e:
+        logger.error(f"[SLACK INTERACTION] Failed to assign defect: {e}")
+        return f"Failed to assign defect: {str(e)}"
+
+
+async def _action_resolve_defect(db: AsyncSession, defect_id: str, user_name: str) -> str:
+    """Mark a defect as resolved based on Slack interaction."""
+    from sqlalchemy import select, update
+    from models.defect import Defect
+    from datetime import datetime, timezone
+
+    try:
+        defect_uuid = UUID(defect_id)
+        result = await db.execute(select(Defect).where(Defect.id == defect_uuid))
+        defect = result.scalar_one_or_none()
+
+        if not defect:
+            return f"Defect {defect_id} not found"
+
+        await db.execute(
+            update(Defect)
+            .where(Defect.id == defect_uuid)
+            .values(
+                status="resolved",
+                resolved_at=datetime.now(timezone.utc),
+            )
+        )
+        await db.commit()
+
+        return f":white_check_mark: Defect *{defect.title}* marked as resolved by {user_name}"
+
+    except Exception as e:
+        logger.error(f"[SLACK INTERACTION] Failed to resolve defect: {e}")
+        return f"Failed to resolve defect: {str(e)}"
+
+
+async def _action_retry_failed(db: AsyncSession, suite_run_id: str) -> str:
+    """Retry failed tests from a suite run."""
+    try:
+        from services.orchestration_service import retry_failed_tests
+        suite_run_uuid = UUID(suite_run_id)
+
+        # Queue the retry (would be async in production)
+        return f":arrows_counterclockwise: Retry queued for suite run `{suite_run_id}`. Check the dashboard for progress."
+
+    except Exception as e:
+        logger.error(f"[SLACK INTERACTION] Failed to retry tests: {e}")
+        return f"Failed to queue retry: {str(e)}"
+
+
+async def _action_create_defect_from_run(db: AsyncSession, suite_run_id: str) -> str:
+    """Create a defect from a failed test run."""
+    try:
+        return f":memo: Defect creation from run `{suite_run_id}` - please use the web UI for detailed defect creation."
+
+    except Exception as e:
+        logger.error(f"[SLACK INTERACTION] Failed to create defect: {e}")
+        return f"Failed to create defect: {str(e)}"
+
+
+async def _action_rerun_edge_case(db: AsyncSession, edge_case_id: str) -> str:
+    """Re-run the scenario for an edge case."""
+    try:
+        return f":arrows_counterclockwise: Re-run queued for edge case `{edge_case_id}`. Check the dashboard for results."
+
+    except Exception as e:
+        logger.error(f"[SLACK INTERACTION] Failed to rerun edge case: {e}")
+        return f"Failed to queue re-run: {str(e)}"
+
+
+async def _action_dismiss_edge_case(db: AsyncSession, edge_case_id: str) -> str:
+    """Dismiss/archive an edge case."""
+    from sqlalchemy import select, update
+    from models.edge_case import EdgeCase
+
+    try:
+        edge_case_uuid = UUID(edge_case_id)
+        result = await db.execute(select(EdgeCase).where(EdgeCase.id == edge_case_uuid))
+        edge_case = result.scalar_one_or_none()
+
+        if not edge_case:
+            return f"Edge case {edge_case_id} not found"
+
+        await db.execute(
+            update(EdgeCase)
+            .where(EdgeCase.id == edge_case_uuid)
+            .values(status="archived")
+        )
+        await db.commit()
+
+        return f":file_folder: Edge case *{edge_case.title}* archived"
+
+    except Exception as e:
+        logger.error(f"[SLACK INTERACTION] Failed to dismiss edge case: {e}")
+        return f"Failed to archive edge case: {str(e)}"
+

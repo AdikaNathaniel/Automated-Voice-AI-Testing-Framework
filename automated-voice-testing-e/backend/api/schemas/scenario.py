@@ -422,6 +422,28 @@ class NoiseAppliedInfo(BaseModel):
     )
 
 
+class NormalizationAppliedInfo(BaseModel):
+    """
+    Information about audio normalization that was applied.
+
+    Attributes:
+        type: Type of normalization (peak)
+        target_db: Target dB level used for normalization
+    """
+
+    type: str = Field(default="peak", description="Normalization type (peak)")
+    target_db: float = Field(..., description="Target dB level used")
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "type": "peak",
+                "target_db": -3.0
+            }
+        }
+    )
+
+
 class StepAudioUploadResponse(BaseModel):
     """
     Response schema for uploading audio to a scenario step.
@@ -436,6 +458,7 @@ class StepAudioUploadResponse(BaseModel):
         stt_confidence: Speech-to-text confidence score (0-1)
         language_code: Language code the audio was uploaded for
         noise_applied: Information about noise injection (if applied)
+        normalization_applied: Information about audio normalization (if applied)
     """
 
     s3_key: str = Field(..., description="S3 storage key for the audio file")
@@ -453,6 +476,10 @@ class StepAudioUploadResponse(BaseModel):
         default=None,
         description="Information about noise injection (if applied)"
     )
+    normalization_applied: Optional[NormalizationAppliedInfo] = Field(
+        default=None,
+        description="Information about audio normalization (if applied)"
+    )
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -468,6 +495,10 @@ class StepAudioUploadResponse(BaseModel):
                     "profile_name": "Car Cabin - Highway",
                     "snr_db": 10.0,
                     "category": "vehicle"
+                },
+                "normalization_applied": {
+                    "type": "peak",
+                    "target_db": -3.0
                 }
             }
         }
@@ -601,6 +632,87 @@ class NoiseProfileInfo(BaseModel):
                 "default_snr_db": 5.0,
                 "difficulty": "hard",
                 "estimated_wer_increase": 15.0
+            }
+        }
+    )
+
+
+# =============================================================================
+# Batch Upload Schemas
+# =============================================================================
+
+
+class BatchAudioUploadResult(BaseModel):
+    """
+    Result for a single file in a batch upload.
+
+    Attributes:
+        language_code: Language code for the uploaded audio
+        success: Whether the upload was successful
+        data: Upload response data (if successful)
+        error: Error message (if failed)
+    """
+
+    language_code: str = Field(..., description="Language code for the audio")
+    success: bool = Field(..., description="Whether upload succeeded")
+    data: Optional[StepAudioUploadResponse] = Field(
+        default=None,
+        description="Upload response data (if successful)"
+    )
+    error: Optional[str] = Field(
+        default=None,
+        description="Error message (if failed)"
+    )
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "language_code": "en-US",
+                "success": True,
+                "data": {
+                    "s3_key": "scenarios/abc123/steps/1/audio-en-US.mp3",
+                    "transcription": "Hello world",
+                    "duration_ms": 1500,
+                    "original_format": "mp3",
+                    "stt_confidence": 0.95,
+                    "language_code": "en-US"
+                },
+                "error": None
+            }
+        }
+    )
+
+
+class BatchAudioUploadResponse(BaseModel):
+    """
+    Response schema for batch audio upload.
+
+    Attributes:
+        total: Total number of files processed
+        successful: Number of successful uploads
+        failed: Number of failed uploads
+        results: Individual results for each file
+    """
+
+    total: int = Field(..., description="Total files processed")
+    successful: int = Field(..., description="Successful uploads")
+    failed: int = Field(..., description="Failed uploads")
+    results: List[BatchAudioUploadResult] = Field(
+        ...,
+        description="Individual results for each file"
+    )
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "total": 3,
+                "successful": 2,
+                "failed": 1,
+                "results": [
+                    {"language_code": "en-US", "success": True, "data": {}, "error": None},
+                    {"language_code": "es-ES", "success": True, "data": {}, "error": None},
+                    {"language_code": "fr-FR", "success": False, "data": None, "error": "Invalid format"}
+                ]
             }
         }
     )
