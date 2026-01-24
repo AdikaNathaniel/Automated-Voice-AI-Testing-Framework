@@ -1,0 +1,516 @@
+services:
+  # PostgreSQL 15 - Primary database
+  postgres:
+    image: postgres:15-alpine
+    container_name: voiceai-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: voiceai_testing
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - "5433:5432"  # Changed to 5433 to avoid conflict with local PostgreSQL
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - voiceai-network
+
+  # Redis 7 - Cache and session storage
+  redis:
+    image: redis:7-alpine
+    container_name: voiceai-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - voiceai-network
+
+  # RabbitMQ - Message broker for task queue
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: voiceai-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbitmq
+      RABBITMQ_DEFAULT_PASS: rabbitmq
+      RABBITMQ_DEFAULT_VHOST: voiceai
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - voiceai-network
+
+  # Backend - FastAPI application
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: voiceai-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/voiceai_testing  # Internal Docker network uses 5432
+      REDIS_URL: redis://redis:6379/0
+      RABBITMQ_URL: amqp://rabbitmq:rabbitmq@rabbitmq:5672/voiceai
+      BROKER_URL: amqp://rabbitmq:rabbitmq@rabbitmq:5672/voiceai
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: voiceai_testing
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: rabbitmq
+      RABBITMQ_PASS: rabbitmq
+      RABBITMQ_VHOST: voiceai
+      SECRET_KEY: dev-secret-key-change-in-production
+      ENVIRONMENT: development
+      SEED_DATA: "true"  # Automatically seed test data on startup
+      # STT (faster-whisper) configuration
+      STT_MODEL_SIZE: ${STT_MODEL_SIZE:-base}
+      STT_DEVICE: ${STT_DEVICE:-cpu}
+      STT_DOWNLOAD_ROOT: /app/whisper_models
+      STT_PREWARM: ${STT_PREWARM:-true}  # Pre-load model at startup for production
+    volumes:
+      - whisper_models:/app/whisper_models
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - voiceai-network
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  # Celery Worker - Task execution
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: voiceai-celery-worker
+    restart: unless-stopped
+    command: celery -A celery_app worker --loglevel=info --concurrency=4
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/voiceai_testing
+      REDIS_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      RABBITMQ_URL: amqp://rabbitmq:rabbitmq@rabbitmq:5672/voiceai
+      BROKER_URL: amqp://rabbitmq:rabbitmq@rabbitmq:5672/voiceai
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: voiceai_testing
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: rabbitmq
+      RABBITMQ_PASS: rabbitmq
+      RABBITMQ_VHOST: voiceai
+      SECRET_KEY: dev-secret-key-change-in-production
+      ENVIRONMENT: development
+      TRANSFORMERS_CACHE: /tmp/transformers_cache
+      HF_HOME: /tmp/huggingface
+      # STT (faster-whisper) configuration
+      STT_MODEL_SIZE: ${STT_MODEL_SIZE:-base}
+      STT_DEVICE: ${STT_DEVICE:-cpu}
+      STT_DOWNLOAD_ROOT: /app/whisper_models
+      # Note: STT_PREWARM not needed for celery-worker (model loaded on demand)
+    volumes:
+      - whisper_models:/app/whisper_models
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - voiceai-network
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A celery_app inspect ping || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Celery Beat - Scheduled tasks (optional)
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: voiceai-celery-beat
+    restart: unless-stopped
+    command: celery -A celery_app beat --loglevel=info
+    healthcheck:
+      test: ["CMD-SHELL", "test -f /app/celerybeat-schedule || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/voiceai_testing
+      REDIS_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      RABBITMQ_URL: amqp://rabbitmq:rabbitmq@rabbitmq:5672/voiceai
+      BROKER_URL: amqp://rabbitmq:rabbitmq@rabbitmq:5672/voiceai
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: voiceai_testing
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      RABBITMQ_USER: rabbitmq
+      RABBITMQ_PASS: rabbitmq
+      RABBITMQ_VHOST: voiceai
+      SECRET_KEY: dev-secret-key-change-in-production
+      ENVIRONMENT: development
+      TRANSFORMERS_CACHE: /tmp/transformers_cache
+      HF_HOME: /tmp/huggingface
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - voiceai-network
+
+  # Prometheus - Metrics monitoring
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    container_name: voiceai-prometheus
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.enable-lifecycle"
+    volumes:
+      - ./infrastructure/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./infrastructure/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - voiceai-network
+
+  # Alertmanager - Alert routing and notification
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: voiceai-alertmanager
+    restart: unless-stopped
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+      - "--web.external-url=http://localhost:9093"
+    environment:
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      ALERT_EMAIL_FROM: ${ALERT_EMAIL_FROM:-alerts@voiceai-testing.local}
+      ALERT_EMAIL_TO: ${ALERT_EMAIL_TO:-ops@voiceai-testing.local}
+      ALERT_EMAIL_CRITICAL: ${ALERT_EMAIL_CRITICAL:-oncall@voiceai-testing.local}
+      ALERT_EMAIL_DBA: ${ALERT_EMAIL_DBA:-dba@voiceai-testing.local}
+      SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL:-https://hooks.slack.com/services/YOUR/WEBHOOK/URL}
+    volumes:
+      - ./infrastructure/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - ./infrastructure/alertmanager/templates:/etc/alertmanager/templates:ro
+      - alertmanager_data:/alertmanager
+    ports:
+      - "9093:9093"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9093/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    depends_on:
+      - prometheus
+    networks:
+      - voiceai-network
+
+  # Grafana - Metrics visualization
+  grafana:
+    image: grafana/grafana:10.4.3
+    container_name: voiceai-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-grafana_admin}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-changeme_grafana_$(date +%s)}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./infrastructure/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./infrastructure/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+      - ./infrastructure/grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - voiceai-network
+
+  # PostgreSQL Exporter - Database metrics for Prometheus
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: voiceai-postgres-exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: "postgresql://postgres:postgres@postgres:5432/voiceai_testing?sslmode=disable"
+    ports:
+      - "9187:9187"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - voiceai-network
+
+  # Redis Exporter - Cache metrics for Prometheus
+  redis-exporter:
+    image: oliver006/redis_exporter:v1.58.0
+    container_name: voiceai-redis-exporter
+    restart: unless-stopped
+    environment:
+      REDIS_ADDR: "redis://redis:6379"
+    ports:
+      - "9121:9121"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - voiceai-network
+
+  # RabbitMQ Exporter - Message broker metrics for Prometheus
+  rabbitmq-exporter:
+    image: kbudde/rabbitmq-exporter:latest
+    container_name: voiceai-rabbitmq-exporter
+    restart: unless-stopped
+    environment:
+      RABBIT_URL: "http://rabbitmq:15672"
+      RABBIT_USER: "rabbitmq"
+      RABBIT_PASSWORD: "rabbitmq"
+      PUBLISH_PORT: "9419"
+    ports:
+      - "9419:9419"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - voiceai-network
+
+  # Nginx Exporter - Web server metrics for Prometheus
+  nginx-exporter:
+    image: nginx/nginx-prometheus-exporter:1.1.0
+    container_name: voiceai-nginx-exporter
+    restart: unless-stopped
+    command:
+      - "-nginx.scrape-uri=http://nginx:80/stub_status"
+    ports:
+      - "9113:9113"
+    depends_on:
+      - nginx
+    networks:
+      - voiceai-network
+
+  # Frontend - React + Vite application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      # Force rebuild to pick up latest source code changes
+      no_cache: false
+    container_name: voiceai-frontend
+    restart: unless-stopped
+    ports:
+      - "3001:80"
+    depends_on:
+      - backend
+    networks:
+      - voiceai-network
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx - Reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: voiceai-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - voiceai-network
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+
+  # Certbot - Let's Encrypt certificate management
+  certbot:
+    image: certbot/certbot
+    container_name: voiceai-certbot
+    restart: unless-stopped
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - voiceai-network
+
+  # pgAdmin 4 - PostgreSQL web administration (DEV ONLY)
+  # This service is gated with 'dev' profile and will not start in production
+  # To enable: docker-compose --profile dev up
+  pgadmin:
+    profiles: [dev, debug]
+    image: dpage/pgadmin4:latest
+    container_name: voiceai-pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin@voiceai.local}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-changeme_pgadmin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - voiceai-network
+
+  # MinIO - S3-compatible object storage for audio files (TASK-114)
+  minio:
+    image: minio/minio:latest
+    container_name: voiceai-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio_user}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-changeme_minio_s3}
+    ports:
+      - "9000:9000"  # API port
+      - "9001:9001"  # Console port
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - voiceai-network
+
+  # MinIO Client - Initialize S3 buckets on startup (TASK-114)
+  createbuckets:
+    image: minio/mc:latest
+    container_name: voiceai-minio-client
+    depends_on:
+      - minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minio_user}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-changeme_minio_s3}
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      /usr/bin/mc alias set myminio http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD};
+      /usr/bin/mc mb myminio/input-audio --ignore-existing;
+      /usr/bin/mc mb myminio/output-audio --ignore-existing;
+      /usr/bin/mc mb myminio/artifacts --ignore-existing;
+      /usr/bin/mc mb myminio/voice-ai-testing-audio --ignore-existing;
+      /usr/bin/mc anonymous set download myminio/input-audio;
+      /usr/bin/mc anonymous set download myminio/output-audio;
+      /usr/bin/mc anonymous set download myminio/artifacts;
+      /usr/bin/mc anonymous set download myminio/voice-ai-testing-audio;
+      exit 0;
+      "
+    networks:
+      - voiceai-network
+
+# Named volumes for data persistence
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+  minio_data:
+    driver: local
+  whisper_models:
+    driver: local
+  prometheus_data:
+    driver: local
+  alertmanager_data:
+    driver: local
+  grafana_data:
+    driver: local
+  certbot_conf:
+    driver: local
+  certbot_www:
+    driver: local
+
+# Network for service communication
+networks:
+  voiceai-network:
+    driver: bridge

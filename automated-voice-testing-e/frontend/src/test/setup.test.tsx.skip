@@ -1,0 +1,184 @@
+/**
+ * Vitest Setup Verification Tests
+ *
+ * These tests verify that Vitest, React Testing Library, and all
+ * testing utilities are configured correctly.
+ */
+
+import { describe, it, expect, vi } from 'vitest'
+import { render, screen } from '@testing-library/react'
+import { renderWithProviders, mockUser, wait } from './utils'
+
+// Simple test component
+function TestComponent({ name }: { name: string }) {
+  return (
+    <div>
+      <h1>Hello, {name}!</h1>
+      <p data-testid="description">This is a test component</p>
+    </div>
+  )
+}
+
+describe('Vitest Setup', () => {
+  describe('Basic Functionality', () => {
+    it('should run a simple test', () => {
+      // Arrange & Act & Assert
+      expect(true).toBe(true)
+    })
+
+    it('should perform basic assertions', () => {
+      // Arrange
+      const value = 'test'
+      const number = 42
+
+      // Act & Assert
+      expect(value).toBe('test')
+      expect(number).toEqual(42)
+      expect([1, 2, 3]).toHaveLength(3)
+      expect({ a: 1, b: 2 }).toEqual({ a: 1, b: 2 })
+    })
+
+    it('should support async tests', async () => {
+      // Arrange & Act
+      const result = await Promise.resolve('async result')
+
+      // Assert
+      expect(result).toBe('async result')
+    })
+  })
+
+  describe('React Testing Library Integration', () => {
+    it('should render a React component', () => {
+      // Arrange & Act
+      render(<TestComponent name="World" />)
+
+      // Assert
+      expect(screen.getByText('Hello, World!')).toBeInTheDocument()
+    })
+
+    it('should find elements by test id', () => {
+      // Arrange & Act
+      render(<TestComponent name="Test" />)
+
+      // Assert
+      const description = screen.getByTestId('description')
+      expect(description).toBeInTheDocument()
+      expect(description).toHaveTextContent('This is a test component')
+    })
+
+    it('should support jest-dom matchers', () => {
+      // Arrange & Act
+      render(<TestComponent name="Jest DOM" />)
+
+      // Assert - using jest-dom matchers
+      const heading = screen.getByRole('heading', { name: /Hello/ })
+      expect(heading).toBeVisible()
+      expect(heading).toBeInTheDocument()
+    })
+  })
+
+  describe('Test Utilities', () => {
+    it('should render component with providers', () => {
+      // Arrange & Act
+      const { getByText } = renderWithProviders(<TestComponent name="Provider" />)
+
+      // Assert
+      expect(getByText('Hello, Provider!')).toBeInTheDocument()
+    })
+
+    it('should provide mock user data', () => {
+      // Arrange & Act & Assert
+      expect(mockUser).toHaveProperty('id')
+      expect(mockUser).toHaveProperty('email')
+      expect(mockUser).toHaveProperty('username')
+      expect(mockUser.email).toBe('test@example.com')
+    })
+
+    it('should wait for async operations', async () => {
+      // Arrange
+      const start = Date.now()
+
+      // Act
+      await wait(10)
+      const duration = Date.now() - start
+
+      // Assert
+      expect(duration).toBeGreaterThanOrEqual(10)
+    })
+  })
+
+  describe('Mocking Support', () => {
+    it('should support vi.fn() mocks', () => {
+      // Arrange
+      const mockFn = vi.fn()
+      mockFn('test argument')
+
+      // Act & Assert
+      expect(mockFn).toHaveBeenCalled()
+      expect(mockFn).toHaveBeenCalledWith('test argument')
+      expect(mockFn).toHaveBeenCalledTimes(1)
+    })
+
+    it('should support module mocking', () => {
+      // Arrange
+      const mockFn = vi.fn().mockReturnValue('mocked value')
+
+      // Act
+      const result = mockFn()
+
+      // Assert
+      expect(result).toBe('mocked value')
+    })
+
+    it('should support spy functions', () => {
+      // Arrange
+      const obj = {
+        method: () => 'original',
+      }
+      const spy = vi.spyOn(obj, 'method').mockReturnValue('mocked')
+
+      // Act
+      const result = obj.method()
+
+      // Assert
+      expect(spy).toHaveBeenCalled()
+      expect(result).toBe('mocked')
+
+      // Cleanup
+      spy.mockRestore()
+    })
+  })
+
+  describe('DOM Environment', () => {
+    it('should have window object', () => {
+      // Arrange & Act & Assert
+      expect(window).toBeDefined()
+      expect(window.document).toBeDefined()
+    })
+
+    it('should have matchMedia mock', () => {
+      // Arrange & Act
+      const mediaQuery = window.matchMedia('(min-width: 768px)')
+
+      // Assert
+      expect(mediaQuery).toBeDefined()
+      expect(mediaQuery.matches).toBe(false)
+    })
+
+    it('should have IntersectionObserver mock', () => {
+      // Arrange & Act & Assert
+      expect(IntersectionObserver).toBeDefined()
+      const observer = new IntersectionObserver(() => {})
+      expect(observer).toBeDefined()
+      expect(typeof observer.observe).toBe('function')
+    })
+
+    it('should have ResizeObserver mock', () => {
+      // Arrange & Act & Assert
+      expect(ResizeObserver).toBeDefined()
+      const observer = new ResizeObserver(() => {})
+      expect(observer).toBeDefined()
+      expect(typeof observer.observe).toBe('function')
+    })
+  })
+})

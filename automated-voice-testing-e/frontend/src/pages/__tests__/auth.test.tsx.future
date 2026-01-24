@@ -1,0 +1,617 @@
+/**
+ * Authentication Tests
+ *
+ * Comprehensive tests for authentication functionality including:
+ * - Login page rendering and form validation
+ * - Login form submission and API integration
+ * - Logout functionality
+ * - Protected route access control
+ * - Role-based authorization
+ *
+ * Test Structure:
+ * - Login Page Tests
+ * - Logout Tests
+ * - Protected Route Tests
+ */
+
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { renderWithProviders } from '../../test/utils'
+import axios from 'axios'
+
+// Mock axios
+vi.mock('axios')
+const mockedAxios = axios as any
+
+// Mock authSlice to avoid Redux Toolkit import issues
+vi.mock('../../store/slices/authSlice', () => ({
+  login: vi.fn(),
+  logout: vi.fn((dispatch) => {
+    return { type: 'auth/logout' }
+  }),
+  clearError: vi.fn(() => ({ type: 'auth/clearError' })),
+  default: (state = {
+    user: null,
+    accessToken: null,
+    refreshToken: null,
+    isAuthenticated: false,
+    loading: false,
+    error: null,
+  }, action: any) => {
+    switch (action.type) {
+      case 'auth/logout':
+        localStorage.removeItem('accessToken')
+        localStorage.removeItem('refreshToken')
+        return {
+          user: null,
+          accessToken: null,
+          refreshToken: null,
+          isAuthenticated: false,
+          loading: false,
+          error: null,
+        }
+      case 'auth/clearError':
+        return { ...state, error: null }
+      default:
+        return state
+    }
+  },
+}))
+
+// Lazy import components after mocking
+const Login = (await import('../Login')).default
+const ProtectedRoute = (await import('../../components/ProtectedRoute')).default
+const { logout } = await import('../../store/slices/authSlice')
+
+// Mock useNavigate
+const mockNavigate = vi.fn()
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom')
+  return {
+    ...actual,
+    useNavigate: () => mockNavigate,
+  }
+})
+
+describe('Authentication Tests', () => {
+  beforeEach(() => {
+    // Clear all mocks before each test
+    vi.clearAllMocks()
+    mockNavigate.mockClear()
+
+    // Clear localStorage
+    localStorage.clear()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  // ========== Login Page Tests ==========
+  describe('Login Page', () => {
+    describe('Rendering', () => {
+      it('should render login form with all elements', () => {
+        // Arrange & Act
+        renderWithProviders(<Login />)
+
+        // Assert - Check all form elements are present
+        expect(screen.getByRole('heading', { name: /sign in/i })).toBeInTheDocument()
+        expect(screen.getByText(/welcome back/i)).toBeInTheDocument()
+        expect(screen.getByLabelText(/email address/i)).toBeInTheDocument()
+        expect(screen.getByLabelText(/^password$/i)).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument()
+        expect(screen.getByText(/don't have an account/i)).toBeInTheDocument()
+      })
+
+      it('should have a link to registration page', () => {
+        // Arrange & Act
+        renderWithProviders(<Login />)
+
+        // Assert
+        const registerLink = screen.getByText(/sign up here/i)
+        expect(registerLink).toBeInTheDocument()
+        expect(registerLink.closest('a')).toHaveAttribute('href', '/register')
+      })
+
+      it('should not show error message initially', () => {
+        // Arrange & Act
+        renderWithProviders(<Login />)
+
+        // Assert
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+      })
+
+      it('should show error message when error in state', () => {
+        // Arrange
+        const preloadedState = {
+          auth: {
+            user: null,
+            accessToken: null,
+            refreshToken: null,
+            isAuthenticated: false,
+            loading: false,
+            error: { message: 'Invalid credentials' },
+          },
+        }
+
+        // Act
+        renderWithProviders(<Login />, { preloadedState })
+
+        // Assert
+        expect(screen.getByRole('alert')).toBeInTheDocument()
+        expect(screen.getByText(/invalid credentials/i)).toBeInTheDocument()
+      })
+    })
+
+    describe('Form Validation', () => {
+      it('should validate email is required', async () => {
+        // Arrange
+        const user = userEvent.setup()
+        renderWithProviders(<Login />)
+
+        // Act - Submit without entering email
+        const submitButton = screen.getByRole('button', { name: /sign in/i })
+        await user.click(submitButton)
+
+        // Assert - Email validation error should appear
+        await waitFor(() => {
+          const emailInput = screen.getByLabelText(/email address/i)
+          expect(emailInput).toBeInvalid()
+        })
+      })
+
+      it('should validate email format', async () => {
+        // Arrange
+        const user = userEvent.setup()
+        renderWithProviders(<Login />)
+
+        // Act - Enter invalid email
+        const emailInput = screen.getByLabelText(/email address/i)
+        await user.type(emailInput, 'invalid-email')
+        await user.tab() // Trigger validation
+
+        // Assert - Should show format error
+        await waitFor(() => {
+          expect(screen.getByText(/valid email/i)).toBeInTheDocument()
+        })
+      })
+
+      it('should validate password is required', async () => {
+        // Arrange
+        const user = userEvent.setup()
+        renderWithProviders(<Login />)
+
+        // Act - Submit without password
+        const submitButton = screen.getByRole('button', { name: /sign in/i })
+        await user.click(submitButton)
+
+        // Assert
+        await waitFor(() => {
+          const passwordInput = screen.getByLabelText(/^password$/i)
+          expect(passwordInput).toBeInvalid()
+        })
+      })
+
+      it('should validate password minimum length', async () => {
+        // Arrange
+        const user = userEvent.setup()
+        renderWithProviders(<Login />)
+
+        // Act - Enter short password
+        const passwordInput = screen.getByLabelText(/^password$/i)
+        await user.type(passwordInput, '123')
+        await user.tab()
+
+        // Assert
+        await waitFor(() => {
+          expect(screen.getByText(/at least/i)).toBeInTheDocument()
+        })
+      })
+
+      it('should accept valid credentials', async () => {
+        // Arrange
+        const user = userEvent.setup()
+        renderWithProviders(<Login />)
+
+        // Act - Enter valid credentials
+        await user.type(screen.getByLabelText(/email address/i), 'test@example.com')
+        await user.type(screen.getByLabelText(/^password$/i), 'password123')
+
+        // Assert - No validation errors
+        expect(screen.queryByText(/valid email/i)).not.toBeInTheDocument()
+        expect(screen.queryByText(/at least/i)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('Form Submission', () => {
+      it('should show loading state during login', async () => {
+        // Arrange
+        const user = userEvent.setup()
+        mockedAxios.post = vi.fn(() => new Promise(() => {})) // Never resolves
+        renderWithProviders(<Login />)
+
+        // Act - Fill form and submit
+        await user.type(screen.getByLabelText(/email address/i), 'test@example.com')
+        await user.type(screen.getByLabelText(/^password$/i), 'password123')
+        await user.click(screen.getByRole('button', { name: /sign in/i }))
+
+        // Assert - Should show loading state
+        await waitFor(() => {
+          expect(screen.getByText(/signing in.../i)).toBeInTheDocument()
+        })
+      })
+
+      it('should disable form fields during login', async () => {
+        // Arrange
+        const user = userEvent.setup()
+        mockedAxios.post = vi.fn(() => new Promise(() => {}))
+        renderWithProviders(<Login />)
+
+        // Act
+        await user.type(screen.getByLabelText(/email address/i), 'test@example.com')
+        await user.type(screen.getByLabelText(/^password$/i), 'password123')
+        await user.click(screen.getByRole('button', { name: /sign in/i }))
+
+        // Assert - Fields should be disabled
+        await waitFor(() => {
+          expect(screen.getByLabelText(/email address/i)).toBeDisabled()
+          expect(screen.getByLabelText(/^password$/i)).toBeDisabled()
+          expect(screen.getByRole('button', { name: /signing in.../i })).toBeDisabled()
+        })
+      })
+
+      it('should call login API with correct credentials', async () => {
+        // Arrange
+        const user = userEvent.setup()
+        const mockResponse = {
+          data: {
+            user: { id: '1', email: 'test@example.com', username: 'testuser' },
+            access_token: 'mock-access-token',
+            refresh_token: 'mock-refresh-token',
+          },
+        }
+        mockedAxios.post = vi.fn().mockResolvedValue(mockResponse)
+        renderWithProviders(<Login />)
+
+        // Act
+        await user.type(screen.getByLabelText(/email address/i), 'test@example.com')
+        await user.type(screen.getByLabelText(/^password$/i), 'password123')
+        await user.click(screen.getByRole('button', { name: /sign in/i }))
+
+        // Assert - API should be called with credentials
+        await waitFor(() => {
+          expect(mockedAxios.post).toHaveBeenCalledWith(
+            expect.stringContaining('/auth/login'),
+            {
+              email: 'test@example.com',
+              password: 'password123',
+            }
+          )
+        })
+      })
+
+      it('should navigate to home on successful login', async () => {
+        // Arrange
+        const user = userEvent.setup()
+        const mockResponse = {
+          data: {
+            user: { id: '1', email: 'test@example.com', username: 'testuser' },
+            access_token: 'mock-access-token',
+            refresh_token: 'mock-refresh-token',
+          },
+        }
+        mockedAxios.post = vi.fn().mockResolvedValue(mockResponse)
+        renderWithProviders(<Login />)
+
+        // Act
+        await user.type(screen.getByLabelText(/email address/i), 'test@example.com')
+        await user.type(screen.getByLabelText(/^password$/i), 'password123')
+        await user.click(screen.getByRole('button', { name: /sign in/i }))
+
+        // Assert - Should navigate to home page
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith('/')
+        })
+      })
+
+      it('should store tokens in localStorage on success', async () => {
+        // Arrange
+        const user = userEvent.setup()
+        const mockResponse = {
+          data: {
+            user: { id: '1', email: 'test@example.com', username: 'testuser' },
+            access_token: 'mock-access-token',
+            refresh_token: 'mock-refresh-token',
+          },
+        }
+        mockedAxios.post = vi.fn().mockResolvedValue(mockResponse)
+        renderWithProviders(<Login />)
+
+        // Act
+        await user.type(screen.getByLabelText(/email address/i), 'test@example.com')
+        await user.type(screen.getByLabelText(/^password$/i), 'password123')
+        await user.click(screen.getByRole('button', { name: /sign in/i }))
+
+        // Assert - Tokens should be stored
+        await waitFor(() => {
+          expect(localStorage.getItem('accessToken')).toBe('mock-access-token')
+          expect(localStorage.getItem('refreshToken')).toBe('mock-refresh-token')
+        })
+      })
+
+      it('should display error message on login failure', async () => {
+        // Arrange
+        const user = userEvent.setup()
+        const errorResponse = {
+          response: {
+            status: 401,
+            data: {
+              detail: 'Invalid email or password',
+            },
+          },
+        }
+        mockedAxios.post = vi.fn().mockRejectedValue(errorResponse)
+        renderWithProviders(<Login />)
+
+        // Act
+        await user.type(screen.getByLabelText(/email address/i), 'test@example.com')
+        await user.type(screen.getByLabelText(/^password$/i), 'wrongpassword')
+        await user.click(screen.getByRole('button', { name: /sign in/i }))
+
+        // Assert - Error should be displayed
+        await waitFor(() => {
+          expect(screen.getByRole('alert')).toBeInTheDocument()
+          expect(screen.getByText(/invalid email or password/i)).toBeInTheDocument()
+        })
+      })
+
+      it('should not navigate on login failure', async () => {
+        // Arrange
+        const user = userEvent.setup()
+        mockedAxios.post = vi.fn().mockRejectedValue(new Error('Login failed'))
+        renderWithProviders(<Login />)
+
+        // Act
+        await user.type(screen.getByLabelText(/email address/i), 'test@example.com')
+        await user.type(screen.getByLabelText(/^password$/i), 'wrongpassword')
+        await user.click(screen.getByRole('button', { name: /sign in/i }))
+
+        // Assert - Should not navigate
+        await waitFor(() => {
+          expect(screen.getByRole('alert')).toBeInTheDocument()
+        })
+        expect(mockNavigate).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('Auto-redirect when authenticated', () => {
+      it('should redirect to home if already authenticated', () => {
+        // Arrange
+        const preloadedState = {
+          auth: {
+            user: { id: '1', email: 'test@example.com', username: 'testuser' },
+            accessToken: 'token',
+            refreshToken: 'refresh',
+            isAuthenticated: true,
+            loading: false,
+            error: null,
+          },
+        }
+
+        // Act
+        renderWithProviders(<Login />, { preloadedState })
+
+        // Assert - Should trigger navigation
+        expect(mockNavigate).toHaveBeenCalledWith('/')
+      })
+    })
+  })
+
+  // ========== Logout Tests ==========
+  describe('Logout Functionality', () => {
+    it('should clear user from state', () => {
+      // Arrange
+      const initialState = {
+        auth: {
+          user: { id: '1', email: 'test@example.com', username: 'testuser' },
+          accessToken: 'token',
+          refreshToken: 'refresh',
+          isAuthenticated: true,
+          loading: false,
+          error: null,
+        },
+      }
+      const { store } = renderWithProviders(<div />, { preloadedState: initialState })
+
+      // Act
+      store.dispatch(logout())
+
+      // Assert
+      const state = store.getState()
+      expect(state.auth.user).toBeNull()
+      expect(state.auth.accessToken).toBeNull()
+      expect(state.auth.refreshToken).toBeNull()
+      expect(state.auth.isAuthenticated).toBe(false)
+    })
+
+    it('should clear tokens from localStorage', () => {
+      // Arrange
+      localStorage.setItem('accessToken', 'token')
+      localStorage.setItem('refreshToken', 'refresh')
+      const { store } = renderWithProviders(<div />)
+
+      // Act
+      store.dispatch(logout())
+
+      // Assert
+      expect(localStorage.getItem('accessToken')).toBeNull()
+      expect(localStorage.getItem('refreshToken')).toBeNull()
+    })
+
+    it('should clear error state on logout', () => {
+      // Arrange
+      const initialState = {
+        auth: {
+          user: { id: '1', email: 'test@example.com', username: 'testuser' },
+          accessToken: 'token',
+          refreshToken: 'refresh',
+          isAuthenticated: true,
+          loading: false,
+          error: { message: 'Some error' },
+        },
+      }
+      const { store } = renderWithProviders(<div />, { preloadedState: initialState })
+
+      // Act
+      store.dispatch(logout())
+
+      // Assert
+      expect(store.getState().auth.error).toBeNull()
+    })
+  })
+
+  // ========== Protected Route Tests ==========
+  describe('Protected Routes', () => {
+    const ProtectedContent = () => <div>Protected Content</div>
+
+    describe('Authentication Required', () => {
+      it('should redirect to login when not authenticated', () => {
+        // Arrange
+        const preloadedState = {
+          auth: {
+            user: null,
+            accessToken: null,
+            refreshToken: null,
+            isAuthenticated: false,
+            loading: false,
+            error: null,
+          },
+        }
+
+        // Act
+        renderWithProviders(
+          <ProtectedRoute>
+            <ProtectedContent />
+          </ProtectedRoute>,
+          { preloadedState }
+        )
+
+        // Assert - Should not show protected content
+        expect(screen.queryByText('Protected Content')).not.toBeInTheDocument()
+      })
+
+      it('should render children when authenticated', () => {
+        // Arrange
+        const preloadedState = {
+          auth: {
+            user: { id: '1', email: 'test@example.com', username: 'testuser' },
+            accessToken: 'token',
+            refreshToken: 'refresh',
+            isAuthenticated: true,
+            loading: false,
+            error: null,
+          },
+        }
+
+        // Act
+        renderWithProviders(
+          <ProtectedRoute>
+            <ProtectedContent />
+          </ProtectedRoute>,
+          { preloadedState }
+        )
+
+        // Assert - Should show protected content
+        expect(screen.getByText('Protected Content')).toBeInTheDocument()
+      })
+    })
+
+    describe('Role-Based Authorization', () => {
+      it('should render when user has required role', () => {
+        // Arrange
+        const preloadedState = {
+          auth: {
+            user: {
+              id: '1',
+              email: 'admin@example.com',
+              username: 'admin',
+              role: 'admin',
+            },
+            accessToken: 'token',
+            refreshToken: 'refresh',
+            isAuthenticated: true,
+            loading: false,
+            error: null,
+          },
+        }
+
+        // Act
+        renderWithProviders(
+          <ProtectedRoute requiredRole="admin">
+            <ProtectedContent />
+          </ProtectedRoute>,
+          { preloadedState }
+        )
+
+        // Assert
+        expect(screen.getByText('Protected Content')).toBeInTheDocument()
+      })
+
+      it('should redirect when user lacks required role', () => {
+        // Arrange
+        const preloadedState = {
+          auth: {
+            user: {
+              id: '1',
+              email: 'user@example.com',
+              username: 'user',
+              role: 'user',
+            },
+            accessToken: 'token',
+            refreshToken: 'refresh',
+            isAuthenticated: true,
+            loading: false,
+            error: null,
+          },
+        }
+
+        // Act
+        renderWithProviders(
+          <ProtectedRoute requiredRole="admin">
+            <ProtectedContent />
+          </ProtectedRoute>,
+          { preloadedState }
+        )
+
+        // Assert - Should not show content
+        expect(screen.queryByText('Protected Content')).not.toBeInTheDocument()
+      })
+
+      it('should redirect when user object is null but authenticated', () => {
+        // Arrange - Edge case: authenticated but user not loaded
+        const preloadedState = {
+          auth: {
+            user: null,
+            accessToken: 'token',
+            refreshToken: 'refresh',
+            isAuthenticated: true,
+            loading: false,
+            error: null,
+          },
+        }
+
+        // Act
+        renderWithProviders(
+          <ProtectedRoute requiredRole="admin">
+            <ProtectedContent />
+          </ProtectedRoute>,
+          { preloadedState }
+        )
+
+        // Assert
+        expect(screen.queryByText('Protected Content')).not.toBeInTheDocument()
+      })
+    })
+  })
+})

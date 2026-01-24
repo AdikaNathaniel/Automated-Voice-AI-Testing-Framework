@@ -1,0 +1,38 @@
+{
+  "metrics": {
+    "http_req_duration": {
+      "min": 142.37,
+      "avg": 812.48,
+      "max": 3784.12,
+      "p(90)": 1347.56,
+      "p(95)": 1628.44,
+      "p(99)": 2214.73
+    },
+    "http_req_failed": {
+      "rate": 0.0046,
+      "passes": 14806,
+      "fails": 68
+    },
+    "vus_max": {
+      "value": 1200
+    },
+    "iterations": {
+      "count": 14874
+    }
+  },
+  "thresholds": {
+    "http_req_duration": {
+      "p(95)<2000": "PASSED",
+      "p(99)<5000": "PASSED"
+    },
+    "http_req_failed": {
+      "rate<0.01": "PASSED"
+    }
+  },
+  "metadata": {
+    "window": "2025-02-14T18:00:00Z → 2025-02-14T18:15:00Z",
+    "targetBaseUrl": "https://staging.voiceai.example.com/api/v1",
+    "suiteId": "suite-12345",
+    "notes": "Staging environment, seeded with ~500 bilingual cases."
+  }
+}

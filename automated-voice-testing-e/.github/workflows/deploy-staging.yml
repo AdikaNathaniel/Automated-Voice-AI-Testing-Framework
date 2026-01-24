@@ -1,0 +1,148 @@
+name: Deploy to Staging
+
+"on":
+  push:
+    branches:
+      - develop
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - '.github/workflows/deploy-staging.yml'
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  ENVIRONMENT: staging
+  BACKEND_SERVICE_NAME: voiceai-backend-staging
+  FRONTEND_SERVICE_NAME: voiceai-frontend-staging
+  CLUSTER_NAME: voiceai-staging-cluster
+
+jobs:
+  deploy:
+    name: Deploy to Staging Environment
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.voiceai.example.com
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_STAGING }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set image tags
+        id: image-tags
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          echo "backend_image=${ECR_REGISTRY}/voiceai-backend:${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "frontend_image=${ECR_REGISTRY}/voiceai-frontend:${IMAGE_TAG}" >> $GITHUB_OUTPUT
+
+      - name: Set up Python for migration check
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Migration dry-run validation
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+        run: |
+          echo "Running migration dry-run validation..."
+          pip install alembic sqlalchemy psycopg2-binary
+
+          # Check for pending migrations
+          cd backend
+          alembic check || {
+            echo "Migration check failed. Please review migration state."
+            exit 1
+          }
+
+          echo "Migration dry-run validation passed"
+
+      - name: Download backend task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ env.BACKEND_SERVICE_NAME }} \
+            --query taskDefinition > backend-task-definition.json
+
+      - name: Update backend task definition with new image
+        id: backend-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: backend-task-definition.json
+          container-name: backend
+          image: ${{ steps.image-tags.outputs.backend_image }}
+
+      - name: Deploy backend to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.backend-task-def.outputs.task-definition }}
+          service: ${{ env.BACKEND_SERVICE_NAME }}
+          cluster: ${{ env.CLUSTER_NAME }}
+          wait-for-service-stability: true
+
+      - name: Download frontend task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ env.FRONTEND_SERVICE_NAME }} \
+            --query taskDefinition > frontend-task-definition.json
+
+      - name: Update frontend task definition with new image
+        id: frontend-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: frontend-task-definition.json
+          container-name: frontend
+          image: ${{ steps.image-tags.outputs.frontend_image }}
+
+      - name: Deploy frontend to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.frontend-task-def.outputs.task-definition }}
+          service: ${{ env.FRONTEND_SERVICE_NAME }}
+          cluster: ${{ env.CLUSTER_NAME }}
+          wait-for-service-stability: true
+
+      - name: Run database migrations
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+        run: |
+          echo "Running database migrations..."
+          # Migrations would run via AWS ECS Exec or separate task
+          # Example: aws ecs run-task --task-definition migration-task
+          echo "Migrations completed (placeholder)"
+
+      - name: Wait for deployment to stabilize
+        run: |
+          echo "Waiting for deployment to stabilize..."
+          sleep 30
+
+      - name: Health check
+        run: |
+          echo "Performing health check..."
+          curl --fail --max-time 30 https://staging.voiceai.example.com/health || exit 1
+          echo "Health check passed!"
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          echo "## Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Environment: ${{ env.ENVIRONMENT }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Backend Image: ${{ steps.image-tags.outputs.backend_image }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend Image: ${{ steps.image-tags.outputs.frontend_image }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY

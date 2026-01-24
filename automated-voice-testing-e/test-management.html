@@ -1,0 +1,3578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Management - Productive Playhouse</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #5BA9AC 0%, #11484D 100%);
+            padding: 20px;
+            color: #333;
+        }
+
+        .dashboard { max-width: 1800px; margin: 0 auto; }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 20px 32px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .header h1 { font-size: 28px; color: #1a202c; font-weight: 700; }
+        .subtitle { font-size: 14px; color: #718096; margin-top: 4px; }
+        .header-actions { display: flex; gap: 12px; }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-primary { background: #5BA9AC; color: white; }
+        .btn-primary:hover:not(:disabled) { background: #5568d3; transform: translateY(-1px); }
+        .btn-secondary { background: #f7fafc; color: #4a5568; border: 1px solid #e2e8f0; }
+        .btn-secondary:hover:not(:disabled) { background: #edf2f7; }
+        .btn-success { background: #48bb78; color: white; }
+        .btn-danger { background: #f56565; color: white; }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* Cards */
+        .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 20px; }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric { font-size: 32px; font-weight: 700; color: #1a202c; margin-bottom: 8px; }
+        .metric-label { font-size: 14px; color: #718096; }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+
+        .badge.success { background: #f0fff4; color: #48bb78; }
+        .badge.primary { background: #ebf8ff; color: #4299e1; }
+        .badge.warning { background: #fffaf0; color: #ed8936; }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #5BA9AC 0%, #11484D 100%);
+            transition: width 0.3s ease;
+        }
+
+        /* Pagination */
+        .pagination-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f7fafc;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            padding: 12px 16px;
+            background: #f7fafc;
+            border-radius: 8px;
+            margin-top: 16px;
+            justify-content: space-between;
+        }
+
+        .page-buttons {
+            display: flex;
+            gap: 4px;
+        }
+
+        .page-btn {
+            padding: 6px 12px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            min-width: 36px;
+            text-align: center;
+        }
+
+        .page-btn:hover:not(:disabled) { background: #edf2f7; }
+        .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .page-btn.active { background: #5BA9AC; color: white; border-color: #5BA9AC; }
+
+        /* Test Case List */
+        .test-case-list { margin-top: 16px; }
+
+        .test-case-card {
+            padding: 16px;
+            padding-left: 48px;
+            background: #f7fafc;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #5BA9AC;
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .test-case-card:hover { background: #edf2f7; }
+        .test-case-card.selected { background: #ebf8ff; border-left-color: #4299e1; }
+
+        .test-checkbox {
+            position: absolute;
+            left: 18px;
+            top: 20px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .test-case-title { font-size: 14px; font-weight: 600; color: #2d3748; margin-bottom: 8px; }
+        .test-case-meta { font-size: 12px; color: #718096; margin-bottom: 8px; }
+
+        .tag { padding: 4px 10px; background: white; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 11px; margin-right: 6px; }
+
+        /* Bulk Actions */
+        .bulk-actions-bar {
+            background: #4299e1;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.3s;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .bulk-actions-bar .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        /* Filter Bar */
+        .filter-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 6px 14px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active { background: #5BA9AC; color: white; border-color: #5BA9AC; }
+        .search-box { flex: 1; min-width: 250px; padding: 8px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-danger { border-top: 4px solid #f56565; }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 24px;
+        }
+
+        .modal-title { font-size: 24px; font-weight: 700; color: #1a202c; }
+
+        .modal-close {
+            background: #f7fafc;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+        }
+
+        .modal-content { margin-bottom: 24px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 12px; }
+
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 14px; font-weight: 600; color: #2d3748; margin-bottom: 8px; }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-textarea { min-height: 100px; resize: vertical; }
+
+        .warning-box {
+            padding: 16px;
+            background: #fff5f5;
+            border: 1px solid #feb2b2;
+            border-radius: 8px;
+            color: #742a2a;
+            margin-bottom: 20px;
+        }
+
+        .confirmation-input {
+            margin-top: 20px;
+            padding: 16px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .confirmation-input code {
+            background: #1a202c;
+            color: #48bb78;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
+
+        .confirmation-input input {
+            width: 100%;
+            margin-top: 8px;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        /* Code Editor */
+        .code-editor {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .keyword { color: #f687b3; }
+        .string { color: #9ae6b4; }
+        .number { color: #fbd38d; }
+
+        /* Visual Editor */
+        .visual-editor {
+            background: #f7fafc;
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .turn-block {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            position: relative;
+        }
+
+        .turn-number {
+            position: absolute;
+            top: -12px;
+            left: 16px;
+            background: #5BA9AC;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .turn-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .grid-4 { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-4 { grid-template-columns: 1fr; }
+        }
+
+        /* Loading/Empty States */
+        .loading-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 80px 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #5BA9AC;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .permission-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background: #faf5ff;
+            color: #6b46c1;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        kbd {
+            background: #1a202c;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: monospace;
+        }
+
+        /* Scenario Builder Enhancements */
+        .scenario-mode-toggle {
+            display: inline-flex;
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .scenario-mode-btn {
+            padding: 6px 14px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .scenario-mode-btn.active {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .unsaved-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #ed8936;
+            border-radius: 50%;
+            margin-left: 8px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .context-library-panel {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .context-var-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .context-var-item:hover {
+            border-color: #5BA9AC;
+            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .scenario-metadata {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .info-tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a202c;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            margin-bottom: 8px;
+        }
+
+        /* Version History Enhancements */
+        .version-item {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 10px;
+            border-left: 4px solid #cbd5e0;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .version-item:hover {
+            background: #edf2f7;
+            border-left-color: #5BA9AC;
+            transform: translateX(2px);
+        }
+
+        .version-item.selected {
+            border-left-color: #5BA9AC;
+            background: #ebf8ff;
+        }
+
+        .version-compare-panel {
+            background: white;
+            border: 2px solid #5BA9AC;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .diff-viewer {
+            font-family: monospace;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .diff-added {
+            background: #f0fff4;
+            color: #22543d;
+            padding: 2px 4px;
+        }
+
+        .diff-removed {
+            background: #fff5f5;
+            color: #742a2a;
+            padding: 2px 4px;
+            text-decoration: line-through;
+        }
+
+        /* Expected Outcomes Enhancements */
+        .outcome-item {
+            background: #f7fafc;
+            border-left: 4px solid #48bb78;
+            border-radius: 6px;
+            padding: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .outcome-item:hover {
+            background: #edf2f7;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .outcome-stat {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            background: white;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-right: 6px;
+            margin-top: 6px;
+        }
+
+        .usage-bar {
+            width: 100%;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .usage-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #48bb78 0%, #38a169 100%);
+            transition: width 0.3s;
+        }
+
+        /* Edge Cases Enhancements */
+        .edge-case-item {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 10px;
+            border-left: 4px solid #ed8936;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .edge-case-item:hover {
+            background: #edf2f7;
+            transform: translateX(2px);
+        }
+
+        .edge-case-item.severity-critical {
+            border-left-color: #f56565;
+        }
+
+        .edge-case-item.severity-high {
+            border-left-color: #ed8936;
+        }
+
+        .edge-case-item.severity-medium {
+            border-left-color: #ecc94b;
+        }
+
+        .edge-case-item.severity-low {
+            border-left-color: #4299e1;
+        }
+
+        .severity-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .severity-critical {
+            background: #fff5f5;
+            color: #c53030;
+        }
+
+        .severity-high {
+            background: #fffaf0;
+            color: #c05621;
+        }
+
+        .severity-medium {
+            background: #fefcbf;
+            color: #975a16;
+        }
+
+        .severity-low {
+            background: #ebf8ff;
+            color: #2c5282;
+        }
+
+        .metric-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin: 0 auto;
+        }
+
+        .success-rate-good {
+            background: linear-gradient(135deg, #f0fff4 0%, #c6f6d5 100%);
+            color: #22543d;
+        }
+
+        .success-rate-warning {
+            background: linear-gradient(135deg, #fffaf0 0%, #feebc8 100%);
+            color: #7c2d12;
+        }
+
+        .success-rate-danger {
+            background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+            color: #742a2a;
+        }
+
+        .expandable-section {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 12px;
+        }
+
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        /* Configuration Management Enhancements */
+        .env-selector {
+            display: inline-flex;
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .env-btn {
+            padding: 6px 14px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .env-btn.active {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .env-btn.production { color: #22543d; }
+        .env-btn.staging { color: #975a16; }
+        .env-btn.development { color: #2c5282; }
+
+        .env-btn.production.active { background: #f0fff4; }
+        .env-btn.staging.active { background: #fefcbf; }
+        .env-btn.development.active { background: #ebf8ff; }
+
+        .config-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .config-item:last-child {
+            border-bottom: none;
+        }
+
+        .config-value {
+            font-family: monospace;
+            font-size: 12px;
+            color: #5BA9AC;
+            background: #f7fafc;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .validation-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .validation-valid {
+            background: #f0fff4;
+            color: #22543d;
+        }
+
+        .validation-warning {
+            background: #fffaf0;
+            color: #975a16;
+        }
+
+        .validation-error {
+            background: #fff5f5;
+            color: #c53030;
+        }
+
+        /* Integration Enhancements */
+        .integration-card {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 10px;
+            border-left: 4px solid #cbd5e0;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .integration-card:hover {
+            background: #edf2f7;
+            border-left-color: #5BA9AC;
+            transform: translateX(2px);
+        }
+
+        .integration-card.connected {
+            border-left-color: #48bb78;
+        }
+
+        .integration-card.disconnected {
+            border-left-color: #f56565;
+        }
+
+        .health-meter {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .health-fill {
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .health-excellent {
+            background: linear-gradient(90deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .health-good {
+            background: linear-gradient(90deg, #ecc94b 0%, #d69e2e 100%);
+        }
+
+        .health-poor {
+            background: linear-gradient(90deg, #f56565 0%, #e53e3e 100%);
+        }
+
+        .rate-limit-indicator {
+            font-size: 11px;
+            color: #718096;
+            margin-top: 6px;
+        }
+
+        .rate-limit-bar {
+            width: 100%;
+            height: 3px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .rate-limit-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4299e1 0%, #3182ce 100%);
+            transition: width 0.3s;
+        }
+
+        .rate-limit-fill.warning {
+            background: linear-gradient(90deg, #ed8936 0%, #dd6b20 100%);
+        }
+
+        .rate-limit-fill.critical {
+            background: linear-gradient(90deg, #f56565 0%, #e53e3e 100%);
+        }
+
+        /* Team Activity Enhancements */
+        .activity-item {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 14px;
+            margin-bottom: 10px;
+            border-left: 4px solid #cbd5e0;
+            transition: all 0.2s;
+        }
+
+        .activity-item:hover {
+            background: #edf2f7;
+            transform: translateX(2px);
+        }
+
+        .activity-item.impact-high {
+            border-left-color: #f56565;
+        }
+
+        .activity-item.impact-medium {
+            border-left-color: #ed8936;
+        }
+
+        .activity-item.impact-low {
+            border-left-color: #4299e1;
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5BA9AC 0%, #11484D 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            position: relative;
+        }
+
+        .online-indicator {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #48bb78;
+            border: 2px solid white;
+        }
+
+        .offline-indicator {
+            background: #cbd5e0;
+        }
+
+        .activity-type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .type-tests {
+            background: #ebf8ff;
+            color: #2c5282;
+        }
+
+        .type-config {
+            background: #faf5ff;
+            color: #6b46c1;
+        }
+
+        .type-deployments {
+            background: #f0fff4;
+            color: #22543d;
+        }
+
+        .team-member-card {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .team-member-card:hover {
+            background: #edf2f7;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .team-member-card.selected {
+            background: #ebf8ff;
+            border: 2px solid #5BA9AC;
+        }
+
+        /* Navigation */
+        .main-nav {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border-radius: 16px;
+        }
+
+        .nav-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+
+        .nav-brand {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #5BA9AC 0%, #11484D 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            padding: 16px 0;
+            margin-right: 32px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            text-decoration: none;
+            color: #4a5568;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: #f7fafc;
+            color: #5BA9AC;
+        }
+
+        .nav-link.active {
+            color: #5BA9AC;
+            border-bottom-color: #5BA9AC;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-wrap: wrap;
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            .nav-link {
+                padding: 12px 16px;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // DATA MODEL (CONSISTENT WITH DASHBOARD)
+        const TOTAL_TEST_CASES = 2847;
+
+        const TestManagement = () => {
+            const [currentPage, setCurrentPage] = useState(1);
+            const [pageSize, setPageSize] = useState(25);
+            const [selectedTests, setSelectedTests] = useState([]);
+            const [activeFilter, setActiveFilter] = useState('all');
+            const [showCreateModal, setShowCreateModal] = useState(false);
+            const [showDeleteModal, setShowDeleteModal] = useState(false);
+            const [showImportModal, setShowImportModal] = useState(false);
+            const [editorMode, setEditorMode] = useState('code');
+            const [userRole, setUserRole] = useState('admin');
+            const [scenarioMode, setScenarioMode] = useState('edit'); // 'new' or 'edit'
+            const [selectedScenario, setSelectedScenario] = useState('SC-2847');
+            const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+            const [showContextLibrary, setShowContextLibrary] = useState(false);
+
+            // Version History state
+            const [showVersionDiff, setShowVersionDiff] = useState(false);
+            const [selectedVersions, setSelectedVersions] = useState(['v3.8.2', 'v3.8.1']);
+            const [versionFilter, setVersionFilter] = useState('all'); // all, major, minor, patch
+            const [showVersionDetails, setShowVersionDetails] = useState(null);
+
+            // Expected Outcomes state
+            const [outcomeFilter, setOutcomeFilter] = useState('all');
+            const [showOutcomeDetails, setShowOutcomeDetails] = useState(null);
+            const [showAddOutcome, setShowAddOutcome] = useState(false);
+            const [outcomeSortBy, setOutcomeSortBy] = useState('usage'); // usage, name, category
+
+            // Edge Cases state
+            const [edgeCaseFilter, setEdgeCaseFilter] = useState('all');
+            const [showEdgeWizard, setShowEdgeWizard] = useState(false);
+            const [edgeSeverityFilter, setEdgeSeverityFilter] = useState('all');
+            const [showEdgeCaseDetails, setShowEdgeCaseDetails] = useState(null);
+
+            // Configuration Management state
+            const [selectedEnvironment, setSelectedEnvironment] = useState('production');
+            const [showConfigHistory, setShowConfigHistory] = useState(false);
+            const [showConfigTemplates, setShowConfigTemplates] = useState(false);
+            const [configValidationStatus, setConfigValidationStatus] = useState('valid');
+            const [editingConfig, setEditingConfig] = useState(false);
+
+            // Integrations state
+            const [showIntegrationDetails, setShowIntegrationDetails] = useState(null);
+            const [integrationFilter, setIntegrationFilter] = useState('all'); // all, connected, disconnected
+            const [showIntegrationLogs, setShowIntegrationLogs] = useState(null);
+
+            // Team Activity state
+            const [activityFilter, setActivityFilter] = useState('all'); // all, tests, config, deployments
+            const [selectedTeamMember, setSelectedTeamMember] = useState(null);
+            const [activityTimeRange, setActivityTimeRange] = useState('today'); // today, week, month
+
+            // Sample scenarios data
+            const scenarios = [
+                { id: 'SC-2847', name: 'Multi-turn Music & Nav', author: 'Sarah Chen', created: '2024-10-15', turns: 2 },
+                { id: 'SC-2846', name: 'Climate Control Sequence', author: 'Michael Rodriguez', created: '2024-10-14', turns: 3 },
+                { id: 'SC-2845', name: 'Phone Call Workflow', author: 'Lisa Wang', created: '2024-10-13', turns: 4 },
+                { id: 'SC-2844', name: 'POI Search and Navigate', author: 'David Kim', created: '2024-10-12', turns: 5 }
+            ];
+
+            // Context variables library
+            const contextVariables = [
+                { name: 'music_still_playing', type: 'boolean', category: 'Media', description: 'Verifies music playback continues' },
+                { name: 'navigation_active', type: 'boolean', category: 'Navigation', description: 'Route guidance is active' },
+                { name: 'current_temperature', type: 'number', category: 'Climate', description: 'Current cabin temperature setting' },
+                { name: 'call_in_progress', type: 'boolean', category: 'Phone', description: 'Active phone call detected' },
+                { name: 'volume_level', type: 'number', category: 'Media', description: 'Current audio volume (0-100)' },
+                { name: 'fan_speed', type: 'number', category: 'Climate', description: 'Current fan speed setting (0-7)' },
+                { name: 'route_distance_remaining', type: 'number', category: 'Navigation', description: 'Distance to destination in miles' }
+            ];
+
+            // Version history data
+            const versions = [
+                {
+                    version: 'v3.8.2',
+                    type: 'patch',
+                    author: 'Sarah Chen',
+                    timestamp: '2h ago',
+                    testsAffected: 47,
+                    status: 'active',
+                    changes: ['Updated navigation timeout', 'Fixed media playback assertions', 'Added 12 new test cases'],
+                    successRate: 96.2,
+                    deploymentStatus: 'production'
+                },
+                {
+                    version: 'v3.8.1',
+                    type: 'patch',
+                    author: 'Michael Rodriguez',
+                    timestamp: '1d ago',
+                    testsAffected: 23,
+                    status: 'tagged',
+                    changes: ['Climate control edge cases', 'Phone call multi-turn improvements'],
+                    successRate: 94.8,
+                    deploymentStatus: 'production'
+                },
+                {
+                    version: 'v3.8.0',
+                    type: 'minor',
+                    author: 'Team Release',
+                    timestamp: '3d ago',
+                    testsAffected: 142,
+                    status: 'tagged',
+                    changes: ['New edge case detection', 'Enhanced context tracking', 'Multi-language support expanded'],
+                    successRate: 95.1,
+                    deploymentStatus: 'production'
+                },
+                {
+                    version: 'v3.7.5',
+                    type: 'patch',
+                    author: 'Lisa Wang',
+                    timestamp: '5d ago',
+                    testsAffected: 18,
+                    status: 'archived',
+                    changes: ['Bug fixes for POI navigation'],
+                    successRate: 93.7,
+                    deploymentStatus: 'archived'
+                },
+                {
+                    version: 'v3.7.0',
+                    type: 'minor',
+                    author: 'David Kim',
+                    timestamp: '2w ago',
+                    testsAffected: 89,
+                    status: 'archived',
+                    changes: ['Performance improvements', 'New assertion types'],
+                    successRate: 92.4,
+                    deploymentStatus: 'archived'
+                }
+            ];
+
+            // Expected outcomes data
+            const expectedOutcomes = [
+                {
+                    id: 'nav_poi_coffee_shop',
+                    category: 'Navigation',
+                    name: 'Navigate to Coffee Shop',
+                    description: 'Route to nearest coffee shop',
+                    variations: 47,
+                    usageCount: 234,
+                    successRate: 97.3,
+                    languages: ['en-US', 'es-ES', 'de-DE', 'fr-FR'],
+                    lastUpdated: '2d ago',
+                    dependencies: ['location_services', 'poi_database']
+                },
+                {
+                    id: 'media_play_playlist',
+                    category: 'Media',
+                    name: 'Play Playlist',
+                    description: 'Playlist begins playing',
+                    variations: 32,
+                    usageCount: 456,
+                    successRate: 98.1,
+                    languages: ['en-US', 'es-ES', 'de-DE', 'fr-FR', 'ja-JP'],
+                    lastUpdated: '1d ago',
+                    dependencies: ['music_service', 'auth']
+                },
+                {
+                    id: 'climate_temp_set',
+                    category: 'Climate',
+                    name: 'Set Temperature',
+                    description: 'Temperature adjusted successfully',
+                    variations: 28,
+                    usageCount: 189,
+                    successRate: 99.2,
+                    languages: ['en-US', 'es-ES', 'de-DE'],
+                    lastUpdated: '3h ago',
+                    dependencies: ['climate_control']
+                },
+                {
+                    id: 'phone_call_started',
+                    category: 'Phone',
+                    name: 'Call Initiated',
+                    description: 'Phone call successfully initiated',
+                    variations: 41,
+                    usageCount: 312,
+                    successRate: 96.8,
+                    languages: ['en-US', 'es-ES', 'de-DE', 'fr-FR', 'zh-CN'],
+                    lastUpdated: '5h ago',
+                    dependencies: ['bluetooth', 'contacts']
+                },
+                {
+                    id: 'nav_route_calculated',
+                    category: 'Navigation',
+                    name: 'Route Calculated',
+                    description: 'Navigation route successfully calculated',
+                    variations: 53,
+                    usageCount: 567,
+                    successRate: 95.4,
+                    languages: ['en-US', 'es-ES', 'de-DE', 'fr-FR', 'ja-JP', 'zh-CN'],
+                    lastUpdated: '1d ago',
+                    dependencies: ['location_services', 'map_data']
+                }
+            ];
+
+            // Edge cases data
+            const edgeCases = [
+                {
+                    id: 'EC-001',
+                    title: 'Heavy background noise during command',
+                    category: 'Audio Quality',
+                    severity: 'high',
+                    frequency: 'common',
+                    testCoverage: 23,
+                    successRate: 78.3,
+                    mitigationStrategy: 'Enhanced noise cancellation algorithms',
+                    affectedScenarios: ['navigation', 'media', 'phone'],
+                    detectionMethod: 'audio_quality_monitor',
+                    realWorldOccurrence: 'High - 342 incidents/month'
+                },
+                {
+                    id: 'EC-002',
+                    title: 'Ambiguous temperature request (hot vs 80)',
+                    category: 'Ambiguity',
+                    severity: 'medium',
+                    frequency: 'occasional',
+                    testCoverage: 15,
+                    successRate: 85.7,
+                    mitigationStrategy: 'Context-aware disambiguation with user confirmation',
+                    affectedScenarios: ['climate'],
+                    detectionMethod: 'ambiguity_detector',
+                    realWorldOccurrence: 'Medium - 124 incidents/month'
+                },
+                {
+                    id: 'EC-003',
+                    title: 'Context loss after 5+ conversation turns',
+                    category: 'Context',
+                    severity: 'high',
+                    frequency: 'rare',
+                    testCoverage: 31,
+                    successRate: 72.1,
+                    mitigationStrategy: 'Enhanced context memory with sliding window',
+                    affectedScenarios: ['multi-turn', 'all'],
+                    detectionMethod: 'context_tracking',
+                    realWorldOccurrence: 'Low - 47 incidents/month'
+                },
+                {
+                    id: 'EC-004',
+                    title: 'Simultaneous multi-domain requests',
+                    category: 'Complexity',
+                    severity: 'high',
+                    frequency: 'common',
+                    testCoverage: 19,
+                    successRate: 81.4,
+                    mitigationStrategy: 'Priority queue with domain separation',
+                    affectedScenarios: ['navigation', 'media', 'climate'],
+                    detectionMethod: 'intent_classifier',
+                    realWorldOccurrence: 'High - 289 incidents/month'
+                },
+                {
+                    id: 'EC-005',
+                    title: 'Network timeout during API call',
+                    category: 'Connectivity',
+                    severity: 'critical',
+                    frequency: 'occasional',
+                    testCoverage: 27,
+                    successRate: 68.9,
+                    mitigationStrategy: 'Retry logic with exponential backoff',
+                    affectedScenarios: ['navigation', 'media', 'phone'],
+                    detectionMethod: 'connection_monitor',
+                    realWorldOccurrence: 'Medium - 156 incidents/month'
+                }
+            ];
+
+            // Configuration data by environment
+            const configurations = {
+                production: {
+                    environment: 'production',
+                    apiEndpoint: 'https://api.soundhound.com/v2',
+                    timeout: 5000,
+                    confidenceThreshold: 75,
+                    retryAttempts: 3,
+                    enableLogging: true,
+                    enableMetrics: true,
+                    rateLimit: 1000,
+                    lastUpdated: '2h ago',
+                    updatedBy: 'Sarah Chen',
+                    status: 'active'
+                },
+                staging: {
+                    environment: 'staging',
+                    apiEndpoint: 'https://staging-api.soundhound.com/v2',
+                    timeout: 3000,
+                    confidenceThreshold: 70,
+                    retryAttempts: 2,
+                    enableLogging: true,
+                    enableMetrics: true,
+                    rateLimit: 500,
+                    lastUpdated: '5h ago',
+                    updatedBy: 'Michael Rodriguez',
+                    status: 'active'
+                },
+                development: {
+                    environment: 'development',
+                    apiEndpoint: 'https://dev-api.soundhound.com/v2',
+                    timeout: 10000,
+                    confidenceThreshold: 60,
+                    retryAttempts: 5,
+                    enableLogging: true,
+                    enableMetrics: false,
+                    rateLimit: 100,
+                    lastUpdated: '1d ago',
+                    updatedBy: 'Lisa Wang',
+                    status: 'active'
+                }
+            };
+
+            const configTemplates = [
+                { name: 'High Performance', timeout: 3000, retryAttempts: 1, confidenceThreshold: 80 },
+                { name: 'Balanced', timeout: 5000, retryAttempts: 3, confidenceThreshold: 75 },
+                { name: 'High Reliability', timeout: 10000, retryAttempts: 5, confidenceThreshold: 70 },
+                { name: 'Development', timeout: 15000, retryAttempts: 5, confidenceThreshold: 60 }
+            ];
+
+            // Integrations data
+            const integrations = [
+                {
+                    id: 'soundhound',
+                    icon: 'mic',
+                    name: 'SoundHound API',
+                    status: 'connected',
+                    health: 99.8,
+                    requestsToday: 1247,
+                    rateLimit: '10000/day',
+                    rateLimitUsed: 12.5,
+                    lastSync: '2 min ago',
+                    avgResponseTime: '245ms',
+                    errorRate: 0.2,
+                    uptime: '99.98%',
+                    version: 'v2.1',
+                    config: { apiKey: '••••••••••••3f8a', region: 'us-west-2' }
+                },
+                {
+                    id: 'github',
+                    icon: 'github',
+                    name: 'GitHub',
+                    status: 'connected',
+                    health: 100,
+                    requestsToday: 24,
+                    rateLimit: '5000/hour',
+                    rateLimitUsed: 0.5,
+                    lastSync: '15 min ago',
+                    avgResponseTime: '180ms',
+                    errorRate: 0,
+                    uptime: '100%',
+                    version: 'v3',
+                    config: { repo: 'acme/voice-ai-tests', branch: 'main' }
+                },
+                {
+                    id: 'jenkins',
+                    icon: 'refresh-cw',
+                    name: 'Jenkins CI/CD',
+                    status: 'connected',
+                    health: 95.5,
+                    requestsToday: 142,
+                    rateLimit: 'unlimited',
+                    rateLimitUsed: 0,
+                    lastSync: '1 min ago',
+                    avgResponseTime: '520ms',
+                    errorRate: 4.5,
+                    uptime: '99.5%',
+                    version: '2.387',
+                    config: { server: 'jenkins.acme.com', pipeline: 'voice-ai-tests' }
+                },
+                {
+                    id: 'jira',
+                    icon: 'layout-grid',
+                    name: 'Jira',
+                    status: 'connected',
+                    health: 98.2,
+                    requestsToday: 67,
+                    rateLimit: '2000/hour',
+                    rateLimitUsed: 3.4,
+                    lastSync: '10 min ago',
+                    avgResponseTime: '340ms',
+                    errorRate: 1.8,
+                    uptime: '99.2%',
+                    version: 'Cloud',
+                    config: { project: 'VOICE', board: 'Testing' }
+                },
+                {
+                    id: 'slack',
+                    icon: '💬',
+                    name: 'Slack',
+                    status: 'connected',
+                    health: 99.9,
+                    requestsToday: 89,
+                    rateLimit: '1/second',
+                    rateLimitUsed: 0.1,
+                    lastSync: '5 min ago',
+                    avgResponseTime: '120ms',
+                    errorRate: 0.1,
+                    uptime: '99.99%',
+                    version: 'v1',
+                    config: { workspace: 'acme-corp', channel: '#voice-ai-testing' }
+                },
+                {
+                    id: 's3',
+                    icon: '📦',
+                    name: 'AWS S3',
+                    status: 'connected',
+                    health: 99.95,
+                    requestsToday: 432,
+                    rateLimit: 'unlimited',
+                    rateLimitUsed: 0,
+                    lastSync: '30 sec ago',
+                    avgResponseTime: '95ms',
+                    errorRate: 0.05,
+                    uptime: '99.99%',
+                    version: 'latest',
+                    config: { bucket: 'voice-ai-test-artifacts', region: 'us-east-1' }
+                }
+            ];
+
+            // Team activity data
+            const teamActivities = [
+                {
+                    id: 1,
+                    user: { initials: 'SC', name: 'Sarah Chen', avatar: null, online: true },
+                    action: 'Updated 47 test cases',
+                    type: 'tests',
+                    timestamp: '2h ago',
+                    details: 'Modified navigation timeout configurations',
+                    impact: 'high',
+                    relatedItems: ['TC-1234', 'TC-1235', 'TC-1236']
+                },
+                {
+                    id: 2,
+                    user: { initials: 'MR', name: 'Michael Rodriguez', avatar: null, online: true },
+                    action: 'Merged PR #342',
+                    type: 'deployments',
+                    timestamp: '4h ago',
+                    details: 'Climate control edge cases implementation',
+                    impact: 'medium',
+                    relatedItems: ['PR-342']
+                },
+                {
+                    id: 3,
+                    user: { initials: 'LW', name: 'Lisa Wang', avatar: null, online: false },
+                    action: 'Created edge case template',
+                    type: 'tests',
+                    timestamp: '5h ago',
+                    details: 'Audio quality degradation scenarios',
+                    impact: 'medium',
+                    relatedItems: ['EC-006', 'EC-007']
+                },
+                {
+                    id: 4,
+                    user: { initials: 'DK', name: 'David Kim', avatar: null, online: true },
+                    action: 'Updated configuration',
+                    type: 'config',
+                    timestamp: '6h ago',
+                    details: 'Increased timeout for staging environment',
+                    impact: 'low',
+                    relatedItems: ['staging-config']
+                },
+                {
+                    id: 5,
+                    user: { initials: 'SC', name: 'Sarah Chen', avatar: null, online: true },
+                    action: 'Deployed to production',
+                    type: 'deployments',
+                    timestamp: '8h ago',
+                    details: 'Version v3.8.2 with 12 new test cases',
+                    impact: 'high',
+                    relatedItems: ['v3.8.2']
+                },
+                {
+                    id: 6,
+                    user: { initials: 'MR', name: 'Michael Rodriguez', avatar: null, online: true },
+                    action: 'Reviewed 23 expected outcomes',
+                    type: 'tests',
+                    timestamp: '1d ago',
+                    details: 'Phone call workflow validations',
+                    impact: 'medium',
+                    relatedItems: ['phone_call_started', 'call_ended']
+                },
+                {
+                    id: 7,
+                    user: { initials: 'LW', name: 'Lisa Wang', avatar: null, online: false },
+                    action: 'Added integration: Datadog',
+                    type: 'config',
+                    timestamp: '1d ago',
+                    details: 'Monitoring and alerting setup',
+                    impact: 'high',
+                    relatedItems: ['datadog-integration']
+                },
+                {
+                    id: 8,
+                    user: { initials: 'DK', name: 'David Kim', avatar: null, online: true },
+                    action: 'Fixed failing tests',
+                    type: 'tests',
+                    timestamp: '2d ago',
+                    details: 'Context preservation in multi-turn scenarios',
+                    impact: 'high',
+                    relatedItems: ['TC-892', 'TC-893', 'TC-894']
+                }
+            ];
+
+            const teamMembers = [
+                { initials: 'SC', name: 'Sarah Chen', role: 'Lead QA Engineer', online: true, testsCreated: 342, deploymentsToday: 2 },
+                { initials: 'MR', name: 'Michael Rodriguez', role: 'Senior Test Engineer', online: true, testsCreated: 289, deploymentsToday: 1 },
+                { initials: 'LW', name: 'Lisa Wang', role: 'Automation Engineer', online: false, testsCreated: 267, deploymentsToday: 0 },
+                { initials: 'DK', name: 'David Kim', role: 'QA Engineer', online: true, testsCreated: 198, deploymentsToday: 0 }
+            ];
+
+            // Realistic test case names and metadata
+            const testCategories = {
+                navigation: [
+                    'Navigate to nearest coffee shop', 'Find gas station along route', 'Navigate home avoiding tolls',
+                    'Route to work with traffic avoidance', 'Find parking near destination', 'Navigate to saved location: Mom\'s House',
+                    'Multi-stop route: grocery store then home', 'Find nearest EV charging station', 'Navigate to coordinates',
+                    'Find restaurant: Italian cuisine nearby', 'Navigate to POI: Starbucks on Main St', 'Route to airport terminal 2'
+                ],
+                media: [
+                    'Play workout playlist on Spotify', 'Play latest podcast episode', 'Resume audiobook from last position',
+                    'Play jazz music', 'Skip to next track', 'Shuffle current playlist', 'Play album: Abbey Road',
+                    'Play artist: Taylor Swift', 'Search and play song: Bohemian Rhapsody', 'Play radio station: NPR',
+                    'Pause media playback', 'Adjust volume to 50%'
+                ],
+                climate: [
+                    'Set temperature to 72 degrees', 'Turn on AC', 'Turn off heating', 'Set fan speed to maximum',
+                    'Enable auto climate control', 'Defrost windshield', 'Set driver temperature to 68',
+                    'Set passenger temperature to 74', 'Turn on seat heater', 'Activate ventilated seats'
+                ],
+                phone: [
+                    'Call Mom on mobile', 'Call John Smith', 'Redial last number', 'Answer incoming call',
+                    'Reject call with text message', 'Call home', 'Call work', 'Send text to Sarah: Running late',
+                    'Read unread messages', 'Call emergency contact'
+                ],
+                multiTurn: [
+                    'Multi-turn: Music then navigation', 'Multi-turn: Call then message', 'Multi-turn: Climate with navigation',
+                    'Multi-turn: Search POI then navigate', 'Multi-turn: Play music then adjust volume',
+                    'Context switch: Navigation to phone call', 'Context preservation: Music during navigation',
+                    'Multi-turn: Weather then navigation planning'
+                ],
+                edge: [
+                    'Edge: Heavy background noise during command', 'Edge: Ambiguous temperature (hot vs 80)',
+                    'Edge: Conflicting commands rapid fire', 'Edge: Context loss after 5+ turns',
+                    'Edge: Accented speech recognition', 'Edge: Whisper mode input', 'Edge: Simultaneous speakers',
+                    'Edge: Network timeout handling', 'Edge: Invalid destination handling', 'Edge: Interrupted command'
+                ]
+            };
+
+            const generateTestName = (index) => {
+                const allNames = [
+                    ...testCategories.navigation,
+                    ...testCategories.media,
+                    ...testCategories.climate,
+                    ...testCategories.phone,
+                    ...testCategories.multiTurn,
+                    ...testCategories.edge
+                ];
+                return allNames[index % allNames.length] || `Test Case ${index + 1}`;
+            };
+
+            const getTestCategory = (index) => {
+                const total = Object.values(testCategories).reduce((sum, arr) => sum + arr.length, 0);
+                const normalized = index % total;
+                let count = 0;
+
+                for (const [category, tests] of Object.entries(testCategories)) {
+                    count += tests.length;
+                    if (normalized < count) return category;
+                }
+                return 'navigation';
+            };
+
+            const getTestTags = (category) => {
+                const tagMap = {
+                    navigation: ['navigation', 'POI', 'routing'],
+                    media: ['media', 'entertainment', 'audio'],
+                    climate: ['climate', 'comfort', 'HVAC'],
+                    phone: ['phone', 'communication', 'hands-free'],
+                    multiTurn: ['multi-turn', 'context', 'complex'],
+                    edge: ['edge-case', 'robustness', 'error-handling']
+                };
+                return tagMap[category] || ['general'];
+            };
+
+            // Sample test data for current page
+            const allTests = Array.from({length: TOTAL_TEST_CASES}, (_, i) => {
+                const category = getTestCategory(i);
+                return {
+                    id: i + 1,
+                    title: generateTestName(i),
+                    category: category,
+                    languages: Math.floor(Math.random() * 4) + 5, // 5-8 languages
+                    version: `v3.${Math.floor(i / 100)}.${i % 10}`,
+                    lastRun: ['2h ago', '5h ago', '1d ago', '3d ago'][i % 4],
+                    status: ['passed', 'passed', 'passed', 'failed'][i % 4],
+                    tags: getTestTags(category)
+                };
+            });
+
+            const totalPages = Math.ceil(TOTAL_TEST_CASES / pageSize);
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, TOTAL_TEST_CASES);
+            const currentTests = allTests.slice(startIndex, endIndex);
+
+            const toggleTest = (id) => {
+                setSelectedTests(prev =>
+                    prev.includes(id) ? prev.filter(t => t !== id) : [...prev, id]
+                );
+            };
+
+            const selectAll = () => {
+                setSelectedTests(currentTests.map(t => t.id));
+            };
+
+            const clearSelection = () => {
+                setSelectedTests([]);
+            };
+
+            // Keyboard shortcuts
+            useEffect(() => {
+                const handleKey = (e) => {
+                    if (e.key === 'Escape') {
+                        setShowCreateModal(false);
+                        setShowDeleteModal(false);
+                        setShowImportModal(false);
+                    }
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+                        e.preventDefault();
+                        if (userRole !== 'viewer') {
+                            setShowCreateModal(true);
+                        }
+                    }
+                };
+
+                document.addEventListener('keydown', handleKey);
+                return () => document.removeEventListener('keydown', handleKey);
+            }, [userRole]);
+
+            return (
+                <div className="dashboard">
+                    {/* Navigation */}
+                    <nav className="main-nav">
+                        <div className="nav-container">
+                            <div className="nav-brand">Productive Playhouse</div>
+                            <div className="nav-links">
+                                <a href="dashboard.html" className="nav-link"><i data-lucide="layout-dashboard" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Dashboard</a>
+                                <a href="test-management.html" className="nav-link active"><i data-lucide="flask-conical" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Test Management</a>
+                                <a href="analytics.html" className="nav-link"><i data-lucide="trending-up" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Analytics</a>
+                                <a href="validation.html" className="nav-link"><i data-lucide="check-circle" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Validation</a>
+                                <a href="reports.html" className="nav-link"><i data-lucide="file-text" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Reports</a>
+                            </div>
+                        </div>
+                    </nav>
+
+                    {/* Header */}
+                    <div className="header">
+                        <div className="header-top">
+                            <div>
+                                <h1>Test Management
+                                    <span className="permission-badge">{userRole.toUpperCase()}</span>
+                                </h1>
+                                <div className="subtitle">Productive Playhouse × SoundHound Integration</div>
+                            </div>
+                            <div className="header-actions">
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={() => setShowCreateModal(true)}
+                                    disabled={userRole === 'viewer'}
+                                >
+                                    + Create Test Case
+                                </button>
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowImportModal(true)}
+                                    disabled={userRole === 'viewer'}
+                                >
+                                    <i data-lucide="download" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Import
+                                </button>
+                                <button className="icon-btn"><i data-lucide="settings" style={{width: '16px', height: '16px'}}></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Quick Stats */}
+                    <div className="grid-4">
+                        <div className="card">
+                            <div className="metric">{TOTAL_TEST_CASES}</div>
+                            <div className="metric-label">Total Test Cases</div>
+                            <div className="progress-bar">
+                                <div className="progress-fill" style={{width: '85%'}}></div>
+                            </div>
+                        </div>
+                        <div className="card">
+                            <div className="metric">847</div>
+                            <div className="metric-label">Active Scenarios</div>
+                        </div>
+                        <div className="card">
+                            <div className="metric">94</div>
+                            <div className="metric-label">Config Versions</div>
+                        </div>
+                        <div className="card">
+                            <div className="metric">18</div>
+                            <div className="metric-label">Contributors</div>
+                        </div>
+                    </div>
+
+                    {/* Test Repository */}
+                    <div className="grid-2">
+                        <div className="card">
+                            <div className="card-header">
+                                <div className="card-title">Test Case Repository</div>
+                            </div>
+
+                            {/* Pagination Header */}
+                            <div className="pagination-header">
+                                <div>
+                                    Showing <strong>{startIndex + 1}-{endIndex}</strong> of <strong>{TOTAL_TEST_CASES}</strong>
+                                </div>
+                                <div>
+                                    Per page:
+                                    <select
+                                        value={pageSize}
+                                        onChange={(e) => {
+                                            setPageSize(Number(e.target.value));
+                                            setCurrentPage(1);
+                                        }}
+                                        style={{marginLeft: '8px', padding: '4px 8px', borderRadius: '4px'}}
+                                    >
+                                        <option value={10}>10</option>
+                                        <option value={25}>25</option>
+                                        <option value={50}>50</option>
+                                        <option value={100}>100</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Bulk Actions */}
+                            {selectedTests.length > 0 && (
+                                <div className="bulk-actions-bar">
+                                    <div><strong>{selectedTests.length}</strong> selected</div>
+                                    <div style={{display: 'flex', gap: '8px'}}>
+                                        <button className="btn"><i data-lucide="play" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Run</button>
+                                        <button className="btn"><i data-lucide="upload" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Export</button>
+                                        <button
+                                            className="btn"
+                                            onClick={() => setShowDeleteModal(true)}
+                                        >
+                                            <i data-lucide="trash-2" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Delete
+                                        </button>
+                                        <button className="btn" onClick={clearSelection}><i data-lucide="x" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Clear</button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Filters */}
+                            <div className="filter-bar">
+                                <button className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`} onClick={() => setActiveFilter('all')}>
+                                    All ({TOTAL_TEST_CASES})
+                                </button>
+                                <button className={`filter-btn ${activeFilter === 'voice' ? 'active' : ''}`} onClick={() => setActiveFilter('voice')}>
+                                    Voice (1281)
+                                </button>
+                                <button className={`filter-btn ${activeFilter === 'multi-turn' ? 'active' : ''}`} onClick={() => setActiveFilter('multi-turn')}>
+                                    Multi-turn (854)
+                                </button>
+                                <button className={`filter-btn ${activeFilter === 'edge' ? 'active' : ''}`} onClick={() => setActiveFilter('edge')}>
+                                    Edge (285)
+                                </button>
+                                <input type="text" className="search-box" placeholder="Search..." />
+                            </div>
+
+                            <div style={{marginBottom: '8px'}}>
+                                <button className="btn btn-secondary" onClick={selectAll}>Select All</button>
+                            </div>
+
+                            {/* Test List */}
+                            <div className="test-case-list">
+                                {currentTests.slice(0, 5).map(test => (
+                                    <div key={test.id} className={`test-case-card ${selectedTests.includes(test.id) ? 'selected' : ''}`}>
+                                        <input
+                                            type="checkbox"
+                                            className="test-checkbox"
+                                            checked={selectedTests.includes(test.id)}
+                                            onChange={() => toggleTest(test.id)}
+                                        />
+                                        <div className="test-case-title">{test.title}</div>
+                                        <div className="test-case-meta">
+                                            {test.languages} languages • {test.version} • Last run: {test.lastRun} • {test.status === 'passed' ? <i data-lucide="check" style={{width: '12px', height: '12px'}}></i> : <i data-lucide="x-circle" style={{width: '12px', height: '12px'}}></i>} {test.status}
+                                        </div>
+                                        <div>
+                                            {test.tags.map((tag, idx) => (
+                                                <span key={idx} className="tag">{tag}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Pagination Controls */}
+                            <div className="pagination-controls">
+                                <div>Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong></div>
+                                <div className="page-buttons">
+                                    <button
+                                        className="page-btn"
+                                        disabled={currentPage === 1}
+                                        onClick={() => setCurrentPage(1)}
+                                    >
+                                        ⏮
+                                    </button>
+                                    <button
+                                        className="page-btn"
+                                        disabled={currentPage === 1}
+                                        onClick={() => setCurrentPage(p => p - 1)}
+                                    >
+                                        ◀
+                                    </button>
+
+                                    {[1, 2, 3, '...', totalPages - 1, totalPages].map((page, idx) => (
+                                        page === '...' ? (
+                                            <span key={idx} style={{padding: '6px'}}>...</span>
+                                        ) : (
+                                            <button
+                                                key={page}
+                                                className={`page-btn ${currentPage === page ? 'active' : ''}`}
+                                                onClick={() => setCurrentPage(page)}
+                                            >
+                                                {page}
+                                            </button>
+                                        )
+                                    ))}
+
+                                    <button
+                                        className="page-btn"
+                                        disabled={currentPage === totalPages}
+                                        onClick={() => setCurrentPage(p => p + 1)}
+                                    >
+                                        <i data-lucide="play" style={{width: '14px', height: '14px'}}></i>
+                                    </button>
+                                    <button
+                                        className="page-btn"
+                                        disabled={currentPage === totalPages}
+                                        onClick={() => setCurrentPage(totalPages)}
+                                    >
+                                        <i data-lucide="skip-forward" style={{width: '14px', height: '14px'}}></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Scenario Builder */}
+                        <div className="card">
+                            <div className="card-header">
+                                <div>
+                                    <div className="card-title">
+                                        Scenario Builder
+                                        {hasUnsavedChanges && <span className="unsaved-indicator" title="Unsaved changes"></span>}
+                                    </div>
+                                </div>
+                                <div style={{display: 'flex', gap: '8px'}}>
+                                    <button
+                                        className="btn btn-secondary"
+                                        onClick={() => setShowContextLibrary(!showContextLibrary)}
+                                        title="View context variables library"
+                                    >
+                                        <i data-lucide="book-open" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Context Library
+                                    </button>
+                                    <button
+                                        className="btn btn-primary"
+                                        onClick={() => {
+                                            setHasUnsavedChanges(false);
+                                            alert('Scenario saved successfully!');
+                                        }}
+                                    >
+                                        <i data-lucide="save" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Save
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Scenario Mode Toggle */}
+                            <div style={{marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                <div className="scenario-mode-toggle">
+                                    <button
+                                        className={`scenario-mode-btn ${scenarioMode === 'edit' ? 'active' : ''}`}
+                                        onClick={() => setScenarioMode('edit')}
+                                    >
+                                        <i data-lucide="edit" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Edit Existing
+                                    </button>
+                                    <button
+                                        className={`scenario-mode-btn ${scenarioMode === 'new' ? 'active' : ''}`}
+                                        onClick={() => {
+                                            setScenarioMode('new');
+                                            setHasUnsavedChanges(true);
+                                        }}
+                                    >
+                                        <i data-lucide="sparkles" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Create New
+                                    </button>
+                                </div>
+
+                                {scenarioMode === 'edit' && (
+                                    <select
+                                        className="form-select"
+                                        style={{width: 'auto', minWidth: '250px'}}
+                                        value={selectedScenario}
+                                        onChange={(e) => setSelectedScenario(e.target.value)}
+                                    >
+                                        {scenarios.map(s => (
+                                            <option key={s.id} value={s.id}>
+                                                {s.id}: {s.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
+                            </div>
+
+                            {/* Scenario Metadata */}
+                            {scenarioMode === 'edit' ? (
+                                <div className="scenario-metadata">
+                                    <div>
+                                        <div style={{fontSize: '11px', color: '#718096', marginBottom: '4px'}}>EDITING</div>
+                                        <div style={{fontSize: '14px', fontWeight: '600'}}>{scenarios.find(s => s.id === selectedScenario)?.name}</div>
+                                        <div style={{fontSize: '12px', color: '#718096', marginTop: '4px'}}>
+                                            Created by {scenarios.find(s => s.id === selectedScenario)?.author} • {scenarios.find(s => s.id === selectedScenario)?.created}
+                                        </div>
+                                    </div>
+                                    <div style={{textAlign: 'right'}}>
+                                        <span className="badge primary">{scenarios.find(s => s.id === selectedScenario)?.turns} Turns</span>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="scenario-metadata">
+                                    <div>
+                                        <div style={{fontSize: '11px', color: '#718096', marginBottom: '4px'}}>NEW SCENARIO</div>
+                                        <input
+                                            type="text"
+                                            className="form-input"
+                                            placeholder="Enter scenario name..."
+                                            style={{marginTop: '4px', fontSize: '14px', fontWeight: '600'}}
+                                            onChange={() => setHasUnsavedChanges(true)}
+                                        />
+                                    </div>
+                                    <div style={{textAlign: 'right'}}>
+                                        <span className="badge warning">Draft</span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Context Library Panel */}
+                            {showContextLibrary && (
+                                <div className="context-library-panel">
+                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px'}}>
+                                        <h4 style={{fontSize: '14px', fontWeight: '600'}}>
+                                            Available Context Variables
+                                            <span className="info-tooltip" data-tooltip="Drag to add to your scenario">
+                                                {' '}<i data-lucide="info" style={{width: '14px', height: '14px'}}></i>
+                                            </span>
+                                        </h4>
+                                        <button
+                                            className="btn btn-secondary"
+                                            style={{fontSize: '11px', padding: '4px 10px'}}
+                                            onClick={() => setShowContextLibrary(false)}
+                                        >
+                                            <i data-lucide="x" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Close
+                                        </button>
+                                    </div>
+                                    <div style={{maxHeight: '200px', overflowY: 'auto'}}>
+                                        {contextVariables.map((ctx, idx) => (
+                                            <div key={idx} className="context-var-item">
+                                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'start'}}>
+                                                    <div style={{flex: 1}}>
+                                                        <div style={{fontSize: '13px', fontWeight: '600', fontFamily: 'monospace', color: '#5BA9AC'}}>
+                                                            {ctx.name}
+                                                        </div>
+                                                        <div style={{fontSize: '11px', color: '#718096', marginTop: '2px'}}>
+                                                            {ctx.description}
+                                                        </div>
+                                                    </div>
+                                                    <div style={{display: 'flex', gap: '6px', alignItems: 'center'}}>
+                                                        <span className="badge primary" style={{fontSize: '10px'}}>{ctx.category}</span>
+                                                        <span className="badge" style={{fontSize: '10px', background: '#f7fafc'}}>{ctx.type}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div style={{marginTop: '12px', padding: '10px', background: '#ebf8ff', borderRadius: '6px', fontSize: '12px'}}>
+                                        <i data-lucide="lightbulb" style={{width: '16px', height: '16px', marginRight: '6px'}}></i> <strong>Tip:</strong> Context variables help verify system state persists between conversation turns
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Editor Mode Toggle */}
+                            <div style={{marginTop: '16px', marginBottom: '16px'}}>
+                                <button
+                                    className={`btn ${editorMode === 'code' ? 'btn-primary' : 'btn-secondary'}`}
+                                    onClick={() => setEditorMode('code')}
+                                    style={{marginRight: '8px'}}
+                                >
+                                    <i data-lucide="code" style={{width: '16px', height: '16px', marginRight: '6px'}}></i> Code Editor
+                                </button>
+                                <button
+                                    className={`btn ${editorMode === 'visual' ? 'btn-primary' : 'btn-secondary'}`}
+                                    onClick={() => setEditorMode('visual')}
+                                >
+                                    <i data-lucide="palette" style={{width: '16px', height: '16px', marginRight: '6px'}}></i> Visual Editor
+                                </button>
+                            </div>
+
+                            {editorMode === 'code' && (
+                                <div>
+                                    <div style={{fontSize: '11px', color: '#718096', marginBottom: '8px', display: 'flex', justifyContent: 'space-between'}}>
+                                        <span>YAML Configuration</span>
+                                        <span>Format: YAML | Syntax: v2.0</span>
+                                    </div>
+                                    <div className="code-editor" style={{position: 'relative'}}>
+                                        <div><span className="keyword">scenario</span>: <span className="string">"{scenarioMode === 'new' ? 'New Scenario' : scenarios.find(s => s.id === selectedScenario)?.name}"</span></div>
+                                        <div><span className="keyword">id</span>: <span className="string">"{scenarioMode === 'new' ? 'SC-NEW' : selectedScenario}"</span></div>
+                                        <div><span className="keyword">version</span>: <span className="number">1.0</span></div>
+                                        <div><span className="keyword">steps</span>:</div>
+                                        <div>  - <span className="keyword">turn</span>: <span className="number">1</span></div>
+                                        <div>    <span className="keyword">input</span>: <span className="string">"Play workout playlist"</span></div>
+                                        <div>    <span className="keyword">expected_outcome</span>: <span className="string">"music_playback_started"</span></div>
+                                        <div>    <span className="keyword">assertions</span>:</div>
+                                        <div>      - <span className="keyword">type</span>: <span className="string">"state_change"</span></div>
+                                        <div>      - <span className="keyword">verify</span>: <span className="string">"audio_streaming"</span></div>
+                                        <div>  - <span className="keyword">turn</span>: <span className="number">2</span></div>
+                                        <div>    <span className="keyword">input</span>: <span className="string">"Navigate to gym"</span></div>
+                                        <div>    <span className="keyword">expected_outcome</span>: <span className="string">"navigation_started"</span></div>
+                                        <div>    <span className="keyword">context_check</span>: <span className="string">"music_still_playing"</span> <span style={{color: '#48bb78'}}># From Context Library</span></div>
+                                        <div>    <span className="keyword">assertions</span>:</div>
+                                        <div>      - <span className="keyword">type</span>: <span className="string">"parallel_execution"</span></div>
+                                        <div>      - <span className="keyword">verify</span>: [<span className="string">"route_calculated"</span>, <span className="string">"music_continues"</span>]</div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {editorMode === 'visual' && (
+                                <div className="visual-editor">
+                                    <div className="turn-block">
+                                        <div className="turn-number">Turn 1</div>
+                                        <div className="form-group">
+                                            <label className="form-label">User Input:</label>
+                                            <input
+                                                type="text"
+                                                className="form-input"
+                                                defaultValue="Play my workout playlist"
+                                                onChange={() => setHasUnsavedChanges(true)}
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">
+                                                Expected Outcome:
+                                                <span className="info-tooltip" data-tooltip="Select from predefined outcomes">
+                                                    {' '}<i data-lucide="info" style={{width: '14px', height: '14px'}}></i>
+                                                </span>
+                                            </label>
+                                            <select className="form-select" onChange={() => setHasUnsavedChanges(true)}>
+                                                <option>music_playback_started</option>
+                                                <option>media_play_playlist</option>
+                                                <option>audio_streaming_active</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">Assertions:</label>
+                                            <div style={{fontSize: '12px', color: '#718096', marginBottom: '8px'}}>
+                                                <i data-lucide="check" style={{width: '14px', height: '14px', marginRight: '4px'}}></i> State change detected<br/>
+                                                <i data-lucide="check" style={{width: '14px', height: '14px', marginRight: '4px'}}></i> Audio streaming verified
+                                            </div>
+                                        </div>
+                                        <div className="turn-actions">
+                                            <button className="btn btn-secondary" style={{fontSize: '12px', padding: '4px 10px'}}>
+                                                + Add Assertion
+                                            </button>
+                                            <button className="btn btn-danger" style={{fontSize: '12px', padding: '4px 10px'}}>
+                                                <i data-lucide="trash-2" style={{width: '14px', height: '14px', marginRight: '4px'}}></i> Delete Turn
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="turn-block">
+                                        <div className="turn-number">Turn 2</div>
+                                        <div className="form-group">
+                                            <label className="form-label">User Input:</label>
+                                            <input
+                                                type="text"
+                                                className="form-input"
+                                                defaultValue="Navigate to gym"
+                                                onChange={() => setHasUnsavedChanges(true)}
+                                            />
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">Expected Outcome:</label>
+                                            <select className="form-select" onChange={() => setHasUnsavedChanges(true)}>
+                                                <option>navigation_started</option>
+                                                <option>route_calculated</option>
+                                                <option>nav_poi_gym</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">
+                                                Context Verification
+                                                <span className="info-tooltip" data-tooltip="Select variables from Context Library">
+                                                    {' '}<i data-lucide="info" style={{width: '14px', height: '14px'}}></i>
+                                                </span>
+                                            </label>
+                                            <div style={{background: '#f7fafc', padding: '10px', borderRadius: '6px'}}>
+                                                <label style={{display: 'block', marginBottom: '6px', fontSize: '13px'}}>
+                                                    <input type="checkbox" defaultChecked />
+                                                    {' '}<strong>music_still_playing</strong>
+                                                    <span style={{fontSize: '11px', color: '#718096', marginLeft: '8px'}}>
+                                                        (Media • Boolean)
+                                                    </span>
+                                                </label>
+                                                <label style={{display: 'block', fontSize: '13px'}}>
+                                                    <input type="checkbox" />
+                                                    {' '}<strong>volume_level</strong>
+                                                    <span style={{fontSize: '11px', color: '#718096', marginLeft: '8px'}}>
+                                                        (Media • Number)
+                                                    </span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div className="form-group">
+                                            <label className="form-label">Assertions:</label>
+                                            <div style={{fontSize: '12px', color: '#718096', marginBottom: '8px'}}>
+                                                <i data-lucide="check" style={{width: '14px', height: '14px', marginRight: '4px'}}></i> Parallel execution verified<br/>
+                                                <i data-lucide="check" style={{width: '14px', height: '14px', marginRight: '4px'}}></i> Route calculated<br/>
+                                                <i data-lucide="check" style={{width: '14px', height: '14px', marginRight: '4px'}}></i> Music playback continues
+                                            </div>
+                                        </div>
+                                        <div className="turn-actions">
+                                            <button className="btn btn-secondary" style={{fontSize: '12px', padding: '4px 10px'}}>
+                                                + Add Assertion
+                                            </button>
+                                            <button className="btn btn-secondary" style={{fontSize: '12px', padding: '4px 10px'}}>
+                                                + Add Context Check
+                                            </button>
+                                            <button className="btn btn-danger" style={{fontSize: '12px', padding: '4px 10px'}}>
+                                                <i data-lucide="trash-2" style={{width: '14px', height: '14px', marginRight: '4px'}}></i> Delete Turn
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <button className="btn btn-primary" onClick={() => setHasUnsavedChanges(true)}>
+                                        + Add Turn
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Quick Actions Footer */}
+                            <div style={{marginTop: '16px', padding: '12px', background: '#f7fafc', borderRadius: '8px', fontSize: '12px'}}>
+                                <strong>Quick Actions:</strong>
+                                <div style={{marginTop: '8px', display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+                                    <button className="btn btn-secondary" style={{fontSize: '11px', padding: '4px 10px'}}>
+                                        <i data-lucide="play" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Test Scenario
+                                    </button>
+                                    <button className="btn btn-secondary" style={{fontSize: '11px', padding: '4px 10px'}}>
+                                        <i data-lucide="upload" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Export YAML
+                                    </button>
+                                    <button className="btn btn-secondary" style={{fontSize: '11px', padding: '4px 10px'}}>
+                                        <i data-lucide="copy" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Duplicate
+                                    </button>
+                                    <button className="btn btn-secondary" style={{fontSize: '11px', padding: '4px 10px'}}>
+                                        <i data-lucide="history" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> View History
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Configuration Management & Version Control */}
+                    <div className="grid-2">
+                        <div className="card">
+                            <div className="card-header">
+                                <div>
+                                    <div className="card-title"><i data-lucide="settings" style={{width: '18px', height: '18px', marginRight: '6px'}}></i> Configuration Management</div>
+                                </div>
+                                <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+                                    <span className={`validation-indicator validation-${configValidationStatus}`}>
+                                        {configValidationStatus === 'valid' && <><i data-lucide="check" style={{width: '14px', height: '14px', marginRight: '4px'}}></i> Valid</>}
+                                        {configValidationStatus === 'warning' && <><i data-lucide="alert-triangle" style={{width: '14px', height: '14px', marginRight: '4px'}}></i> Warning</>}
+                                        {configValidationStatus === 'error' && <><i data-lucide="x-circle" style={{width: '14px', height: '14px', marginRight: '4px'}}></i> Error</>}
+                                    </span>
+                                    <button
+                                        className="btn btn-secondary"
+                                        style={{fontSize: '11px', padding: '5px 10px'}}
+                                        onClick={() => setShowConfigTemplates(!showConfigTemplates)}
+                                    >
+                                        <i data-lucide="book-open" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Templates
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Environment Selector */}
+                            <div style={{marginBottom: '16px'}}>
+                                <div className="env-selector">
+                                    <button
+                                        className={`env-btn production ${selectedEnvironment === 'production' ? 'active' : ''}`}
+                                        onClick={() => setSelectedEnvironment('production')}
+                                    >
+                                        <i data-lucide="check-circle" style={{width: '14px', height: '14px', marginRight: '4px', color: '#48bb78'}}></i> Production
+                                    </button>
+                                    <button
+                                        className={`env-btn staging ${selectedEnvironment === 'staging' ? 'active' : ''}`}
+                                        onClick={() => setSelectedEnvironment('staging')}
+                                    >
+                                        🟡 Staging
+                                    </button>
+                                    <button
+                                        className={`env-btn development ${selectedEnvironment === 'development' ? 'active' : ''}`}
+                                        onClick={() => setSelectedEnvironment('development')}
+                                    >
+                                        🔵 Development
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Templates Panel */}
+                            {showConfigTemplates && (
+                                <div style={{background: '#f7fafc', border: '2px dashed #5BA9AC', borderRadius: '8px', padding: '14px', marginBottom: '16px'}}>
+                                    <h4 style={{fontSize: '13px', fontWeight: '600', marginBottom: '10px'}}>Configuration Templates</h4>
+                                    <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px'}}>
+                                        {configTemplates.map((template, idx) => (
+                                            <button
+                                                key={idx}
+                                                className="btn btn-secondary"
+                                                style={{fontSize: '11px', padding: '6px 10px', textAlign: 'left'}}
+                                                onClick={() => {
+                                                    setShowConfigTemplates(false);
+                                                    alert(`Applied template: ${template.name}`);
+                                                }}
+                                            >
+                                                <div style={{fontWeight: '600'}}>{template.name}</div>
+                                                <div style={{fontSize: '10px', color: '#718096'}}>
+                                                    {template.timeout}ms • {template.confidenceThreshold}%
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Environment Info */}
+                            <div style={{background: '#f7fafc', borderRadius: '8px', padding: '10px 14px', marginBottom: '16px', fontSize: '12px'}}>
+                                <div style={{display: 'flex', justifyContent: 'space-between'}}>
+                                    <div>
+                                        <strong style={{textTransform: 'uppercase'}}>{configurations[selectedEnvironment].environment}</strong> Environment
+                                    </div>
+                                    <div style={{color: '#718096'}}>
+                                        Updated {configurations[selectedEnvironment].lastUpdated} by {configurations[selectedEnvironment].updatedBy}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Configuration Items */}
+                            <div style={{background: 'white', border: '1px solid #e2e8f0', borderRadius: '8px', marginBottom: '16px'}}>
+                                <div className="config-item">
+                                    <div>
+                                        <div style={{fontWeight: '600', fontSize: '13px', marginBottom: '2px'}}>API Endpoint</div>
+                                        <div style={{fontSize: '11px', color: '#718096'}}>Voice AI service URL</div>
+                                    </div>
+                                    <div className="config-value">{configurations[selectedEnvironment].apiEndpoint}</div>
+                                </div>
+                                <div className="config-item">
+                                    <div>
+                                        <div style={{fontWeight: '600', fontSize: '13px', marginBottom: '2px'}}>Timeout</div>
+                                        <div style={{fontSize: '11px', color: '#718096'}}>Request timeout duration</div>
+                                    </div>
+                                    <div className="config-value">{configurations[selectedEnvironment].timeout}ms</div>
+                                </div>
+                                <div className="config-item">
+                                    <div>
+                                        <div style={{fontWeight: '600', fontSize: '13px', marginBottom: '2px'}}>Confidence Threshold</div>
+                                        <div style={{fontSize: '11px', color: '#718096'}}>Minimum confidence score</div>
+                                    </div>
+                                    <div className="config-value">≥ {configurations[selectedEnvironment].confidenceThreshold}%</div>
+                                </div>
+                                <div className="config-item">
+                                    <div>
+                                        <div style={{fontWeight: '600', fontSize: '13px', marginBottom: '2px'}}>Retry Attempts</div>
+                                        <div style={{fontSize: '11px', color: '#718096'}}>Max retry count on failure</div>
+                                    </div>
+                                    <div className="config-value">{configurations[selectedEnvironment].retryAttempts}</div>
+                                </div>
+                                <div className="config-item">
+                                    <div>
+                                        <div style={{fontWeight: '600', fontSize: '13px', marginBottom: '2px'}}>Rate Limit</div>
+                                        <div style={{fontSize: '11px', color: '#718096'}}>Requests per hour</div>
+                                    </div>
+                                    <div className="config-value">{configurations[selectedEnvironment].rateLimit}/hr</div>
+                                </div>
+                                <div className="config-item">
+                                    <div style={{display: 'flex', gap: '12px'}}>
+                                        <label style={{fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px'}}>
+                                            <input type="checkbox" checked={configurations[selectedEnvironment].enableLogging} readOnly />
+                                            <span>Enable Logging</span>
+                                        </label>
+                                        <label style={{fontSize: '13px', display: 'flex', alignItems: 'center', gap: '6px'}}>
+                                            <input type="checkbox" checked={configurations[selectedEnvironment].enableMetrics} readOnly />
+                                            <span>Enable Metrics</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div style={{display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+                                <button
+                                    className="btn btn-primary"
+                                    style={{fontSize: '12px', padding: '6px 12px'}}
+                                    onClick={() => setConfigValidationStatus('valid')}
+                                >
+                                    <i data-lucide="check" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Validate Config
+                                </button>
+                                <button className="btn btn-secondary" style={{fontSize: '12px', padding: '6px 12px'}}>
+                                    {editingConfig ? <><i data-lucide="save" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Save Changes</> : <><i data-lucide="edit" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Edit</>}
+                                </button>
+                                <button className="btn btn-secondary" style={{fontSize: '12px', padding: '6px 12px'}}>
+                                    <i data-lucide="upload" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Export
+                                </button>
+                                <button className="btn btn-secondary" style={{fontSize: '12px', padding: '6px 12px'}}>
+                                    <i data-lucide="download" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Import
+                                </button>
+                                <button
+                                    className="btn btn-secondary"
+                                    style={{fontSize: '12px', padding: '6px 12px'}}
+                                    onClick={() => setShowConfigHistory(!showConfigHistory)}
+                                >
+                                    <i data-lucide="clock" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> History
+                                </button>
+                            </div>
+
+                            {/* Config History */}
+                            {showConfigHistory && (
+                                <div style={{marginTop: '14px', padding: '12px', background: '#f7fafc', borderRadius: '8px'}}>
+                                    <h4 style={{fontSize: '12px', fontWeight: '600', marginBottom: '10px'}}>Recent Changes</h4>
+                                    <div style={{fontSize: '11px', color: '#4a5568'}}>
+                                        <div style={{marginBottom: '8px'}}>• 2h ago: Timeout increased to 5000ms (Sarah Chen)</div>
+                                        <div style={{marginBottom: '8px'}}>• 1d ago: Confidence threshold adjusted to 75% (Michael Rodriguez)</div>
+                                        <div>• 3d ago: Rate limit updated to 1000/hr (Lisa Wang)</div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="card">
+                            <div className="card-header">
+                                <div>
+                                    <div className="card-title"><i data-lucide="git-branch" style={{width: '18px', height: '18px', marginRight: '6px'}}></i> Version History</div>
+                                </div>
+                                <div style={{display: 'flex', gap: '8px'}}>
+                                    <button
+                                        className="btn btn-secondary"
+                                        style={{fontSize: '11px', padding: '5px 10px'}}
+                                        onClick={() => setShowVersionDiff(!showVersionDiff)}
+                                    >
+                                        {showVersionDiff ? <><i data-lucide="list" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> List View</> : <><i data-lucide="git-compare" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Compare</>}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Version Filter */}
+                            <div className="filter-bar">
+                                <button
+                                    className={`filter-btn ${versionFilter === 'all' ? 'active' : ''}`}
+                                    onClick={() => setVersionFilter('all')}
+                                >
+                                    All Versions
+                                </button>
+                                <button
+                                    className={`filter-btn ${versionFilter === 'major' ? 'active' : ''}`}
+                                    onClick={() => setVersionFilter('major')}
+                                >
+                                    Major
+                                </button>
+                                <button
+                                    className={`filter-btn ${versionFilter === 'minor' ? 'active' : ''}`}
+                                    onClick={() => setVersionFilter('minor')}
+                                >
+                                    Minor
+                                </button>
+                                <button
+                                    className={`filter-btn ${versionFilter === 'patch' ? 'active' : ''}`}
+                                    onClick={() => setVersionFilter('patch')}
+                                >
+                                    Patches
+                                </button>
+                            </div>
+
+                            {!showVersionDiff ? (
+                                <div style={{maxHeight: '350px', overflowY: 'auto'}}>
+                                    {versions
+                                        .filter(v => versionFilter === 'all' || v.type === versionFilter)
+                                        .map((version, idx) => (
+                                        <div
+                                            key={idx}
+                                            className={`version-item ${selectedVersions.includes(version.version) ? 'selected' : ''}`}
+                                            onClick={() => {
+                                                if (showVersionDiff) {
+                                                    setSelectedVersions([version.version, selectedVersions[0]]);
+                                                } else {
+                                                    setShowVersionDetails(version);
+                                                }
+                                            }}
+                                        >
+                                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px'}}>
+                                                <div>
+                                                    <strong style={{fontSize: '15px', color: '#1a202c'}}>{version.version}</strong>
+                                                    {version.status === 'active' && <span className="badge success" style={{marginLeft: '8px', fontSize: '10px'}}>ACTIVE</span>}
+                                                    {version.status === 'tagged' && <span className="badge primary" style={{marginLeft: '8px', fontSize: '10px'}}>TAGGED</span>}
+                                                </div>
+                                                <div style={{display: 'flex', gap: '4px'}}>
+                                                    <div className={`metric-circle ${version.successRate >= 95 ? 'success-rate-good' : version.successRate >= 85 ? 'success-rate-warning' : 'success-rate-danger'}`} style={{width: '44px', height: '44px', fontSize: '10px'}}>
+                                                        <span style={{fontSize: '13px', fontWeight: '700'}}>{version.successRate}%</span>
+                                                        <span style={{fontSize: '8px', opacity: 0.8}}>pass</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div style={{fontSize: '12px', color: '#718096', marginBottom: '8px'}}>
+                                                <strong>{version.author}</strong> • {version.timestamp} • {version.testsAffected} tests affected
+                                            </div>
+                                            <div style={{fontSize: '11px'}}>
+                                                {version.changes.map((change, i) => (
+                                                    <div key={i} style={{color: '#4a5568', marginTop: '4px'}}>
+                                                        • {change}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div style={{marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #e2e8f0', display: 'flex', gap: '6px'}}>
+                                                <span className="badge" style={{background: version.deploymentStatus === 'production' ? '#f0fff4' : '#f7fafc', color: version.deploymentStatus === 'production' ? '#22543d' : '#718096', fontSize: '10px'}}>
+                                                    {version.deploymentStatus}
+                                                </span>
+                                                <span className="badge" style={{background: '#ebf8ff', color: '#2c5282', fontSize: '10px'}}>
+                                                    {version.type}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="version-compare-panel">
+                                    <h4 style={{fontSize: '14px', fontWeight: '600', marginBottom: '12px'}}>
+                                        Comparing {selectedVersions[0]} ↔ {selectedVersions[1]}
+                                    </h4>
+                                    <div className="diff-viewer" style={{background: '#1a202c', color: '#e2e8f0', padding: '14px', borderRadius: '6px'}}>
+                                        <div><i data-lucide="minus-circle" style={{width: '14px', height: '14px', marginRight: '4px', color: '#f56565'}}></i> <span className="diff-removed">Timeout: 3000ms</span></div>
+                                        <div><i data-lucide="plus-circle" style={{width: '14px', height: '14px', marginRight: '4px', color: '#48bb78'}}></i> <span className="diff-added">Timeout: 5000ms</span></div>
+                                        <div style={{marginTop: '10px'}}><i data-lucide="plus-circle" style={{width: '14px', height: '14px', marginRight: '4px', color: '#48bb78'}}></i> <span className="diff-added">New: Context tracking enabled</span></div>
+                                        <div><i data-lucide="plus-circle" style={{width: '14px', height: '14px', marginRight: '4px', color: '#48bb78'}}></i> <span className="diff-added">New: Edge case templates (12)</span></div>
+                                        <div style={{marginTop: '10px'}}><i data-lucide="edit" style={{width: '14px', height: '14px', marginRight: '4px'}}></i> Tests Modified: 47</div>
+                                        <div><i data-lucide="plus" style={{width: '14px', height: '14px', marginRight: '4px'}}></i> Tests Added: 12</div>
+                                        <div><i data-lucide="minus" style={{width: '14px', height: '14px', marginRight: '4px'}}></i> Tests Removed: 3</div>
+                                    </div>
+                                    <div style={{marginTop: '12px', display: 'flex', gap: '8px'}}>
+                                        <button className="btn btn-secondary" style={{fontSize: '11px', padding: '5px 10px'}}>
+                                            <i data-lucide="download" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Export Diff
+                                        </button>
+                                        <button className="btn btn-secondary" style={{fontSize: '11px', padding: '5px 10px'}}>
+                                            <i data-lucide="corner-down-left" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Rollback to {selectedVersions[1]}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Quick Stats */}
+                            <div style={{marginTop: '14px', padding: '12px', background: '#f7fafc', borderRadius: '8px', fontSize: '12px'}}>
+                                <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', textAlign: 'center'}}>
+                                    <div>
+                                        <div style={{fontSize: '18px', fontWeight: '700', color: '#5BA9AC'}}>{versions.length}</div>
+                                        <div style={{fontSize: '10px', color: '#718096'}}>Total Versions</div>
+                                    </div>
+                                    <div>
+                                        <div style={{fontSize: '18px', fontWeight: '700', color: '#48bb78'}}>{versions.reduce((sum, v) => sum + v.testsAffected, 0)}</div>
+                                        <div style={{fontSize: '10px', color: '#718096'}}>Tests Updated</div>
+                                    </div>
+                                    <div>
+                                        <div style={{fontSize: '18px', fontWeight: '700', color: '#4299e1'}}>
+                                            {(versions.reduce((sum, v) => sum + v.successRate, 0) / versions.length).toFixed(1)}%
+                                        </div>
+                                        <div style={{fontSize: '10px', color: '#718096'}}>Avg Success Rate</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Expected Outcomes & Edge Cases */}
+                    <div className="grid-2">
+                        <div className="card">
+                            <div className="card-header">
+                                <div>
+                                    <div className="card-title"><i data-lucide="target" style={{width: '18px', height: '18px', marginRight: '6px'}}></i> Expected Outcomes ({expectedOutcomes.length})</div>
+                                </div>
+                                <div style={{display: 'flex', gap: '8px'}}>
+                                    <select
+                                        className="form-select"
+                                        style={{width: 'auto', fontSize: '11px', padding: '5px 10px'}}
+                                        value={outcomeSortBy}
+                                        onChange={(e) => setOutcomeSortBy(e.target.value)}
+                                    >
+                                        <option value="usage">Sort: Usage</option>
+                                        <option value="name">Sort: Name</option>
+                                        <option value="success">Sort: Success Rate</option>
+                                    </select>
+                                    <button className="btn btn-primary" style={{fontSize: '12px', padding: '6px 12px'}} onClick={() => setShowAddOutcome(true)}>
+                                        + Add
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Category Filter */}
+                            <div className="filter-bar">
+                                <button
+                                    className={`filter-btn ${outcomeFilter === 'all' ? 'active' : ''}`}
+                                    onClick={() => setOutcomeFilter('all')}
+                                >
+                                    All ({expectedOutcomes.length})
+                                </button>
+                                <button
+                                    className={`filter-btn ${outcomeFilter === 'Navigation' ? 'active' : ''}`}
+                                    onClick={() => setOutcomeFilter('Navigation')}
+                                >
+                                    Navigation ({expectedOutcomes.filter(o => o.category === 'Navigation').length})
+                                </button>
+                                <button
+                                    className={`filter-btn ${outcomeFilter === 'Media' ? 'active' : ''}`}
+                                    onClick={() => setOutcomeFilter('Media')}
+                                >
+                                    Media ({expectedOutcomes.filter(o => o.category === 'Media').length})
+                                </button>
+                                <button
+                                    className={`filter-btn ${outcomeFilter === 'Climate' ? 'active' : ''}`}
+                                    onClick={() => setOutcomeFilter('Climate')}
+                                >
+                                    Climate ({expectedOutcomes.filter(o => o.category === 'Climate').length})
+                                </button>
+                                <button
+                                    className={`filter-btn ${outcomeFilter === 'Phone' ? 'active' : ''}`}
+                                    onClick={() => setOutcomeFilter('Phone')}
+                                >
+                                    Phone ({expectedOutcomes.filter(o => o.category === 'Phone').length})
+                                </button>
+                            </div>
+
+                            <input
+                                type="text"
+                                className="search-box"
+                                placeholder="Search outcomes by name or ID..."
+                                style={{width: '100%', marginTop: '12px', marginBottom: '12px'}}
+                            />
+
+                            <div style={{maxHeight: '400px', overflowY: 'auto'}}>
+                                {expectedOutcomes
+                                    .filter(o => outcomeFilter === 'all' || o.category === outcomeFilter)
+                                    .sort((a, b) => {
+                                        if (outcomeSortBy === 'usage') return b.usageCount - a.usageCount;
+                                        if (outcomeSortBy === 'success') return b.successRate - a.successRate;
+                                        return a.name.localeCompare(b.name);
+                                    })
+                                    .map((outcome, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="outcome-item"
+                                        onClick={() => setShowOutcomeDetails(outcome)}
+                                    >
+                                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px'}}>
+                                            <div style={{flex: 1}}>
+                                                <div style={{fontSize: '11px', fontWeight: '600', color: '#718096', marginBottom: '4px'}}>
+                                                    {outcome.category.toUpperCase()}
+                                                </div>
+                                                <div style={{fontSize: '14px', fontWeight: '600', color: '#1a202c', marginBottom: '4px'}}>
+                                                    {outcome.name}
+                                                </div>
+                                                <div style={{fontSize: '12px', color: '#4a5568', fontFamily: 'monospace', marginBottom: '4px'}}>
+                                                    {outcome.id}
+                                                </div>
+                                                <div style={{fontSize: '12px', color: '#718096'}}>
+                                                    {outcome.description}
+                                                </div>
+                                            </div>
+                                            <div className={`metric-circle ${outcome.successRate >= 95 ? 'success-rate-good' : outcome.successRate >= 85 ? 'success-rate-warning' : 'success-rate-danger'}`}>
+                                                <span style={{fontSize: '14px'}}>{outcome.successRate}%</span>
+                                                <span style={{fontSize: '9px', opacity: 0.8}}>success</span>
+                                            </div>
+                                        </div>
+
+                                        <div style={{display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px'}}>
+                                            <span className="outcome-stat">
+                                                <i data-lucide="edit" style={{width: '12px', height: '12px', marginRight: '4px'}}></i> {outcome.variations} variations
+                                            </span>
+                                            <span className="outcome-stat">
+                                                <i data-lucide="refresh-cw" style={{width: '12px', height: '12px', marginRight: '4px'}}></i> Used in {outcome.usageCount} tests
+                                            </span>
+                                            <span className="outcome-stat">
+                                                <i data-lucide="globe" style={{width: '12px', height: '12px', marginRight: '4px'}}></i> {outcome.languages.length} languages
+                                            </span>
+                                            <span className="outcome-stat">
+                                                <i data-lucide="clock" style={{width: '12px', height: '12px', marginRight: '4px'}}></i> {outcome.lastUpdated}
+                                            </span>
+                                        </div>
+
+                                        {/* Usage bar */}
+                                        <div className="usage-bar">
+                                            <div className="usage-fill" style={{width: `${(outcome.usageCount / 600) * 100}%`}}></div>
+                                        </div>
+
+                                        {showOutcomeDetails?.id === outcome.id && (
+                                            <div className="expandable-section">
+                                                <h4 style={{fontSize: '13px', fontWeight: '600', marginBottom: '10px'}}>Detailed Information</h4>
+                                                <div style={{fontSize: '12px', marginBottom: '8px'}}>
+                                                    <strong>Dependencies:</strong> {outcome.dependencies.join(', ')}
+                                                </div>
+                                                <div style={{fontSize: '12px', marginBottom: '8px'}}>
+                                                    <strong>Supported Languages:</strong>
+                                                    <div className="tag-list">
+                                                        {outcome.languages.map((lang, i) => (
+                                                            <span key={i} className="tag">{lang}</span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                <div style={{display: 'flex', gap: '8px', marginTop: '12px'}}>
+                                                    <button className="btn btn-secondary" style={{fontSize: '11px', padding: '5px 10px'}}>
+                                                        <i data-lucide="edit" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Edit
+                                                    </button>
+                                                    <button className="btn btn-secondary" style={{fontSize: '11px', padding: '5px 10px'}}>
+                                                        <i data-lucide="copy" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> View Variations
+                                                    </button>
+                                                    <button className="btn btn-secondary" style={{fontSize: '11px', padding: '5px 10px'}}>
+                                                        <i data-lucide="link" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> View Usage
+                                                    </button>
+                                                    <button className="btn btn-secondary" style={{fontSize: '11px', padding: '5px 10px'}}>
+                                                        <i data-lucide="upload" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Export
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Summary Stats */}
+                            <div style={{marginTop: '12px', padding: '10px', background: '#f0fff4', borderRadius: '8px', fontSize: '11px'}}>
+                                <i data-lucide="lightbulb" style={{width: '16px', height: '16px', marginRight: '6px'}}></i> <strong>Tip:</strong> Click any outcome to view details, variations, and usage statistics
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <div className="card-header">
+                                <div>
+                                    <div className="card-title">🔬 Edge Cases ({edgeCases.length})</div>
+                                </div>
+                                <div style={{display: 'flex', gap: '8px'}}>
+                                    <button
+                                        className="btn btn-secondary"
+                                        style={{fontSize: '11px', padding: '5px 10px'}}
+                                        onClick={() => setShowEdgeWizard(!showEdgeWizard)}
+                                    >
+                                        🤖 AI Wizard
+                                    </button>
+                                    <button className="btn btn-primary" style={{fontSize: '12px', padding: '6px 12px'}}>
+                                        + Add
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* AI Generation Wizard */}
+                            {showEdgeWizard && (
+                                <div style={{background: '#f7fafc', border: '2px dashed #5BA9AC', borderRadius: '8px', padding: '16px', marginBottom: '16px'}}>
+                                    <h4 style={{fontSize: '13px', fontWeight: '600', marginBottom: '10px', color: '#5BA9AC'}}>
+                                        🤖 AI Edge Case Generator
+                                    </h4>
+                                    <div style={{fontSize: '12px', marginBottom: '12px', color: '#4a5568'}}>
+                                        Automatically detect and generate edge cases based on test patterns and production incidents
+                                    </div>
+                                    <div style={{display: 'flex', gap: '8px'}}>
+                                        <button className="btn btn-primary" style={{fontSize: '11px', padding: '5px 12px'}}>
+                                            <i data-lucide="search" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Analyze Test Patterns
+                                        </button>
+                                        <button className="btn btn-secondary" style={{fontSize: '11px', padding: '5px 12px'}}>
+                                            <i data-lucide="bar-chart" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> From Production Data
+                                        </button>
+                                        <button className="btn btn-secondary" style={{fontSize: '11px', padding: '5px 12px'}}>
+                                            <i data-lucide="book-open" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Use Templates
+                                        </button>
+                                        <button className="btn btn-secondary" style={{fontSize: '11px', padding: '5px 12px'}} onClick={() => setShowEdgeWizard(false)}>
+                                            <i data-lucide="x" style={{width: '14px', height: '14px'}}></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Severity Filter */}
+                            <div className="filter-bar">
+                                <button
+                                    className={`filter-btn ${edgeSeverityFilter === 'all' ? 'active' : ''}`}
+                                    onClick={() => setEdgeSeverityFilter('all')}
+                                >
+                                    All Severities
+                                </button>
+                                <button
+                                    className={`filter-btn ${edgeSeverityFilter === 'critical' ? 'active' : ''}`}
+                                    onClick={() => setEdgeSeverityFilter('critical')}
+                                >
+                                    Critical
+                                </button>
+                                <button
+                                    className={`filter-btn ${edgeSeverityFilter === 'high' ? 'active' : ''}`}
+                                    onClick={() => setEdgeSeverityFilter('high')}
+                                >
+                                    High
+                                </button>
+                                <button
+                                    className={`filter-btn ${edgeSeverityFilter === 'medium' ? 'active' : ''}`}
+                                    onClick={() => setEdgeSeverityFilter('medium')}
+                                >
+                                    Medium
+                                </button>
+                            </div>
+
+                            {/* Category Stats */}
+                            <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', margin: '16px 0'}}>
+                                <div style={{padding: '10px', background: '#f7fafc', borderRadius: '8px', textAlign: 'center'}}>
+                                    <div style={{fontSize: '18px', fontWeight: '700', color: '#ed8936'}}>
+                                        {edgeCases.filter(e => e.category === 'Audio Quality').length}
+                                    </div>
+                                    <div style={{fontSize: '10px', color: '#718096'}}>Audio Quality</div>
+                                </div>
+                                <div style={{padding: '10px', background: '#f7fafc', borderRadius: '8px', textAlign: 'center'}}>
+                                    <div style={{fontSize: '18px', fontWeight: '700', color: '#4299e1'}}>
+                                        {edgeCases.filter(e => e.category === 'Ambiguity').length}
+                                    </div>
+                                    <div style={{fontSize: '10px', color: '#718096'}}>Ambiguity</div>
+                                </div>
+                                <div style={{padding: '10px', background: '#f7fafc', borderRadius: '8px', textAlign: 'center'}}>
+                                    <div style={{fontSize: '18px', fontWeight: '700', color: '#9f7aea'}}>
+                                        {edgeCases.filter(e => e.category === 'Context').length}
+                                    </div>
+                                    <div style={{fontSize: '10px', color: '#718096'}}>Context Issues</div>
+                                </div>
+                            </div>
+
+                            <div style={{maxHeight: '350px', overflowY: 'auto'}}>
+                                {edgeCases
+                                    .filter(e => edgeSeverityFilter === 'all' || e.severity === edgeSeverityFilter)
+                                    .map((edge, idx) => (
+                                    <div
+                                        key={idx}
+                                        className={`edge-case-item severity-${edge.severity}`}
+                                        onClick={() => setShowEdgeCaseDetails(edge)}
+                                    >
+                                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px'}}>
+                                            <div style={{flex: 1}}>
+                                                <div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px'}}>
+                                                    <span className={`severity-badge severity-${edge.severity}`}>
+                                                        {edge.severity}
+                                                    </span>
+                                                    <span style={{fontSize: '11px', color: '#718096', fontWeight: '600'}}>
+                                                        {edge.category.toUpperCase()}
+                                                    </span>
+                                                </div>
+                                                <div style={{fontSize: '14px', fontWeight: '600', color: '#1a202c', marginBottom: '4px'}}>
+                                                    {edge.title}
+                                                </div>
+                                                <div style={{fontSize: '11px', color: '#718096', fontFamily: 'monospace'}}>
+                                                    {edge.id}
+                                                </div>
+                                            </div>
+                                            <div className={`metric-circle ${edge.successRate >= 80 ? 'success-rate-good' : edge.successRate >= 70 ? 'success-rate-warning' : 'success-rate-danger'}`}>
+                                                <span style={{fontSize: '14px'}}>{edge.successRate}%</span>
+                                                <span style={{fontSize: '9px', opacity: 0.8}}>handled</span>
+                                            </div>
+                                        </div>
+
+                                        <div style={{display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px'}}>
+                                            <span className="outcome-stat">
+                                                <i data-lucide="flask" style={{width: '12px', height: '12px', marginRight: '4px'}}></i> {edge.testCoverage} tests
+                                            </span>
+                                            <span className="outcome-stat">
+                                                <i data-lucide="bar-chart" style={{width: '12px', height: '12px', marginRight: '4px'}}></i> {edge.frequency}
+                                            </span>
+                                            <span className="outcome-stat">
+                                                <i data-lucide="globe" style={{width: '12px', height: '12px', marginRight: '4px'}}></i> {edge.realWorldOccurrence}
+                                            </span>
+                                        </div>
+
+                                        {showEdgeCaseDetails?.id === edge.id && (
+                                            <div className="expandable-section">
+                                                <h4 style={{fontSize: '13px', fontWeight: '600', marginBottom: '10px'}}>Edge Case Details</h4>
+
+                                                <div style={{marginBottom: '12px'}}>
+                                                    <div style={{fontSize: '11px', fontWeight: '600', color: '#718096', marginBottom: '4px'}}>
+                                                        MITIGATION STRATEGY
+                                                    </div>
+                                                    <div style={{fontSize: '12px', color: '#2d3748', padding: '8px', background: '#f7fafc', borderRadius: '4px'}}>
+                                                        {edge.mitigationStrategy}
+                                                    </div>
+                                                </div>
+
+                                                <div style={{marginBottom: '12px'}}>
+                                                    <div style={{fontSize: '11px', fontWeight: '600', color: '#718096', marginBottom: '4px'}}>
+                                                        DETECTION METHOD
+                                                    </div>
+                                                    <div style={{fontSize: '12px', fontFamily: 'monospace', color: '#5BA9AC'}}>
+                                                        {edge.detectionMethod}
+                                                    </div>
+                                                </div>
+
+                                                <div style={{marginBottom: '12px'}}>
+                                                    <div style={{fontSize: '11px', fontWeight: '600', color: '#718096', marginBottom: '4px'}}>
+                                                        AFFECTED SCENARIOS
+                                                    </div>
+                                                    <div className="tag-list">
+                                                        {edge.affectedScenarios.map((scenario, i) => (
+                                                            <span key={i} className="tag">{scenario}</span>
+                                                        ))}
+                                                    </div>
+                                                </div>
+
+                                                <div style={{display: 'flex', gap: '8px', marginTop: '12px'}}>
+                                                    <button className="btn btn-secondary" style={{fontSize: '11px', padding: '5px 10px'}}>
+                                                        <i data-lucide="edit" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Edit
+                                                    </button>
+                                                    <button className="btn btn-secondary" style={{fontSize: '11px', padding: '5px 10px'}}>
+                                                        <i data-lucide="flask" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Generate Tests
+                                                    </button>
+                                                    <button className="btn btn-secondary" style={{fontSize: '11px', padding: '5px 10px'}}>
+                                                        <i data-lucide="bar-chart" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> View Incidents
+                                                    </button>
+                                                    <button className="btn btn-secondary" style={{fontSize: '11px', padding: '5px 10px'}}>
+                                                        <i data-lucide="link" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Link to Tests
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Summary */}
+                            <div style={{marginTop: '12px', padding: '10px', background: '#fffaf0', borderRadius: '8px', fontSize: '11px'}}>
+                                ⚡ <strong>Quick Action:</strong> Use AI Wizard to auto-generate edge cases from production data
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Integration & Team */}
+                    <div className="grid-2">
+                        <div className="card">
+                            <div className="card-header">
+                                <div>
+                                    <div className="card-title">🔌 Integrations ({integrations.length})</div>
+                                </div>
+                                <div style={{display: 'flex', gap: '8px'}}>
+                                    <span className="badge success">
+                                        {integrations.filter(i => i.status === 'connected').length} Connected
+                                    </span>
+                                    <button className="btn btn-secondary" style={{fontSize: '11px', padding: '5px 10px'}}>
+                                        + Add Integration
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Integration Filter */}
+                            <div className="filter-bar">
+                                <button
+                                    className={`filter-btn ${integrationFilter === 'all' ? 'active' : ''}`}
+                                    onClick={() => setIntegrationFilter('all')}
+                                >
+                                    All
+                                </button>
+                                <button
+                                    className={`filter-btn ${integrationFilter === 'connected' ? 'active' : ''}`}
+                                    onClick={() => setIntegrationFilter('connected')}
+                                >
+                                    Connected
+                                </button>
+                                <button
+                                    className={`filter-btn ${integrationFilter === 'disconnected' ? 'active' : ''}`}
+                                    onClick={() => setIntegrationFilter('disconnected')}
+                                >
+                                    Issues
+                                </button>
+                            </div>
+
+                            <div style={{maxHeight: '450px', overflowY: 'auto', marginTop: '12px'}}>
+                                {integrations
+                                    .filter(int => integrationFilter === 'all' || int.status === integrationFilter)
+                                    .map((int, idx) => (
+                                    <div
+                                        key={idx}
+                                        className={`integration-card ${int.status}`}
+                                        onClick={() => setShowIntegrationDetails(showIntegrationDetails?.id === int.id ? null : int)}
+                                    >
+                                        <div style={{display: 'flex', alignItems: 'start', gap: '12px', marginBottom: '10px'}}>
+                                            <div style={{width: '40px', height: '40px', background: 'white', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '20px', flexShrink: 0}}>
+                                                <i data-lucide={int.icon} style={{width: '24px', height: '24px'}}></i>
+                                            </div>
+                                            <div style={{flex: 1, minWidth: 0}}>
+                                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '4px'}}>
+                                                    <div>
+                                                        <div style={{fontSize: '14px', fontWeight: '600', color: '#1a202c'}}>{int.name}</div>
+                                                        <div style={{fontSize: '11px', color: '#718096', marginTop: '2px'}}>
+                                                            v{int.version} • {int.lastSync}
+                                                        </div>
+                                                    </div>
+                                                    <div className={`metric-circle ${int.health >= 99 ? 'success-rate-good' : int.health >= 95 ? 'success-rate-warning' : 'success-rate-danger'}`} style={{width: '50px', height: '50px'}}>
+                                                        <span style={{fontSize: '13px'}}>{int.health}%</span>
+                                                        <span style={{fontSize: '8px', opacity: 0.8}}>health</span>
+                                                    </div>
+                                                </div>
+
+                                                <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', marginTop: '10px'}}>
+                                                    <div style={{fontSize: '11px'}}>
+                                                        <div style={{color: '#718096'}}>Requests Today</div>
+                                                        <div style={{fontWeight: '600', color: '#2d3748'}}>{int.requestsToday.toLocaleString()}</div>
+                                                    </div>
+                                                    <div style={{fontSize: '11px'}}>
+                                                        <div style={{color: '#718096'}}>Response Time</div>
+                                                        <div style={{fontWeight: '600', color: '#2d3748'}}>{int.avgResponseTime}</div>
+                                                    </div>
+                                                    <div style={{fontSize: '11px'}}>
+                                                        <div style={{color: '#718096'}}>Error Rate</div>
+                                                        <div style={{fontWeight: '600', color: int.errorRate > 1 ? '#f56565' : '#48bb78'}}>{int.errorRate}%</div>
+                                                    </div>
+                                                    <div style={{fontSize: '11px'}}>
+                                                        <div style={{color: '#718096'}}>Uptime</div>
+                                                        <div style={{fontWeight: '600', color: '#2d3748'}}>{int.uptime}</div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Health Meter */}
+                                                <div className="health-meter">
+                                                    <div
+                                                        className={`health-fill ${int.health >= 99 ? 'health-excellent' : int.health >= 95 ? 'health-good' : 'health-poor'}`}
+                                                        style={{width: `${int.health}%`}}
+                                                    ></div>
+                                                </div>
+
+                                                {/* Rate Limit */}
+                                                {int.rateLimitUsed > 0 && (
+                                                    <div>
+                                                        <div className="rate-limit-indicator">
+                                                            Rate Limit: {int.rateLimitUsed.toFixed(1)}% used of {int.rateLimit}
+                                                        </div>
+                                                        <div className="rate-limit-bar">
+                                                            <div
+                                                                className={`rate-limit-fill ${int.rateLimitUsed > 80 ? 'critical' : int.rateLimitUsed > 50 ? 'warning' : ''}`}
+                                                                style={{width: `${int.rateLimitUsed}%`}}
+                                                            ></div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Expanded Details */}
+                                                {showIntegrationDetails?.id === int.id && (
+                                                    <div className="expandable-section">
+                                                        <h4 style={{fontSize: '12px', fontWeight: '600', marginBottom: '8px'}}>Configuration</h4>
+                                                        {Object.entries(int.config).map(([key, value]) => (
+                                                            <div key={key} style={{fontSize: '11px', marginBottom: '4px'}}>
+                                                                <strong>{key}:</strong> <span style={{fontFamily: 'monospace', color: '#5BA9AC'}}>{value}</span>
+                                                            </div>
+                                                        ))}
+                                                        <div style={{display: 'flex', gap: '6px', marginTop: '12px', flexWrap: 'wrap'}}>
+                                                            <button className="btn btn-secondary" style={{fontSize: '10px', padding: '4px 8px'}}>
+                                                                <i data-lucide="settings" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Configure
+                                                            </button>
+                                                            <button className="btn btn-secondary" style={{fontSize: '10px', padding: '4px 8px'}}>
+                                                                <i data-lucide="flask" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Test Connection
+                                                            </button>
+                                                            <button className="btn btn-secondary" style={{fontSize: '10px', padding: '4px 8px'}} onClick={() => setShowIntegrationLogs(int.id)}>
+                                                                <i data-lucide="file-text" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> View Logs
+                                                            </button>
+                                                            <button className="btn btn-secondary" style={{fontSize: '10px', padding: '4px 8px'}}>
+                                                                <i data-lucide="refresh-cw" style={{width: '14px', height: '14px', marginRight: '6px'}}></i> Sync Now
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Summary */}
+                            <div style={{marginTop: '12px', padding: '10px', background: '#f0fff4', borderRadius: '8px', fontSize: '11px'}}>
+                                <i data-lucide="lightbulb" style={{width: '16px', height: '16px', marginRight: '6px'}}></i> <strong>Tip:</strong> Click any integration to view detailed stats and configuration options
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <div className="card-header">
+                                <div>
+                                    <div className="card-title">👥 Team Activity</div>
+                                </div>
+                                <div style={{display: 'flex', gap: '8px'}}>
+                                    <select
+                                        className="form-select"
+                                        style={{width: 'auto', fontSize: '11px', padding: '5px 10px'}}
+                                        value={activityTimeRange}
+                                        onChange={(e) => setActivityTimeRange(e.target.value)}
+                                    >
+                                        <option value="today">Today</option>
+                                        <option value="week">This Week</option>
+                                        <option value="month">This Month</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Activity Type Filter */}
+                            <div className="filter-bar">
+                                <button
+                                    className={`filter-btn ${activityFilter === 'all' ? 'active' : ''}`}
+                                    onClick={() => setActivityFilter('all')}
+                                >
+                                    All Activity
+                                </button>
+                                <button
+                                    className={`filter-btn ${activityFilter === 'tests' ? 'active' : ''}`}
+                                    onClick={() => setActivityFilter('tests')}
+                                >
+                                    Tests
+                                </button>
+                                <button
+                                    className={`filter-btn ${activityFilter === 'deployments' ? 'active' : ''}`}
+                                    onClick={() => setActivityFilter('deployments')}
+                                >
+                                    Deployments
+                                </button>
+                                <button
+                                    className={`filter-btn ${activityFilter === 'config' ? 'active' : ''}`}
+                                    onClick={() => setActivityFilter('config')}
+                                >
+                                    Config
+                                </button>
+                            </div>
+
+                            {/* Team Members Quick View */}
+                            <div style={{display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginTop: '12px', marginBottom: '12px'}}>
+                                {teamMembers.map((member, idx) => (
+                                    <div key={idx} className={`team-member-card ${selectedTeamMember?.initials === member.initials ? 'selected' : ''}`} onClick={() => setSelectedTeamMember(selectedTeamMember?.initials === member.initials ? null : member)}>
+                                        <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                            <div className="user-avatar" style={{width: '32px', height: '32px', fontSize: '11px'}}>
+                                                {member.initials}
+                                                {member.online && <div className="online-indicator"></div>}
+                                                {!member.online && <div className="online-indicator offline-indicator"></div>}
+                                            </div>
+                                            <div style={{flex: 1, minWidth: 0}}>
+                                                <div style={{fontSize: '12px', fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{member.name}</div>
+                                                <div style={{fontSize: '10px', color: '#718096'}}>{member.testsCreated} tests</div>
+                                            </div>
+                                            {member.deploymentsToday > 0 && (
+                                                <div className="badge success" style={{fontSize: '9px'}}>{member.deploymentsToday} deploy{member.deploymentsToday !== 1 ? 's' : ''}</div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Activity Feed */}
+                            <div style={{maxHeight: '400px', overflowY: 'auto'}}>
+                                {teamActivities
+                                    .filter(activity => activityFilter === 'all' || activity.type === activityFilter)
+                                    .filter(activity => !selectedTeamMember || activity.user.name === selectedTeamMember.name)
+                                    .map((activity, idx) => (
+                                    <div key={idx} className={`activity-item impact-${activity.impact}`}>
+                                        <div style={{display: 'flex', alignItems: 'start', gap: '12px'}}>
+                                            <div className="user-avatar">
+                                                {activity.user.initials}
+                                                {activity.user.online && <div className="online-indicator"></div>}
+                                                {!activity.user.online && <div className="online-indicator offline-indicator"></div>}
+                                            </div>
+                                            <div style={{flex: 1, minWidth: 0}}>
+                                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '4px'}}>
+                                                    <div>
+                                                        <span style={{fontSize: '13px', fontWeight: '600'}}>{activity.user.name}</span>
+                                                        <span className={`activity-type-badge type-${activity.type}`} style={{marginLeft: '8px'}}>
+                                                            {activity.type}
+                                                        </span>
+                                                    </div>
+                                                    <div style={{fontSize: '11px', color: '#a0aec0'}}>{activity.timestamp}</div>
+                                                </div>
+                                                <div style={{fontSize: '13px', color: '#2d3748', marginBottom: '4px'}}>
+                                                    {activity.action}
+                                                </div>
+                                                <div style={{fontSize: '12px', color: '#718096'}}>
+                                                    {activity.details}
+                                                </div>
+                                                {activity.relatedItems && activity.relatedItems.length > 0 && (
+                                                    <div className="tag-list">
+                                                        {activity.relatedItems.map((item, i) => (
+                                                            <span key={i} className="tag" style={{fontSize: '10px'}}>{item}</span>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Activity Summary */}
+                            {selectedTeamMember && (
+                                <div style={{marginTop: '12px', padding: '10px', background: '#ebf8ff', borderRadius: '8px', fontSize: '11px'}}>
+                                    Showing activity for <strong>{selectedTeamMember.name}</strong> • {selectedTeamMember.role}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Create Test Case Modal */}
+                    {showCreateModal && (
+                        <CreateTestModal
+                            onClose={() => setShowCreateModal(false)}
+                        />
+                    )}
+
+                    {/* Delete Confirmation Modal */}
+                    {showDeleteModal && (
+                        <DeleteConfirmationModal
+                            selectedCount={selectedTests.length}
+                            onClose={() => setShowDeleteModal(false)}
+                            onConfirm={() => {
+                                alert(`Deleted ${selectedTests.length} tests`);
+                                clearSelection();
+                                setShowDeleteModal(false);
+                            }}
+                        />
+                    )}
+
+                    {/* Import Modal */}
+                    {showImportModal && (
+                        <ImportModal onClose={() => setShowImportModal(false)} />
+                    )}
+                </div>
+            );
+        };
+
+        // ===== MODALS =====
+
+        const CreateTestModal = ({onClose}) => {
+            const [formData, setFormData] = useState({
+                name: '',
+                category: 'voice',
+                priority: 'p2',
+                owner: '',
+                languages: ['en-US'],
+                input: '',
+                expectedOutcome: '',
+                tags: '',
+                timeout: 300,
+                retryCount: 2
+            });
+
+            const [errors, setErrors] = useState({});
+
+            const validate = () => {
+                const newErrors = {};
+                if (!formData.name.trim()) newErrors.name = 'Name is required';
+                if (!formData.input.trim()) newErrors.input = 'Test input is required';
+                if (!formData.expectedOutcome.trim()) newErrors.expectedOutcome = 'Expected outcome is required';
+                setErrors(newErrors);
+                return Object.keys(newErrors).length === 0;
+            };
+
+            const handleSubmit = () => {
+                if (validate()) {
+                    console.log('Creating test:', formData);
+                    alert('Test case created successfully!');
+                    onClose();
+                }
+            };
+
+            return (
+                <div className="modal-overlay" onClick={onClose}>
+                    <div className="modal" onClick={(e) => e.stopPropagation()} style={{maxWidth: '800px'}}>
+                        <div className="modal-header">
+                            <div className="modal-title">Create New Test Case</div>
+                            <button className="modal-close" onClick={onClose}>×</button>
+                        </div>
+                        <div className="modal-content">
+                            <div className="form-group">
+                                <label className="form-label">Test Case Name *</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="e.g., Navigate to nearest gas station"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                />
+                                {errors.name && <div style={{color: '#f56565', fontSize: '12px', marginTop: '4px'}}>{errors.name}</div>}
+                            </div>
+
+                            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px'}}>
+                                <div className="form-group">
+                                    <label className="form-label">Category</label>
+                                    <select className="form-select" value={formData.category} onChange={(e) => setFormData({...formData, category: e.target.value})}>
+                                        <option value="voice">Voice Commands</option>
+                                        <option value="multi-turn">Multi-turn</option>
+                                        <option value="edge">Edge Cases</option>
+                                        <option value="error">Error Handling</option>
+                                    </select>
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="form-label">Priority</label>
+                                    <select className="form-select" value={formData.priority} onChange={(e) => setFormData({...formData, priority: e.target.value})}>
+                                        <option value="p0">P0 - Critical</option>
+                                        <option value="p1">P1 - High</option>
+                                        <option value="p2">P2 - Medium</option>
+                                        <option value="p3">P3 - Low</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Owner/Author</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="e.g., john.doe@company.com"
+                                    value={formData.owner}
+                                    onChange={(e) => setFormData({...formData, owner: e.target.value})}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Languages *</label>
+                                <div style={{display: 'flex', gap: '12px', flexWrap: 'wrap', marginTop: '8px'}}>
+                                    {['en-US', 'es-ES', 'de-DE', 'zh-CN', 'fr-FR', 'ja-JP'].map(lang => (
+                                        <label key={lang} style={{fontSize: '13px'}}>
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.languages.includes(lang)}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) {
+                                                        setFormData({...formData, languages: [...formData.languages, lang]});
+                                                    } else {
+                                                        setFormData({...formData, languages: formData.languages.filter(l => l !== lang)});
+                                                    }
+                                                }}
+                                            />
+                                            {' '}{lang}
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Test Input *</label>
+                                <textarea
+                                    className="form-textarea"
+                                    placeholder="Enter the voice command..."
+                                    value={formData.input}
+                                    onChange={(e) => setFormData({...formData, input: e.target.value})}
+                                />
+                                {errors.input && <div style={{color: '#f56565', fontSize: '12px', marginTop: '4px'}}>{errors.input}</div>}
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Expected Outcome *</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="e.g., nav_poi_gas_station"
+                                    value={formData.expectedOutcome}
+                                    onChange={(e) => setFormData({...formData, expectedOutcome: e.target.value})}
+                                />
+                                {errors.expectedOutcome && <div style={{color: '#f56565', fontSize: '12px', marginTop: '4px'}}>{errors.expectedOutcome}</div>}
+                            </div>
+
+                            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px'}}>
+                                <div className="form-group">
+                                    <label className="form-label">Timeout (seconds)</label>
+                                    <input
+                                        type="number"
+                                        className="form-input"
+                                        min="30"
+                                        max="600"
+                                        value={formData.timeout}
+                                        onChange={(e) => setFormData({...formData, timeout: e.target.value})}
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="form-label">Retry Count</label>
+                                    <input
+                                        type="number"
+                                        className="form-input"
+                                        min="0"
+                                        max="5"
+                                        value={formData.retryCount}
+                                        onChange={(e) => setFormData({...formData, retryCount: e.target.value})}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">Tags (comma-separated)</label>
+                                <input
+                                    type="text"
+                                    className="form-input"
+                                    placeholder="navigation, POI, fuel"
+                                    value={formData.tags}
+                                    onChange={(e) => setFormData({...formData, tags: e.target.value})}
+                                />
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                            <button className="btn btn-primary" onClick={handleSubmit}>
+                                Create Test Case
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const DeleteConfirmationModal = ({selectedCount, onClose, onConfirm}) => {
+            const [confirmText, setConfirmText] = useState('');
+
+            return (
+                <div className="modal-overlay" onClick={onClose}>
+                    <div className="modal modal-danger" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <div className="modal-title">Delete {selectedCount} Test Case{selectedCount > 1 ? 's' : ''}?</div>
+                            <button className="modal-close" onClick={onClose}>×</button>
+                        </div>
+                        <div className="modal-content">
+                            <div className="warning-box">
+                                <strong><i data-lucide="alert-triangle" style={{width: '16px', height: '16px', marginRight: '6px'}}></i> This action cannot be undone.</strong>
+                            </div>
+
+                            <div>
+                                <h4 style={{marginBottom: '8px'}}>This will permanently delete:</h4>
+                                <ul style={{paddingLeft: '20px', marginBottom: '16px'}}>
+                                    <li>{selectedCount} test case{selectedCount > 1 ? 's' : ''}</li>
+                                    <li>All execution history</li>
+                                    <li>All associated defects</li>
+                                    <li>All comments and metadata</li>
+                                </ul>
+                            </div>
+
+                            <div style={{background: '#f0fff4', padding: '12px', borderRadius: '6px', marginBottom: '16px'}}>
+                                <strong><i data-lucide="lightbulb" style={{width: '16px', height: '16px', marginRight: '6px'}}></i> Alternative:</strong> Consider archiving instead of deleting. Archived tests can be restored.
+                            </div>
+
+                            <div className="confirmation-input">
+                                <label>Type <code>DELETE</code> to confirm:</label>
+                                <input
+                                    type="text"
+                                    placeholder="Type DELETE"
+                                    value={confirmText}
+                                    onChange={(e) => setConfirmText(e.target.value)}
+                                    autoFocus
+                                />
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                            <button
+                                className="btn btn-danger"
+                                disabled={confirmText !== 'DELETE'}
+                                onClick={onConfirm}
+                            >
+                                Delete Permanently
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const ImportModal = ({onClose}) => {
+            const [step, setStep] = useState(1);
+            const [importData, setImportData] = useState({
+                format: 'csv',
+                validate: true,
+                skipDuplicates: true,
+                overwrite: false
+            });
+
+            return (
+                <div className="modal-overlay" onClick={onClose}>
+                    <div className="modal" onClick={(e) => e.stopPropagation()}>
+                        <div className="modal-header">
+                            <div className="modal-title">Import Test Cases - Step {step} of 3</div>
+                            <button className="modal-close" onClick={onClose}>×</button>
+                        </div>
+                        <div className="modal-content">
+                            {step === 1 && (
+                                <div>
+                                    <div className="form-group">
+                                        <label className="form-label">Import Format</label>
+                                        <select
+                                            className="form-select"
+                                            value={importData.format}
+                                            onChange={(e) => setImportData({...importData, format: e.target.value})}
+                                        >
+                                            <option value="csv">CSV File</option>
+                                            <option value="json">JSON File</option>
+                                            <option value="yaml">YAML File</option>
+                                            <option value="excel">Excel File</option>
+                                        </select>
+                                    </div>
+
+                                    <div className="form-group">
+                                        <label className="form-label">File Upload</label>
+                                        <input type="file" className="form-input" accept=".csv,.json,.yaml,.xlsx" />
+                                    </div>
+
+                                    <div style={{background: '#f7fafc', padding: '16px', borderRadius: '8px'}}>
+                                        <h4 style={{marginBottom: '12px'}}>Import Options</h4>
+                                        <label style={{display: 'block', marginBottom: '8px'}}>
+                                            <input
+                                                type="checkbox"
+                                                checked={importData.validate}
+                                                onChange={(e) => setImportData({...importData, validate: e.target.checked})}
+                                            />
+                                            {' '}Validate before importing
+                                        </label>
+                                        <label style={{display: 'block', marginBottom: '8px'}}>
+                                            <input
+                                                type="checkbox"
+                                                checked={importData.skipDuplicates}
+                                                onChange={(e) => setImportData({...importData, skipDuplicates: e.target.checked})}
+                                            />
+                                            {' '}Skip duplicates
+                                        </label>
+                                        <label style={{display: 'block'}}>
+                                            <input
+                                                type="checkbox"
+                                                checked={importData.overwrite}
+                                                onChange={(e) => setImportData({...importData, overwrite: e.target.checked})}
+                                            />
+                                            {' '}Overwrite existing tests
+                                        </label>
+                                    </div>
+                                </div>
+                            )}
+
+                            {step === 2 && (
+                                <div>
+                                    <h3 style={{marginBottom: '16px'}}>Validation Results</h3>
+                                    <div style={{background: '#f0fff4', padding: '16px', borderRadius: '8px', marginBottom: '12px'}}>
+                                        <strong><i data-lucide="check" style={{width: '16px', height: '16px', marginRight: '6px'}}></i> 1,180 valid test cases</strong>
+                                    </div>
+                                    <div style={{background: '#fffaf0', padding: '16px', borderRadius: '8px', marginBottom: '12px'}}>
+                                        <strong><i data-lucide="alert-triangle" style={{width: '16px', height: '16px', marginRight: '6px'}}></i> 47 duplicates</strong> (will be skipped)
+                                    </div>
+                                    <div style={{background: '#fff5f5', padding: '16px', borderRadius: '8px'}}>
+                                        <strong><i data-lucide="x-circle" style={{width: '16px', height: '16px', marginRight: '6px', color: '#f56565'}}></i> 20 errors found:</strong>
+                                        <ul style={{marginTop: '8px', paddingLeft: '20px', fontSize: '13px'}}>
+                                            <li>Row 45: Missing required field "expected_outcome"</li>
+                                            <li>Row 67: Invalid language code "en-UK"</li>
+                                            <li>Row 89: Expected outcome not found in database</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            )}
+
+                            {step === 3 && (
+                                <div>
+                                    <h3 style={{marginBottom: '16px'}}>Import Summary</h3>
+                                    <div style={{background: '#f7fafc', padding: '16px', borderRadius: '8px'}}>
+                                        <div><strong>Valid tests to import:</strong> 1,180</div>
+                                        <div><strong>Duplicates skipped:</strong> 47</div>
+                                        <div><strong>Errors:</strong> 20 (not imported)</div>
+                                        <div><strong>Est. import time:</strong> ~2 minutes</div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <div className="modal-footer">
+                            {step > 1 && (
+                                <button className="btn btn-secondary" onClick={() => setStep(s => s - 1)}>
+                                    ← Back
+                                </button>
+                            )}
+                            <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+                            {step < 3 ? (
+                                <button className="btn btn-primary" onClick={() => setStep(s => s + 1)}>
+                                    Continue →
+                                </button>
+                            ) : (
+                                <button className="btn btn-success" onClick={() => {
+                                    alert('Importing 1,180 test cases...');
+                                    onClose();
+                                }}>
+                                    Import Test Cases
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<TestManagement />, document.getElementById('root'));
+
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

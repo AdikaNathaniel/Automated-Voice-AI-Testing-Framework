@@ -1,0 +1,26 @@
+# Dependencies - installed fresh in container
+node_modules
+
+# Build output - built fresh in container
+dist
+
+# Development files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Testing
+coverage
+e2e/test-results
+e2e/playwright-report
+
+# Misc
+.DS_Store
+*.log
+npm-debug.log*

@@ -1,0 +1,99 @@
+templates:
+  - id: timeout-external-service-latency
+    title: External service latency timeout
+    description: >
+      Requests to the third-party fulfilment API exceed the five second SLA,
+      causing the automation flow to timeout before a response is received.
+    category: timeout
+    severity: high
+    default_tags:
+      - timeout
+      - external-service
+      - sla
+    signals:
+      - failure_reason contains "timeout"
+      - metadata.elapsed_ms greater than 5000
+      - error_type equals "ExternalServiceTimeoutError"
+    playbook:
+      owner: Platform Engineering
+      steps:
+        - Check third-party service status dashboard for incident reports.
+        - Review recent latency metrics in APM for the fulfilment API.
+        - Coordinate with vendor to increase timeout budget or add retries.
+    sample_scenario:
+      context: >
+        Customer requests order status but the fulfilment API experiences elevated latency.
+      transcript:
+        - user: "What is the status of my latest order?"
+          assistant: >
+            "Let me check your order status."
+        - user: "Hello? Are you still there?"
+          assistant: >
+            "I'm sorry, the system is taking longer than expected. Please hold on a little longer."
+
+  - id: ambiguity-slot-resolution
+    title: Ambiguous slot resolution during entity capture
+    description: >
+      The assistant detects multiple possible entity matches for the same slot,
+      leading to conflicting downstream actions without clarification.
+    category: ambiguity
+    severity: medium
+    default_tags:
+      - ambiguity
+      - nlp
+      - slot-filling
+    signals:
+      - metadata.candidates contains more than one entry
+      - failure_reason references "ambiguous" or "multiple interpretations"
+      - classification confidence below 0.6
+    playbook:
+      owner: Conversational Design
+      steps:
+        - Review training utterances for overlapping entity definitions.
+        - Add explicit clarification prompts for the impacted intent.
+        - Update entity synonyms to reduce overlap and re-train the model.
+    sample_scenario:
+      context: >
+        Caller requests a reservation but provides a city name that maps to multiple venues.
+      transcript:
+        - user: "Book me a table in Springfield tomorrow night."
+          assistant: >
+            "I found several Springfield locations. Which one would you like?"
+        - user: "The one downtown."
+          assistant: >
+            "I have both Springfield Central and Springfield Downtown listed. Could you confirm the exact venue?"
+
+  - id: context-loss-long-dialogue
+    title: Context loss in extended multi-turn dialogue
+    description: >
+      During long conversations the assistant fails to retain earlier context,
+      resulting in repeated questions or contradictory answers.
+    category: context_loss
+    severity: high
+    default_tags:
+      - context-loss
+      - conversation
+      - memory
+    signals:
+      - metadata.context_shift equals true
+      - failure_reason references "context" or "lost memory"
+      - transcript shows repeated information requests
+    playbook:
+      owner: Assistant Foundations
+      steps:
+        - Audit conversation state hand-off logic across turns.
+        - Increase retention window or summarisation quality in memory store.
+        - Add regression tests covering lengthy multi-topic conversations.
+    sample_scenario:
+      context: >
+        User changes topic mid-conversation and the assistant forgets the original request.
+      transcript:
+        - user: "Schedule a service appointment for my car next Tuesday."
+          assistant: >
+            "Sure, I'll schedule that for next Tuesday. Anything else you need?"
+        - user: "Also, remind me to renew my insurance."
+          assistant: >
+            "Absolutely, I'll set a reminder for your insurance renewal."
+        - user: "Great, when is my appointment again?"
+          assistant: >
+            "I'm not sure which appointment you're referring to. Could you provide more details?"

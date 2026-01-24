@@ -1,0 +1,57 @@
+Find the cheapest TV
+Show me reviews for this product
+Where's the nearest Best Buy?
+Find coupons for Target
+What's on sale at Amazon?
+Compare iPad prices
+Find black friday deals
+What movies are playing?
+Show me movie times for Avatar
+What's playing at the cinema?
+Find action movies
+What's the rating of Inception?
+Who directed The Godfather?
+Show me comedy movies
+What time is the 7pm showing?
+Find movies near me
+What's new on Netflix?
+Get me an Uber
+Call a ride to the airport
+How much is an Uber to downtown?
+Request a Lyft
+Where's my Uber?
+Cancel my ride
+Get me an Uber XL
+How long until my ride arrives?
+Find the cheapest ride option
+Request a ride home
+How do you say hello in Spanish?
+Translate good morning to French
+What does bonjour mean?
+Say thank you in Japanese
+Translate this to German
+How do you say goodbye in Italian?
+What's the Spanish word for cat?
+Translate I love you to Chinese
+Say please in Portuguese
+What does gracias mean?
+Convert 100 pounds to kilograms
+How many feet in a mile?
+Convert 5 gallons to liters
+What's 100 kilometers in miles?
+Convert 32 Fahrenheit to Celsius
+How many ounces in a pound?
+Convert square feet to square meters
+What's 1000 milliliters in cups?
+Convert yards to meters
+How many seconds in an hour?
+Tell me a joke
+Flip a coin
+Roll a dice
+What's your name?
+How are you?
+Sing a song
+Tell me a story
+What can you do?
+Give me a random number
+What's the meaning of life?

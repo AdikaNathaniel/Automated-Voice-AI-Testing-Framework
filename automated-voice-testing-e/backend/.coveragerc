@@ -1,0 +1,164 @@
+# Coverage.py Configuration (TASK-147)
+#
+# This file configures code coverage measurement for the Voice AI Testing Framework.
+# It defines what to measure, what to exclude, and how to report coverage results.
+#
+# Documentation: https://coverage.readthedocs.io/en/latest/config.html
+
+[run]
+# Measure branch coverage in addition to statement coverage
+branch = True
+
+# Source directories to measure
+source =
+    .
+
+# Omit files from coverage measurement
+omit =
+    # Test files
+    tests/*
+    */tests/*
+    *_test.py
+    test_*.py
+
+    # Virtual environment
+    */venv/*
+    */virtualenv/*
+    */.venv/*
+
+    # Database migrations
+    alembic/*
+    */alembic/*
+
+    # Python cache
+    */__pycache__/*
+    *.pyc
+    *.pyo
+
+    # Configuration and setup files
+    setup.py
+    */setup.py
+    conftest.py
+    */conftest.py
+
+    # Development and build artifacts
+    */build/*
+    */dist/*
+    *.egg-info/*
+
+    # CI/CD scripts
+    */scripts/*
+
+    # Documentation
+    */docs/*
+
+# Parallel mode for running tests in parallel (if using pytest-xdist)
+parallel = False
+
+# Data file location
+data_file = .coverage
+
+# Plugins to load
+# plugins =
+
+
+[report]
+# Show lines that were not executed
+show_missing = True
+
+# Precision for coverage percentage
+precision = 2
+
+# Skip empty files
+skip_empty = True
+
+# Skip files with 100% coverage (useful for focusing on problem areas)
+skip_covered = False
+
+# Fail if coverage is below this percentage (can be used in CI/CD)
+# fail_under = 80
+
+# Ignore errors from missing files
+ignore_errors = False
+
+# Sort report by coverage percentage (ascending)
+sort = Cover
+
+# Exclude lines from coverage measurement using regex
+exclude_lines =
+    # Standard pragma
+    pragma: no cover
+
+    # Debug-only code
+    def __repr__
+    def __str__
+
+    # Abstract methods
+    @abstract
+    @abstractmethod
+    raise NotImplementedError
+
+    # Type checking
+    if TYPE_CHECKING:
+    if typing.TYPE_CHECKING:
+
+    # Defensive programming
+    raise AssertionError
+    raise NotImplementedError
+
+    # Non-runnable code
+    if __name__ == .__main__.:
+    if __name__ == "__main__":
+
+    # Pass statements
+    pass
+
+    # Ellipsis (stub implementations)
+    \.\.\.
+
+    # Optional imports (for backwards compatibility)
+    except ImportError:
+    except ModuleNotFoundError:
+
+
+[html]
+# Directory for HTML coverage report
+directory = htmlcov
+
+# Title for HTML report
+title = Voice AI Testing Framework - Coverage Report
+
+# Show contexts in HTML report (requires --cov-context)
+show_contexts = False
+
+# Skip empty files in HTML report
+skip_empty = True
+
+# Skip files with 100% coverage in HTML report
+skip_covered = False
+
+
+[xml]
+# Output file for XML coverage report
+output = coverage.xml
+
+# Package depth for XML report
+package_depth = 2
+
+
+[json]
+# Output file for JSON coverage report
+output = coverage.json
+
+# Pretty print JSON
+pretty_print = True
+
+# Show contexts in JSON report
+show_contexts = False
+
+
+[paths]
+# Map different paths to the same source (useful for CI/CD)
+source =
+    .
+    */backend

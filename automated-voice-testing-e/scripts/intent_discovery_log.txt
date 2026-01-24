@@ -1,0 +1,1207 @@
+================================================================================
+HOUNDIFY INTENT DISCOVERY TOOL
+================================================================================
+
+🔑 Using Client ID: LkHL0TJ1CKm_H9Gjyr2h...
+
+📖 Reading queries from: scripts/discovery_queries.txt
+
+Found 220 queries to process
+
+================================================================================
+
+[1/220]
+  Testing: What's the weather?
+    ✅ Intent: ErrorCommand
+    💬 Response: This weather information is not available. Turn on location services, or include a city or state in ...
+
+[2/220]
+  Testing: What's the weather in San Francisco?
+    ✅ Intent: InformationCommand
+    💬 Response: The weather is fifty nine degrees and sunny in San Francisco....
+
+[3/220]
+  Testing: Will it rain tomorrow?
+    ✅ Intent: ErrorCommand
+    💬 Response: This weather information is not available. Turn on location services, or include a city or state in ...
+
+[4/220]
+  Testing: What's the forecast for this weekend?
+    ✅ Intent: ErrorCommand
+    💬 Response: This weather information is not available. Turn on location services, or include a city or state in ...
+
+[5/220]
+  Testing: What's the temperature outside?
+    ✅ Intent: ErrorCommand
+    💬 Response: This weather information is not available. Turn on location services, or include a city or state in ...
+
+[6/220]
+  Testing: Is it going to snow today?
+    ✅ Intent: ErrorCommand
+    💬 Response: This weather information is not available. Turn on location services, or include a city or state in ...
+
+[7/220]
+  Testing: What's the weather like in New York?
+    ✅ Intent: InformationCommand
+    💬 Response: The weather is fifty degrees and clear in New York....
+
+[8/220]
+  Testing: Give me the 5 day forecast
+    ✅ Intent: ErrorCommand
+    💬 Response: This weather information is not available. Turn on location services, or include a city or state in ...
+
+[9/220]
+  Testing: What's the humidity today?
+    ✅ Intent: ErrorCommand
+    💬 Response: This weather information is not available. Turn on location services, or include a city or state in ...
+
+[10/220]
+  Testing: When will it stop raining?
+    ✅ Intent: ErrorCommand
+    💬 Response: This weather information is not available. Turn on location services, or include a city or state in ...
+
+[11/220]
+  Testing: Book a table at Pizza Palace
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[12/220]
+  Testing: Find restaurants near me
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[13/220]
+  Testing: Reserve a table for 4 people at 7pm
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[14/220]
+  Testing: What are the best Italian restaurants nearby?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[15/220]
+  Testing: Show me pizza places
+    ✅ Intent: InformationCommand
+    💬 Response: Pizza is a dish of Italian origin consisting of a usually round, flat base of leavened wheat-based d...
+
+[16/220]
+  Testing: Find Chinese restaurants in San Francisco
+    ✅ Intent: InformationCommand
+    💬 Response: As of 2012, 21.4 of the population in San Francisco was of Chinese descent, and there were at least ...
+
+[17/220]
+  Testing: What time does Olive Garden close?
+    ✅ Intent: ClientCommand
+    💬 Response: ...
+
+[18/220]
+  Testing: Get me a reservation at a steakhouse
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[19/220]
+  Testing: Find vegetarian restaurants
+    ✅ Intent: InformationCommand
+    💬 Response: This is a list of vegetarian and vegan restaurants....
+
+[20/220]
+  Testing: What's on the menu at Chipotle?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[21/220]
+  Testing: Play music
+    ✅ Intent: MusicPlayerCommand
+    💬 Response: This version of this client does not support that music player control command.
+...
+
+[22/220]
+  Testing: Play some jazz
+    ✅ Intent: MusicCommand
+    💬 Response: I couldn't find any songs that match your query....
+
+[23/220]
+  Testing: Play Bohemian Rhapsody by Queen
+    ✅ Intent: MusicCommand
+    💬 Response: Auto-playback is not available. Here are the songs matching Bohemian Rhapsody....
+
+[24/220]
+  Testing: Play my workout playlist
+    ✅ Intent: MusicCommand
+    💬 Response: I couldn't find any songs that match your query....
+
+[25/220]
+  Testing: What song is this?
+    ✅ Intent: SoundHoundNowCommand
+    💬 Response: This client does not support audio identification. Please use the SoundHound application....
+
+[26/220]
+  Testing: Who sings this song?
+    ✅ Intent: SoundHoundNowCommand
+    💬 Response: This client does not support audio identification. Please use the SoundHound application....
+
+[27/220]
+  Testing: Play classical music
+    ✅ Intent: MusicCommand
+    💬 Response: I couldn't find any songs that match your query....
+
+[28/220]
+  Testing: Skip this song
+    ✅ Intent: MusicPlayerCommand
+    💬 Response: This version of this client does not support that music player control command.
+...
+
+[29/220]
+  Testing: Pause the music
+    ✅ Intent: MusicPlayerCommand
+    💬 Response: This version of this client does not support that music player control command.
+...
+
+[30/220]
+  Testing: Turn up the volume
+    ✅ Intent: DeviceControlCommand
+    💬 Response: This client does not support the command to adjust the volume....
+
+[31/220]
+  Testing: Navigate to the airport
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[32/220]
+  Testing: Get directions to 123 Main Street
+    ✅ Intent: MapCommand
+    💬 Response: Here are directions to 123 Main street Delta....
+
+[33/220]
+  Testing: How do I get to San Francisco?
+    ✅ Intent: MapCommand
+    💬 Response: Here are directions to San Francisco....
+
+[34/220]
+  Testing: What's the fastest route home?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[35/220]
+  Testing: Find a gas station nearby
+    ✅ Intent: InformationCommand
+    💬 Response: A filling station, also known as petrol station or gas station US, is a facility that sells fuel and...
+
+[36/220]
+  Testing: Show me traffic on Highway 101
+    ✅ Intent: InformationCommand
+    💬 Response: Highway 101 was an American country music band founded in 1986 by Paulette Carlson , Jack Daniels gu...
+
+[37/220]
+  Testing: How far is Los Angeles from here?
+    ✅ Intent: ErrorCommand
+    💬 Response: The coordinates of both locations must be findable to figure out a distance....
+
+[38/220]
+  Testing: Take me to the nearest hospital
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[39/220]
+  Testing: What's my ETA?
+    ✅ Intent: NavigationControlCommand
+    💬 Response: This client does not support the command to estimate arrival time....
+
+[40/220]
+  Testing: Avoid tolls
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[41/220]
+  Testing: Find a coffee shop near me
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[42/220]
+  Testing: Where's the nearest ATM?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[43/220]
+  Testing: Find a pharmacy that's open now
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[44/220]
+  Testing: Show me hotels in downtown
+    ✅ Intent: ErrorCommand
+    💬 Response: Hotel search requires a location to be specified. Please turn on location services in the settings t...
+
+[45/220]
+  Testing: Find a parking garage nearby
+    ✅ Intent: InformationCommand
+    💬 Response: A multistory car park or parking garage , also called a multistory, parking building, parking struct...
+
+[46/220]
+  Testing: Where can I get my car washed?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[47/220]
+  Testing: Find a gym near me
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[48/220]
+  Testing: Show me banks nearby
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[49/220]
+  Testing: Find a post office
+    ✅ Intent: MapCommand
+    💬 Response: Here is Post Office....
+
+[50/220]
+  Testing: Where's the nearest supermarket?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[51/220]
+  Testing: Find hotels in Las Vegas
+    ❌ Error: Sorry, an error occurred.
+
+[52/220]
+  Testing: Book a hotel room for tonight
+    ✅ Intent: ErrorCommand
+    💬 Response: Hotel search requires a location to be specified. Please turn on location services in the settings t...
+
+[53/220]
+  Testing: What's the price of hotels in Miami?
+    ❌ Error: Sorry, an error occurred.
+
+[54/220]
+  Testing: Find a 5 star hotel
+    ✅ Intent: ErrorCommand
+    💬 Response: Hotel search requires a location to be specified. Please turn on location services in the settings t...
+
+[55/220]
+  Testing: Show me hotels near the airport
+    ✅ Intent: ErrorCommand
+    💬 Response: Hotel search requires a location to be specified. Please turn on location services in the settings t...
+
+[56/220]
+  Testing: Find hotels with pools
+    ✅ Intent: ErrorCommand
+    💬 Response: Hotel search requires a location to be specified. Please turn on location services in the settings t...
+
+[57/220]
+  Testing: What hotels have availability this weekend?
+    ✅ Intent: ErrorCommand
+    💬 Response: Hotel search requires a location to be specified. Please turn on location services in the settings t...
+
+[58/220]
+  Testing: Book a room at the Hilton
+    ✅ Intent: ErrorCommand
+    💬 Response: Hotel search requires a location to be specified. Please turn on location services in the settings t...
+
+[59/220]
+  Testing: Find pet-friendly hotels
+    ✅ Intent: InformationCommand
+    💬 Response: Pet friendly hotels are hotels which offer a range of amenities designed to accommodate pet owners....
+
+[60/220]
+  Testing: Show me hotel reviews
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[61/220]
+  Testing: Find flights to New York
+    ✅ Intent: FlightStatusModeCommand
+    💬 Response: Which city or airport is the flight departing from? ...
+
+[62/220]
+  Testing: What's the status of flight UA123?
+    ✅ Intent: InformationCommand
+    💬 Response: United Airlines flight one twenty three from London to Newark is estimated to depart right on time a...
+
+[63/220]
+  Testing: When does my flight leave?
+    ✅ Intent: FlightStatusModeCommand
+    💬 Response: What is the airline of the flight? ...
+
+[64/220]
+  Testing: Find cheap flights to Miami
+    ✅ Intent: FlightBookingCommand
+    💬 Response: What is the departure date? ...
+
+[65/220]
+  Testing: Book a flight to Chicago
+    ✅ Intent: FlightBookingCommand
+    💬 Response: What is the departure date? ...
+
+[66/220]
+  Testing: What time does the flight arrive?
+    ✅ Intent: FlightStatusModeCommand
+    💬 Response: What is the airline of the flight? ...
+
+[67/220]
+  Testing: Are there any delays for flight AA456?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[68/220]
+  Testing: Find one-way flights
+    ✅ Intent: FlightBookingCommand
+    💬 Response: Where did you want to travel? ...
+
+[69/220]
+  Testing: Show me direct flights only
+    ✅ Intent: FlightBookingCommand
+    💬 Response: Where did you want to travel? ...
+
+[70/220]
+  Testing: What's the baggage allowance?
+    ✅ Intent: InformationCommand
+    💬 Response: On the commercial transportation, mostly with airlines, the baggage allowance is the amount of check...
+
+[71/220]
+  Testing: What's the stock price of Apple?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[72/220]
+  Testing: How is Tesla stock doing?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[73/220]
+  Testing: What's the Dow Jones at?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[74/220]
+  Testing: Show me Google's stock price
+    ✅ Intent: InformationCommand
+    💬 Response: A share price is the price of a single share of a number of saleable equity shares of a company....
+
+[75/220]
+  Testing: What did Amazon close at yesterday?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[76/220]
+  Testing: What's the market doing today?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[77/220]
+  Testing: How much is Bitcoin worth?
+    ✅ Intent: CurrencyConverterCommand
+    💬 Response: 88821 U S dollars and 80 cents...
+
+[78/220]
+  Testing: What's the S&P 500 at?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[79/220]
+  Testing: Show me Microsoft stock
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[80/220]
+  Testing: What's the price of gold?
+    ✅ Intent: InformationCommand
+    💬 Response: The Price of Gold is the fourth episode of the American fairy tale drama television series Once Upon...
+
+[81/220]
+  Testing: What's the score of the Warriors game?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[82/220]
+  Testing: When do the Lakers play next?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[83/220]
+  Testing: Who won the Super Bowl?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[84/220]
+  Testing: What's the NFL schedule today?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[85/220]
+  Testing: Show me NBA standings
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[86/220]
+  Testing: Who's winning the World Series?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[87/220]
+  Testing: What time is the soccer game?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[88/220]
+  Testing: What channel is the game on?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[89/220]
+  Testing: Who has the most home runs?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[90/220]
+  Testing: Show me football scores
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[91/220]
+  Testing: What's 5 plus 7?
+    ✅ Intent: InformationCommand
+    💬 Response: twelve...
+
+[92/220]
+  Testing: Calculate 15 times 23
+    ✅ Intent: InformationCommand
+    💬 Response: three hundred and forty five...
+
+[93/220]
+  Testing: What's 100 divided by 4?
+    ✅ Intent: InformationCommand
+    💬 Response: twenty five...
+
+[94/220]
+  Testing: What's the square root of 144?
+    ✅ Intent: InformationCommand
+    💬 Response: twelve...
+
+[95/220]
+  Testing: Calculate 20 percent of 80
+    ✅ Intent: InformationCommand
+    💬 Response: sixteen...
+
+[96/220]
+  Testing: What's 5 squared?
+    ✅ Intent: InformationCommand
+    💬 Response: twenty five...
+
+[97/220]
+  Testing: Convert 50 miles to kilometers
+    ✅ Intent: InformationCommand
+    💬 Response: 80.4672 kilometers...
+
+[98/220]
+  Testing: What's 100 degrees Fahrenheit in Celsius?
+    ✅ Intent: InformationCommand
+    💬 Response: 37.778 degrees Celsius...
+
+[99/220]
+  Testing: Calculate the tip on 45 dollars
+    ✅ Intent: TipCalculatorCommand
+    💬 Response: A 15 percent tip is 6 dollars and 75 cents...
+
+[100/220]
+  Testing: What's 1000 minus 347?
+    ✅ Intent: InformationCommand
+    💬 Response: six hundred and fifty three...
+
+[101/220]
+  Testing: What time is it?
+    ✅ Intent: ErrorCommand
+    💬 Response: This information is not available. Turn on location services, or include a city or state in the next...
+
+[102/220]
+  Testing: What's today's date?
+    ✅ Intent: InformationCommand
+    💬 Response: It is Monday November twenty-fourth twenty twenty five....
+
+[103/220]
+  Testing: Set an alarm for 7am
+    ✅ Intent: AlarmCommand
+    💬 Response: Setting an alarm is not supported by this client....
+
+[104/220]
+  Testing: What day is it?
+    ✅ Intent: InformationCommand
+    💬 Response: today is Monday November twenty-fourth twenty twenty five....
+
+[105/220]
+  Testing: What time is it in London?
+    ✅ Intent: InformationCommand
+    💬 Response: It is ten twenty three PM in London....
+
+[106/220]
+  Testing: Set a timer for 10 minutes
+    ✅ Intent: TimerCommand
+    💬 Response: Setting a timer is not supported by this client....
+
+[107/220]
+  Testing: Cancel my alarm
+    ✅ Intent: AlarmCommand
+    💬 Response: This client does not support deleting alarms....
+
+[108/220]
+  Testing: What's the time in Tokyo?
+    ✅ Intent: InformationCommand
+    💬 Response: It is seven twenty three AM the next day in Tokyo....
+
+[109/220]
+  Testing: When is sunrise?
+    ✅ Intent: ErrorCommand
+    💬 Response: This information is not available. Turn on location services, or include a city or state in the next...
+
+[110/220]
+  Testing: When is sunset?
+    ✅ Intent: ErrorCommand
+    💬 Response: This information is not available. Turn on location services, or include a city or state in the next...
+
+[111/220]
+  Testing: Who is Barack Obama?
+    ✅ Intent: InformationCommand
+    💬 Response: Barack Hussein Obama II is an American politician who served as the 44th president of the United Sta...
+
+[112/220]
+  Testing: What is the capital of France?
+    ✅ Intent: InformationCommand
+    💬 Response: The Capital of France is Paris....
+
+[113/220]
+  Testing: How tall is Mount Everest?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[114/220]
+  Testing: Who invented the telephone?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[115/220]
+  Testing: What is quantum physics?
+    ✅ Intent: DictionaryCommand
+    💬 Response: Definition of quantum physics: the branch of physics based on quantum theory. ...
+
+[116/220]
+  Testing: When was World War 2?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[117/220]
+  Testing: How many people live in China?
+    ✅ Intent: InformationCommand
+    💬 Response: The Population of China is 1,409,517,397....
+
+[118/220]
+  Testing: What is photosynthesis?
+    ✅ Intent: DictionaryCommand
+    💬 Response: Definition of photosynthesis: synthesis of compounds with the aid of radiant energy (especially in p...
+
+[119/220]
+  Testing: Who wrote Harry Potter?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[120/220]
+  Testing: What is the speed of light?
+    ✅ Intent: InformationCommand
+    💬 Response: The speed of light in vacuum, commonly denoted, is a universal physical constant that is important i...
+
+[121/220]
+  Testing: What's in the news today?
+    ✅ Intent: InformationCommand
+    💬 Response: News Today is an English language evening daily newspaper in Chennai, India....
+
+[122/220]
+  Testing: Tell me the latest headlines
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[123/220]
+  Testing: What's happening in the world?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[124/220]
+  Testing: Give me technology news
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[125/220]
+  Testing: What's the weather news?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[126/220]
+  Testing: Show me sports news
+    ✅ Intent: InformationCommand
+    💬 Response: Sports journalism is a form of writing that reports on matters pertaining to sporting topics and com...
+
+[127/220]
+  Testing: What are the top stories?
+    ✅ Intent: MusicCommand
+    💬 Response: Here are some of the top songs by Stories....
+
+[128/220]
+  Testing: Tell me about current events
+    ✅ Intent: InformationCommand
+    💬 Response: News is information about current events....
+
+[129/220]
+  Testing: What's trending?
+    ✅ Intent: DictionaryCommand
+    💬 Response: Definition of trend: a general direction in which something tends to move. ...
+
+[130/220]
+  Testing: Give me business news
+    ✅ Intent: InformationCommand
+    💬 Response: Business News strives in delivering news, events, and data-based insights for close to three decades...
+
+[131/220]
+  Testing: Turn on the lights
+    ✅ Intent: MusicCommand
+    💬 Response: Here are the songs matching Turn On The Lights....
+
+[132/220]
+  Testing: Set the thermostat to 72 degrees
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[133/220]
+  Testing: Turn off the kitchen lights
+    ✅ Intent: MusicCommand
+    💬 Response: Here are the songs matching Turn Off the Lights....
+
+[134/220]
+  Testing: Dim the bedroom lights
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[135/220]
+  Testing: What's the temperature inside?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[136/220]
+  Testing: Lock the front door
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[137/220]
+  Testing: Turn on the TV
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[138/220]
+  Testing: Set the alarm system
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[139/220]
+  Testing: Open the garage door
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[140/220]
+  Testing: Turn off all lights
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[141/220]
+  Testing: Call John
+    ✅ Intent: ErrorCommand
+    💬 Response: Contact information is not available until it is synchronized with the Hound cloud....
+
+[142/220]
+  Testing: Call mom
+    ✅ Intent: ErrorCommand
+    💬 Response: Contact information is not available until it is synchronized with the Hound cloud....
+
+[143/220]
+  Testing: Dial 555-1234
+    ✅ Intent: PhoneCommand
+    💬 Response: Placing phone calls is not supported by this client....
+
+[144/220]
+  Testing: Send a text to Sarah
+    ✅ Intent: SMSCommand
+    💬 Response: Sorry, this client doesn't support text messaging....
+
+[145/220]
+  Testing: What's John's phone number?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[146/220]
+  Testing: Show me recent calls
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[147/220]
+  Testing: Call the last number
+    ✅ Intent: PhoneCommand
+    💬 Response: Placing phone calls is not supported by this client....
+
+[148/220]
+  Testing: Redial
+    ✅ Intent: PhoneCommand
+    💬 Response: Placing phone calls is not supported by this client....
+
+[149/220]
+  Testing: Show my contacts
+    ✅ Intent: PhoneCommand
+    💬 Response: Showing contacts is not supported by this client....
+
+[150/220]
+  Testing: Add a new contact
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[151/220]
+  Testing: What's on my calendar today?
+    ✅ Intent: CalendarCommand
+    💬 Response: Here is what is on your calendar for today....
+
+[152/220]
+  Testing: Schedule a meeting for 3pm
+    ✅ Intent: CalendarCommand
+    💬 Response: Okay, let me create your calendar event. What should I title your event?...
+
+[153/220]
+  Testing: Set a reminder to buy milk
+    ✅ Intent: CalendarCommand
+    💬 Response: Okay, let me create your calendar event. What date should I set your event for?...
+
+[154/220]
+  Testing: What do I have tomorrow?
+    ✅ Intent: CalendarCommand
+    💬 Response: Here's what you have on your calendar....
+
+[155/220]
+  Testing: Add dentist appointment to calendar
+    ✅ Intent: CalendarCommand
+    💬 Response: Okay, let me create your calendar event. What date should I set your event for?...
+
+[156/220]
+  Testing: Create an event for Friday
+    ✅ Intent: CalendarCommand
+    💬 Response: Okay, let me create your calendar event. What should I title your event?...
+
+[157/220]
+  Testing: What's my next appointment?
+    ✅ Intent: CalendarCommand
+    💬 Response: Displaying a calendar item is not supported by this client....
+
+[158/220]
+  Testing: Cancel my 2pm meeting
+    ✅ Intent: CalendarCommand
+    💬 Response: Canceling a calendar item is not supported by this client....
+
+[159/220]
+  Testing: Remind me to call mom
+    ✅ Intent: CalendarCommand
+    💬 Response: Okay, let me create your calendar event. What date should I set your event for?...
+
+[160/220]
+  Testing: What meetings do I have this week?
+    ✅ Intent: CalendarCommand
+    💬 Response: Here's what you have on your calendar....
+
+[161/220]
+  Testing: Find deals on laptops
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[162/220]
+  Testing: Where can I buy an iPhone?
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[163/220]
+  Testing: Compare prices for headphones
+    ✅ Intent: NoResultCommand
+    💬 Response: ...
+
+[164/220]
+  Testing: Find the cheapest TV
+    ❌ Error: Invalid ID or Key
+
+[165/220]
+  Testing: Show me reviews for this product
+    ❌ Error: Invalid ID or Key
+
+[166/220]
+  Testing: Where's the nearest Best Buy?
+    ❌ Error: Invalid ID or Key
+
+[167/220]
+  Testing: Find coupons for Target
+    ❌ Error: Invalid ID or Key
+
+[168/220]
+  Testing: What's on sale at Amazon?
+    ❌ Error: Invalid ID or Key
+
+[169/220]
+  Testing: Compare iPad prices
+    ❌ Error: Invalid ID or Key
+
+[170/220]
+  Testing: Find black friday deals
+    ❌ Error: Invalid ID or Key
+
+[171/220]
+  Testing: What movies are playing?
+    ❌ Error: Invalid ID or Key
+
+[172/220]
+  Testing: Show me movie times for Avatar
+    ❌ Error: Invalid ID or Key
+
+[173/220]
+  Testing: What's playing at the cinema?
+    ❌ Error: Invalid ID or Key
+
+[174/220]
+  Testing: Find action movies
+    ❌ Error: Invalid ID or Key
+
+[175/220]
+  Testing: What's the rating of Inception?
+    ❌ Error: Invalid ID or Key
+
+[176/220]
+  Testing: Who directed The Godfather?
+    ❌ Error: Invalid ID or Key
+
+[177/220]
+  Testing: Show me comedy movies
+    ❌ Error: Invalid ID or Key
+
+[178/220]
+  Testing: What time is the 7pm showing?
+    ❌ Error: Invalid ID or Key
+
+[179/220]
+  Testing: Find movies near me
+    ❌ Error: Invalid ID or Key
+
+[180/220]
+  Testing: What's new on Netflix?
+    ❌ Error: Invalid ID or Key
+
+[181/220]
+  Testing: Get me an Uber
+    ❌ Error: Invalid ID or Key
+
+[182/220]
+  Testing: Call a ride to the airport
+    ❌ Error: Invalid ID or Key
+
+[183/220]
+  Testing: How much is an Uber to downtown?
+    ❌ Error: Invalid ID or Key
+
+[184/220]
+  Testing: Request a Lyft
+    ❌ Error: Invalid ID or Key
+
+[185/220]
+  Testing: Where's my Uber?
+    ❌ Error: Invalid ID or Key
+
+[186/220]
+  Testing: Cancel my ride
+    ❌ Error: Invalid ID or Key
+
+[187/220]
+  Testing: Get me an Uber XL
+    ❌ Error: Invalid ID or Key
+
+[188/220]
+  Testing: How long until my ride arrives?
+    ❌ Error: Invalid ID or Key
+
+[189/220]
+  Testing: Find the cheapest ride option
+    ❌ Error: Invalid ID or Key
+
+[190/220]
+  Testing: Request a ride home
+    ❌ Error: Invalid ID or Key
+
+[191/220]
+  Testing: How do you say hello in Spanish?
+    ❌ Error: Invalid ID or Key
+
+[192/220]
+  Testing: Translate good morning to French
+    ❌ Error: Invalid ID or Key
+
+[193/220]
+  Testing: What does bonjour mean?
+    ❌ Error: Invalid ID or Key
+
+[194/220]
+  Testing: Say thank you in Japanese
+    ❌ Error: Invalid ID or Key
+
+[195/220]
+  Testing: Translate this to German
+    ❌ Error: Invalid ID or Key
+
+[196/220]
+  Testing: How do you say goodbye in Italian?
+    ❌ Error: Invalid ID or Key
+
+[197/220]
+  Testing: What's the Spanish word for cat?
+    ❌ Error: Invalid ID or Key
+
+[198/220]
+  Testing: Translate I love you to Chinese
+    ❌ Error: Invalid ID or Key
+
+[199/220]
+  Testing: Say please in Portuguese
+    ❌ Error: Invalid ID or Key
+
+[200/220]
+  Testing: What does gracias mean?
+    ❌ Error: Invalid ID or Key
+
+[201/220]
+  Testing: Convert 100 pounds to kilograms
+    ❌ Error: Invalid ID or Key
+
+[202/220]
+  Testing: How many feet in a mile?
+    ❌ Error: Invalid ID or Key
+
+[203/220]
+  Testing: Convert 5 gallons to liters
+    ❌ Error: Invalid ID or Key
+
+[204/220]
+  Testing: What's 100 kilometers in miles?
+    ❌ Error: Invalid ID or Key
+
+[205/220]
+  Testing: Convert 32 Fahrenheit to Celsius
+    ❌ Error: Invalid ID or Key
+
+[206/220]
+  Testing: How many ounces in a pound?
+    ❌ Error: Invalid ID or Key
+
+[207/220]
+  Testing: Convert square feet to square meters
+    ❌ Error: Invalid ID or Key
+
+[208/220]
+  Testing: What's 1000 milliliters in cups?
+    ❌ Error: Invalid ID or Key
+
+[209/220]
+  Testing: Convert yards to meters
+    ❌ Error: Invalid ID or Key
+
+[210/220]
+  Testing: How many seconds in an hour?
+    ❌ Error: Invalid ID or Key
+
+[211/220]
+  Testing: Tell me a joke
+    ❌ Error: Invalid ID or Key
+
+[212/220]
+  Testing: Flip a coin
+    ❌ Error: Invalid ID or Key
+
+[213/220]
+  Testing: Roll a dice
+    ❌ Error: Invalid ID or Key
+
+[214/220]
+  Testing: What's your name?
+    ❌ Error: Invalid ID or Key
+
+[215/220]
+  Testing: How are you?
+    ❌ Error: Invalid ID or Key
+
+[216/220]
+  Testing: Sing a song
+    ❌ Error: Invalid ID or Key
+
+[217/220]
+  Testing: Tell me a story
+    ❌ Error: Invalid ID or Key
+
+[218/220]
+  Testing: What can you do?
+    ❌ Error: Invalid ID or Key
+
+[219/220]
+  Testing: Give me a random number
+    ❌ Error: Invalid ID or Key
+
+[220/220]
+  Testing: What's the meaning of life?
+    ❌ Error: Invalid ID or Key
+
+================================================================================
+
+================================================================================
+DISCOVERY SUMMARY
+================================================================================
+
+📊 Statistics:
+  Total queries processed: 220
+  Unique intents found: 20
+  Successful queries: 161
+  Failed queries: 59
+
+✅ Discovered Intents:
+
+  📌 AlarmCommand
+     Queries: 2
+       - Set an alarm for 7am
+       - Cancel my alarm
+
+  📌 CalendarCommand
+     Queries: 10
+       - What's on my calendar today?
+       - Schedule a meeting for 3pm
+       - Set a reminder to buy milk
+       ... and 7 more
+
+  📌 ClientCommand
+     Queries: 1
+       - What time does Olive Garden close?
+
+  📌 CurrencyConverterCommand
+     Queries: 1
+       - How much is Bitcoin worth?
+
+  📌 DeviceControlCommand
+     Queries: 1
+       - Turn up the volume
+
+  📌 DictionaryCommand
+     Queries: 3
+       - What is quantum physics?
+       - What is photosynthesis?
+       - What's trending?
+
+  📌 ErrorCommand
+     Queries: 21
+       - What's the weather?
+       - Will it rain tomorrow?
+       - What's the forecast for this weekend?
+       ... and 18 more
+
+  📌 FlightBookingCommand
+     Queries: 4
+       - Find cheap flights to Miami
+       - Book a flight to Chicago
+       - Find one-way flights
+       ... and 1 more
+
+  📌 FlightStatusModeCommand
+     Queries: 3
+       - Find flights to New York
+       - When does my flight leave?
+       - What time does the flight arrive?
+
+  📌 InformationCommand
+     Queries: 34
+       - What's the weather in San Francisco?
+       - What's the weather like in New York?
+       - Show me pizza places
+       ... and 31 more
+
+  📌 MapCommand
+     Queries: 3
+       - Get directions to 123 Main Street
+       - How do I get to San Francisco?
+       - Find a post office
+
+  📌 MusicCommand
+     Queries: 7
+       - Play some jazz
+       - Play Bohemian Rhapsody by Queen
+       - Play my workout playlist
+       ... and 4 more
+
+  📌 MusicPlayerCommand
+     Queries: 3
+       - Play music
+       - Skip this song
+       - Pause the music
+
+  📌 NavigationControlCommand
+     Queries: 1
+       - What's my ETA?
+
+  📌 NoResultCommand
+     Queries: 58
+       - Book a table at Pizza Palace
+       - Find restaurants near me
+       - Reserve a table for 4 people at 7pm
+       ... and 55 more
+
+  📌 PhoneCommand
+     Queries: 4
+       - Dial 555-1234
+       - Call the last number
+       - Redial
+       ... and 1 more
+
+  📌 SMSCommand
+     Queries: 1
+       - Send a text to Sarah
+
+  📌 SoundHoundNowCommand
+     Queries: 2
+       - What song is this?
+       - Who sings this song?
+
+  📌 TimerCommand
+     Queries: 1
+       - Set a timer for 10 minutes
+
+  📌 TipCalculatorCommand
+     Queries: 1
+       - Calculate the tip on 45 dollars
+
+❌ Failed Queries (59):
+  - Find hotels in Las Vegas
+    Error: Sorry, an error occurred.
+  - What's the price of hotels in Miami?
+    Error: Sorry, an error occurred.
+  - Find the cheapest TV
+    Error: Invalid ID or Key
+  - Show me reviews for this product
+    Error: Invalid ID or Key
+  - Where's the nearest Best Buy?
+    Error: Invalid ID or Key
+  - Find coupons for Target
+    Error: Invalid ID or Key
+  - What's on sale at Amazon?
+    Error: Invalid ID or Key
+  - Compare iPad prices
+    Error: Invalid ID or Key
+  - Find black friday deals
+    Error: Invalid ID or Key
+  - What movies are playing?
+    Error: Invalid ID or Key
+  ... and 49 more
+
+💾 Results saved to: discovered_intents.json
+
+✨ Discovery complete!

@@ -1,0 +1,297 @@
+{
+  "discovered_at": "2025-11-24T22:30:45.739532+00:00",
+  "summary": {
+    "total_queries": 57,
+    "unique_intents": 0,
+    "successful_queries": 0,
+    "failed_queries": 57
+  },
+  "intents": {},
+  "failures": [
+    {
+      "query": "Find the cheapest TV",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Show me reviews for this product",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Where's the nearest Best Buy?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Find coupons for Target",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "What's on sale at Amazon?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Compare iPad prices",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Find black friday deals",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "What movies are playing?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Show me movie times for Avatar",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "What's playing at the cinema?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Find action movies",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "What's the rating of Inception?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Who directed The Godfather?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Show me comedy movies",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "What time is the 7pm showing?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Find movies near me",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "What's new on Netflix?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Get me an Uber",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Call a ride to the airport",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "How much is an Uber to downtown?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Request a Lyft",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Where's my Uber?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Cancel my ride",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Get me an Uber XL",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "How long until my ride arrives?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Find the cheapest ride option",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Request a ride home",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "How do you say hello in Spanish?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Translate good morning to French",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "What does bonjour mean?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Say thank you in Japanese",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Translate this to German",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "How do you say goodbye in Italian?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "What's the Spanish word for cat?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Translate I love you to Chinese",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Say please in Portuguese",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "What does gracias mean?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Convert 100 pounds to kilograms",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "How many feet in a mile?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Convert 5 gallons to liters",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "What's 100 kilometers in miles?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Convert 32 Fahrenheit to Celsius",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "How many ounces in a pound?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Convert square feet to square meters",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "What's 1000 milliliters in cups?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Convert yards to meters",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "How many seconds in an hour?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Tell me a joke",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Flip a coin",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Roll a dice",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "What's your name?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "How are you?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Sing a song",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Tell me a story",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "What can you do?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "Give me a random number",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    },
+    {
+      "query": "What's the meaning of life?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    }
+  ]
+}

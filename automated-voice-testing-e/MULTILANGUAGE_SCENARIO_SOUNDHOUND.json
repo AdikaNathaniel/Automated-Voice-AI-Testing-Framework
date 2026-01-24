@@ -1,0 +1,209 @@
+{
+  "scenario_name": "Multi-Language Houndify Test - English & French",
+  "description": "3-step scenario testing Houndify integration with English and French language support. Tests information query, calendar management, and music playback across languages.",
+  "version": "1.0.0",
+  "validation_mode": "hybrid",
+  "is_active": true,
+  "approval_status": "approved",
+  "script_metadata": {
+    "languages": ["en-US", "fr-FR"],
+    "provider": "houndify",
+    "test_type": "multilanguage_validation"
+  },
+  "steps": [
+    {
+      "step_order": 1,
+      "user_utterance": "What's 10 plus 15?",
+      "step_metadata": {
+        "language_code": "en-US",
+        "primary_language": "en-US",
+        "request_info": {
+          "LanguageCode": "en-US",
+          "Latitude": 37.7749,
+          "Longitude": -122.4194
+        },
+        "description": "Step 1: Simple math calculation in English - validates InformationCommand intent"
+      },
+      "expected_outcomes": [
+        {
+          "expected_command_kind": "InformationCommand",
+          "expected_asr_confidence_min": 0.85,
+          "validation_rules": {
+            "expected_transcript": "what's 10 plus 15?",
+            "response_should_contain": ["25", "twenty"],
+            "language": "en-US",
+            "intent_validation": {
+              "CommandKind": "InformationCommand",
+              "confidence_threshold": 0.9
+            }
+          },
+          "entities": {
+            "query_type": "calculation",
+            "language": "en-US",
+            "operation": "addition",
+            "operands": [10, 15],
+            "expected_result": 25
+          }
+        }
+      ]
+    },
+    {
+      "step_order": 2,
+      "user_utterance": "Qu'est-ce que j'ai au calendrier aujourd'hui?",
+      "step_metadata": {
+        "language_code": "fr-FR",
+        "primary_language": "fr-FR",
+        "translation": {
+          "en": "What's on my calendar today?",
+          "fr": "Qu'est-ce que j'ai au calendrier aujourd'hui?"
+        },
+        "request_info": {
+          "LanguageCode": "fr-FR",
+          "Latitude": 48.8566,
+          "Longitude": 2.3522
+        },
+        "description": "Step 2: Calendar query in French - validates CalendarCommand intent and French language support"
+      },
+      "expected_outcomes": [
+        {
+          "expected_command_kind": "CalendarCommand",
+          "expected_asr_confidence_min": 0.75,
+          "validation_rules": {
+            "expected_transcript": "qu'est-ce que j'ai au calendrier aujourd'hui?",
+            "response_should_contain": ["calendar", "calendrier", "today", "aujourd'hui"],
+            "language": "fr-FR",
+            "intent_validation": {
+              "CommandKind": "CalendarCommand",
+              "confidence_threshold": 0.85
+            }
+          },
+          "entities": {
+            "query_type": "calendar_lookup",
+            "language": "fr-FR",
+            "time_reference": "today",
+            "action": "retrieve_events"
+          }
+        }
+      ]
+    },
+    {
+      "step_order": 3,
+      "user_utterance": "Play some jazz music",
+      "step_metadata": {
+        "language_code": "en-US",
+        "primary_language": "en-US",
+        "request_info": {
+          "LanguageCode": "en-US",
+          "Latitude": 40.7128,
+          "Longitude": -74.0060
+        },
+        "description": "Step 3: Music playback request in English - validates MusicCommand intent"
+      },
+      "expected_outcomes": [
+        {
+          "expected_command_kind": "MusicCommand",
+          "expected_asr_confidence_min": 0.85,
+          "validation_rules": {
+            "expected_transcript": "play some jazz music",
+            "response_should_contain": ["music", "jazz", "song", "play"],
+            "language": "en-US",
+            "intent_validation": {
+              "CommandKind": "MusicCommand",
+              "confidence_threshold": 0.9
+            }
+          },
+          "entities": {
+            "query_type": "music_playback",
+            "language": "en-US",
+            "genre": "jazz",
+            "action": "play"
+          }
+        }
+      ]
+    }
+  ],
+  "test_configuration": {
+    "provider": "houndify",
+    "client_type": "MockHoundifyClient",
+    "response_patterns": {
+      "plus": {
+        "Status": "OK",
+        "NumToReturn": 1,
+        "AllResults": [
+          {
+            "CommandKind": "InformationCommand",
+            "SpokenResponse": "twenty five",
+            "RawTranscription": "what's 10 plus 15?",
+            "FormattedTranscription": "What's 10 plus 15?"
+          }
+        ]
+      },
+      "calendrier": {
+        "Status": "OK",
+        "NumToReturn": 1,
+        "AllResults": [
+          {
+            "CommandKind": "CalendarCommand",
+            "SpokenResponse": "Here is what is on your calendar for today",
+            "RawTranscription": "qu'est-ce que j'ai au calendrier aujourd'hui?",
+            "FormattedTranscription": "Qu'est-ce que j'ai au calendrier aujourd'hui?"
+          }
+        ]
+      },
+      "jazz": {
+        "Status": "OK",
+        "NumToReturn": 1,
+        "AllResults": [
+          {
+            "CommandKind": "MusicCommand",
+            "SpokenResponse": "I couldn't find any songs that match your query",
+            "RawTranscription": "play some jazz music",
+            "FormattedTranscription": "Play some jazz music",
+            "Entities": {
+              "Genre": "jazz"
+            }
+          }
+        ]
+      }
+    },
+    "mock_client_config": {
+      "error_rate": 0.0,
+      "latency_ms": 50
+    }
+  },
+  "execution_notes": [
+    "This scenario validates multi-language support in Houndify integration",
+    "Step 1 uses English for a simple calculation - always reliable",
+    "Step 2 switches to French for calendar query - tests language switching",
+    "Step 3 returns to English for music playback - confirms language flexibility",
+    "All steps include proper LanguageCode in request_info for mock client",
+    "Response patterns configured to match expected Houndify responses",
+    "Confidence thresholds set appropriately for each language (en: 0.85, fr: 0.75)"
+  ],
+  "expected_results": {
+    "step_1": {
+      "status": "PASS",
+      "intent": "InformationCommand",
+      "response": "twenty five",
+      "validation": "Response contains expected calculation result"
+    },
+    "step_2": {
+      "status": "PASS",
+      "intent": "CalendarCommand",
+      "response": "Here is what is on your calendar for today",
+      "validation": "Response acknowledges calendar query in French"
+    },
+    "step_3": {
+      "status": "PASS",
+      "intent": "MusicCommand",
+      "response": "I couldn't find any songs that match your query",
+      "validation": "Response acknowledges music request (even if no songs available)"
+    }
+  },
+  "usage_instructions": {
+    "api_endpoint": "POST /api/v1/scenarios",
+    "example_curl": "curl -X POST http://localhost:8000/api/v1/scenarios -H 'Content-Type: application/json' -d @MULTILANGUAGE_SCENARIO_SOUNDHOUND.json",
+    "python_example": "import requests\n\nwith open('MULTILANGUAGE_SCENARIO_SOUNDHOUND.json') as f:\n    scenario = json.load(f)\n\nresponse = requests.post(\n    'http://localhost:8000/api/v1/scenarios',\n    json=scenario,\n    headers={'Authorization': 'Bearer YOUR_TOKEN'}\n)\n\nprint(f'Scenario ID: {response.json()[\"id\"]}')",
+    "mock_client_setup": "from integrations.houndify.mock_client import MockHoundifyClient\n\nclient = MockHoundifyClient(\n    response_patterns=scenario['test_configuration']['response_patterns'],\n    error_rate=0.0,\n    latency_ms=50\n)\n\n# Execute step 1\nresult1 = await client.text_query(\n    query='What\\'s 10 plus 15?',\n    user_id='test_user',\n    request_id='req_1',\n    request_info={'LanguageCode': 'en-US'}\n)\n\n# Execute step 2\nresult2 = await client.text_query(\n    query='Qu\\'est-ce que j\\'ai au calendrier aujourd\\'hui?',\n    user_id='test_user',\n    request_id='req_2',\n    request_info={'LanguageCode': 'fr-FR'}\n)\n\n# Execute step 3\nresult3 = await client.text_query(\n    query='Play some jazz music',\n    user_id='test_user',\n    request_id='req_3',\n    request_info={'LanguageCode': 'en-US'}\n)"
+  }
+}

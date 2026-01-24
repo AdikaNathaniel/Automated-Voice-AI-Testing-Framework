@@ -1,0 +1,18 @@
+# Production dependencies
+sentry-sdk[fastapi]==2.22.0
+
+# JWT Authentication
+PyJWT==2.8.0
+
+# Translation
+deep-translator==1.11.4
+
+# Type checking (mypy)
+mypy==1.17.1
+
+# Type stubs for mypy
+types-redis
+types-PyYAML
+types-requests
+types-passlib
+types-python-jose

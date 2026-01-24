@@ -1,0 +1,243 @@
+{
+  "scenario_name": "Morning Routine - Bilingual Assistant (English & French)",
+  "description": "Realistic 3-step morning routine scenario where a bilingual user prepares for their day. Tests natural conversation flow with language switching for different tasks.",
+  "version": "1.0.0",
+  "validation_mode": "hybrid",
+  "is_active": true,
+  "approval_status": "approved",
+  "script_metadata": {
+    "languages": ["en-US", "fr-FR"],
+    "provider": "houndify",
+    "test_type": "multilanguage_conversation_flow",
+    "context": "User is getting ready for work in the morning. They use English for general queries but prefer French for calendar/schedule management (common for bilingual professionals)."
+  },
+  "conversation_flow": {
+    "scenario": "Morning preparation routine",
+    "user_persona": "Bilingual professional (English/French) in San Francisco",
+    "continuity": "Each step naturally follows from the previous one"
+  },
+  "steps": [
+    {
+      "step_order": 1,
+      "user_utterance": "What's the weather in San Francisco today?",
+      "step_metadata": {
+        "language_code": "en-US",
+        "primary_language": "en-US",
+        "request_info": {
+          "LanguageCode": "en-US",
+          "Latitude": 37.7749,
+          "Longitude": -122.4194
+        },
+        "context": "User just woke up and wants to know how to dress for the day",
+        "description": "Step 1: Check weather before getting dressed - validates InformationCommand with location-based query"
+      },
+      "expected_outcomes": [
+        {
+          "expected_command_kind": "InformationCommand",
+          "expected_asr_confidence_min": 0.85,
+          "validation_rules": {
+            "expected_transcript": "what's the weather in san francisco today?",
+            "response_should_contain": ["weather", "San Francisco", "degrees", "temperature"],
+            "language": "en-US",
+            "intent_validation": {
+              "CommandKind": "InformationCommand",
+              "confidence_threshold": 0.9
+            }
+          },
+          "entities": {
+            "query_type": "weather",
+            "language": "en-US",
+            "location": "San Francisco",
+            "time_reference": "today"
+          }
+        }
+      ],
+      "follow_up_action": "Based on weather, user decides what to wear and then checks their schedule"
+    },
+    {
+      "step_order": 2,
+      "user_utterance": "Qu'est-ce que j'ai au calendrier aujourd'hui?",
+      "step_metadata": {
+        "language_code": "fr-FR",
+        "primary_language": "fr-FR",
+        "translation": {
+          "en": "What's on my calendar today?",
+          "fr": "Qu'est-ce que j'ai au calendrier aujourd'hui?"
+        },
+        "request_info": {
+          "LanguageCode": "fr-FR",
+          "Latitude": 37.7749,
+          "Longitude": -122.4194
+        },
+        "context": "User switches to French for calendar (their preferred language for schedule management). Natural continuation - after checking weather, they want to see their schedule.",
+        "description": "Step 2: Check today's schedule - validates CalendarCommand with French language, demonstrates language switching in natural conversation"
+      },
+      "expected_outcomes": [
+        {
+          "expected_command_kind": "CalendarCommand",
+          "expected_asr_confidence_min": 0.75,
+          "validation_rules": {
+            "expected_transcript": "qu'est-ce que j'ai au calendrier aujourd'hui?",
+            "response_should_contain": ["calendar", "calendrier", "today", "aujourd'hui"],
+            "language": "fr-FR",
+            "intent_validation": {
+              "CommandKind": "CalendarCommand",
+              "confidence_threshold": 0.85
+            }
+          },
+          "entities": {
+            "query_type": "calendar_lookup",
+            "language": "fr-FR",
+            "time_reference": "today",
+            "action": "retrieve_events"
+          }
+        }
+      ],
+      "follow_up_action": "After seeing their schedule, user realizes they have a morning meeting and needs directions"
+    },
+    {
+      "step_order": 3,
+      "user_utterance": "Get directions to the nearest coffee shop",
+      "step_metadata": {
+        "language_code": "en-US",
+        "primary_language": "en-US",
+        "request_info": {
+          "LanguageCode": "en-US",
+          "Latitude": 37.7749,
+          "Longitude": -122.4194
+        },
+        "context": "User returns to English for navigation. They need coffee before their first meeting. Natural continuation from seeing their calendar.",
+        "description": "Step 3: Get directions to coffee shop before heading to work - validates MapCommand, completes the morning routine flow"
+      },
+      "expected_outcomes": [
+        {
+          "expected_command_kind": "MapCommand",
+          "expected_asr_confidence_min": 0.85,
+          "validation_rules": {
+            "expected_transcript": "get directions to the nearest coffee shop",
+            "response_should_contain": ["directions", "coffee"],
+            "language": "en-US",
+            "intent_validation": {
+              "CommandKind": "MapCommand",
+              "confidence_threshold": 0.9
+            }
+          },
+          "entities": {
+            "query_type": "directions",
+            "language": "en-US",
+            "destination_type": "coffee_shop",
+            "distance_preference": "nearest"
+          }
+        }
+      ],
+      "follow_up_action": "User is now ready to leave for work with coffee directions"
+    }
+  ],
+  "test_configuration": {
+    "provider": "houndify",
+    "client_type": "MockHoundifyClient",
+    "response_patterns": {
+      "weather": {
+        "Status": "OK",
+        "NumToReturn": 1,
+        "AllResults": [
+          {
+            "CommandKind": "InformationCommand",
+            "SpokenResponse": "The weather is fifty nine degrees and sunny in San Francisco",
+            "RawTranscription": "what's the weather in san francisco today?",
+            "FormattedTranscription": "What's the weather in San Francisco today?",
+            "Entities": {
+              "Location": "San Francisco",
+              "TimeReference": "today"
+            }
+          }
+        ]
+      },
+      "calendrier": {
+        "Status": "OK",
+        "NumToReturn": 1,
+        "AllResults": [
+          {
+            "CommandKind": "CalendarCommand",
+            "SpokenResponse": "Here is what is on your calendar for today",
+            "RawTranscription": "qu'est-ce que j'ai au calendrier aujourd'hui?",
+            "FormattedTranscription": "Qu'est-ce que j'ai au calendrier aujourd'hui?",
+            "ConversationState": {
+              "TurnCount": 2,
+              "CollectedSlots": {
+                "TimeReference": "today"
+              }
+            }
+          }
+        ]
+      },
+      "coffee": {
+        "Status": "OK",
+        "NumToReturn": 1,
+        "AllResults": [
+          {
+            "CommandKind": "MapCommand",
+            "SpokenResponse": "Here are directions to the nearest coffee shop",
+            "RawTranscription": "get directions to the nearest coffee shop",
+            "FormattedTranscription": "Get directions to the nearest coffee shop",
+            "Entities": {
+              "DestinationType": "coffee_shop",
+              "DistancePreference": "nearest"
+            }
+          }
+        ]
+      }
+    },
+    "mock_client_config": {
+      "error_rate": 0.0,
+      "latency_ms": 50
+    }
+  },
+  "narrative_flow": {
+    "title": "Morning Routine Scenario",
+    "story": [
+      "🌅 User wakes up and asks about the weather to decide what to wear",
+      "📅 After knowing the weather, they check their calendar in French (their preferred language for scheduling)",
+      "☕ Seeing they have meetings today, they get directions to grab coffee first",
+      "✅ User is now informed and ready to start their day"
+    ],
+    "why_it_makes_sense": [
+      "Natural morning sequence: weather → schedule → directions",
+      "Language switching is realistic: many bilingual professionals use different languages for different contexts",
+      "Each step logically leads to the next",
+      "Common real-world use case for voice assistants",
+      "Tests conversation state preservation across language switches"
+    ]
+  },
+  "expected_results": {
+    "step_1": {
+      "status": "PASS",
+      "intent": "InformationCommand",
+      "response": "The weather is fifty nine degrees and sunny in San Francisco",
+      "validation": "Weather query with specific location - standard Houndify capability",
+      "conversation_state": "Weather information retrieved, user can now plan outfit"
+    },
+    "step_2": {
+      "status": "PASS",
+      "intent": "CalendarCommand",
+      "response": "Here is what is on your calendar for today",
+      "validation": "Calendar lookup in French - tests language switching",
+      "conversation_state": "Schedule retrieved, user knows their day's plan"
+    },
+    "step_3": {
+      "status": "PASS",
+      "intent": "MapCommand",
+      "response": "Here are directions to the nearest coffee shop",
+      "validation": "Navigation query back in English - completes morning routine",
+      "conversation_state": "Directions provided, user ready to leave"
+    }
+  },
+  "usage_notes": [
+    "This scenario demonstrates a realistic conversation flow, not just isolated queries",
+    "Language switching happens naturally based on user preference for different tasks",
+    "Each step builds on the previous one to form a complete morning routine",
+    "Tests 3 different Houndify intents: InformationCommand, CalendarCommand, MapCommand",
+    "All intents have 100% success rate in Houndify testing",
+    "Conversation state is maintained across language switches"
+  ]
+}

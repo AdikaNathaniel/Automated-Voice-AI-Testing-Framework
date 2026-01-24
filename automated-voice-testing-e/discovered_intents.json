@@ -1,0 +1,17 @@
+{
+  "discovered_at": "2025-11-24T22:30:54.613487+00:00",
+  "summary": {
+    "total_queries": 1,
+    "unique_intents": 0,
+    "successful_queries": 0,
+    "failed_queries": 1
+  },
+  "intents": {},
+  "failures": [
+    {
+      "query": "What's 2 plus 2?",
+      "error": "Invalid ID or Key",
+      "status_code": null
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+name: E2E Tests
+
+"on":
+  workflow_run:
+    workflows:
+      - Deploy to Staging
+    types:
+      - completed
+  workflow_dispatch:
+
+env:
+  PLAYWRIGHT_BASE_URL: https://staging.voiceai.example.com
+  VITE_APP_URL: https://staging.voiceai.example.com
+  VITE_API_URL: https://staging.voiceai.example.com/api/v1
+
+jobs:
+  playwright:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    name: Run Playwright E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: staging
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: frontend
+        run: npx playwright install --with-deps
+
+      - name: Wait for staging environment
+        run: |
+          echo "Waiting for staging endpoint to become available..."
+          for attempt in {1..10}; do
+            if curl --fail --silent --max-time 10 https://staging.voiceai.example.com/health; then
+              echo "Staging environment is reachable."
+              exit 0
+            fi
+            echo "Attempt ${attempt} failed. Retrying in 10 seconds..."
+            sleep 10
+          done
+          echo "Staging environment is not reachable after multiple attempts."
+          exit 1
+
+      - name: Run Playwright suite
+        working-directory: frontend
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ env.PLAYWRIGHT_BASE_URL }}
+          VITE_APP_URL: ${{ env.VITE_APP_URL }}
+          VITE_API_URL: ${{ env.VITE_API_URL }}
+          CI: true
+        run: npm run test:e2e
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            frontend/test-results/playwright
+            frontend/test-results/playwright-artifacts
+          if-no-files-found: ignore

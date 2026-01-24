@@ -1,0 +1,40 @@
+languages:
+  - code: en-US
+    name: English (United States)
+    native_name: English
+    soundhound_model: en-US-v3.2
+
+  - code: es-ES
+    name: Spanish (Spain)
+    native_name: Español
+    soundhound_model: es-ES-v2.8
+
+  - code: fr-FR
+    name: French (France)
+    native_name: Français
+    soundhound_model: fr-FR-v2.7
+
+  - code: de-DE
+    name: German (Germany)
+    native_name: Deutsch
+    soundhound_model: de-DE-v3.0
+
+  - code: it-IT
+    name: Italian (Italy)
+    native_name: Italiano
+    soundhound_model: it-IT-v2.6
+
+  - code: pt-BR
+    name: Portuguese (Brazil)
+    native_name: Português
+    soundhound_model: pt-BR-v2.5
+
+  - code: ja-JP
+    name: Japanese (Japan)
+    native_name: 日本語
+    soundhound_model: ja-JP-v2.4
+
+  - code: zh-CN
+    name: Chinese (Mandarin)
+    native_name: 中文（普通话）
+    soundhound_model: zh-CN-v2.5

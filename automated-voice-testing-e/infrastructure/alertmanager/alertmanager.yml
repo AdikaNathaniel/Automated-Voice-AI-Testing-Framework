@@ -1,0 +1,95 @@
+# Alertmanager Configuration for Voice AI Testing Framework
+# Handles alert routing, grouping, and notification delivery
+
+global:
+  # How long to wait before sending a notification again if already sent
+  resolve_timeout: 5m
+
+# Templates for customizing notification content
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# Route tree for alert matching and routing
+route:
+  # Default receiver for all alerts
+  receiver: 'default-receiver'
+
+  # How to group alerts together
+  group_by: ['alertname', 'severity', 'job']
+
+  # How long to wait to buffer alerts before sending
+  group_wait: 30s
+
+  # How long to wait before sending additional alerts for a group
+  group_interval: 5m
+
+  # How long to wait before re-sending a notification
+  repeat_interval: 4h
+
+  # Child routes for specific alert types
+  routes:
+    # Critical alerts go to pager/immediate notification
+    - match:
+        severity: critical
+      receiver: 'critical-alerts'
+      group_wait: 10s
+      repeat_interval: 1h
+      continue: true
+
+    # Warning alerts go to team channel
+    - match:
+        severity: warning
+      receiver: 'warning-alerts'
+      group_wait: 1m
+      repeat_interval: 4h
+
+    # Database alerts
+    - match:
+        job: postgres
+      receiver: 'database-alerts'
+      group_wait: 30s
+
+    # Queue alerts
+    - match_re:
+        alertname: '.*(Queue|Worker).*'
+      receiver: 'queue-alerts'
+      group_wait: 1m
+
+# Notification receivers
+receivers:
+  # Default receiver - logs alerts (configure Slack/email via environment variables in production)
+  - name: 'default-receiver'
+
+  # Critical alerts
+  - name: 'critical-alerts'
+
+  # Warning alerts
+  - name: 'warning-alerts'
+
+  # Database-specific alerts
+  - name: 'database-alerts'
+
+  # Queue and worker alerts
+  - name: 'queue-alerts'
+
+# Inhibition rules to avoid alert flooding
+inhibit_rules:
+  # Critical alerts inhibit warnings for the same alert
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'job', 'instance']
+
+  # If database is down, inhibit dependent service alerts
+  - source_match:
+      alertname: 'PostgresDown'
+    target_match_re:
+      alertname: '.*(Backend|API).*'
+    equal: ['job']
+
+  # If Redis is down, inhibit cache-related alerts
+  - source_match:
+      alertname: 'RedisDown'
+    target_match_re:
+      alertname: '.*(Cache|Session|RateLimit).*'

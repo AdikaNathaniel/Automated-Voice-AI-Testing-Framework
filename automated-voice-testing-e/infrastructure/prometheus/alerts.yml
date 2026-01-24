@@ -1,0 +1,29 @@
+groups:
+  - name: automated-testing-alerts
+    rules:
+      - alert: LowSuccessRate
+        expr: sum(rate(test_executions_total{result="success"}[5m])) / sum(rate(test_executions_total[5m])) < 0.95
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Success rate dropped below 95%"
+          description: "Success rate has been below 95% for the last 5 minutes. Investigate recent regression runs."
+
+      - alert: HighQueueDepth
+        expr: queue_depth > 1000
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Queue depth exceeded 1000 jobs"
+          description: "The execution queue has exceeded 1000 pending jobs for 2 minutes. Scale workers or investigate bottlenecks."
+
+      - alert: HighResponseLatency
+        expr: histogram_quantile(0.95, sum(rate(api_response_time_seconds_bucket[5m])) by (le)) > 5
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "API P95 latency above 5 seconds"
+          description: "API response time P95 has been above 5 seconds for the last 5 minutes. Check backend performance."

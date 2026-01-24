@@ -1,0 +1,33 @@
+# Audio Simulation Profiles (TASK-118)
+#
+# This configuration file defines audio simulation profiles for testing
+# voice AI systems under various acoustic conditions. Each profile specifies:
+#   - snr_db: Signal-to-noise ratio in decibels (higher = cleaner audio)
+#   - background_noise: Type of background noise to simulate (null = no noise)
+#
+# Profiles are used to simulate real-world acoustic environments and test
+# voice AI robustness under different conditions.
+
+# Clean profile: Ideal acoustic conditions
+# - High SNR (25 dB) for clear audio
+# - No background noise
+# Use for: Baseline testing, optimal conditions
+clean:
+  snr_db: 25
+  background_noise: null
+
+# Moderate profile: Typical indoor environment
+# - Medium SNR (20 dB)
+# - Car ambient noise simulation
+# Use for: Realistic testing, in-vehicle scenarios
+moderate:
+  snr_db: 20
+  background_noise: "car_ambient"
+
+# High noise profile: Challenging acoustic conditions
+# - Low SNR (15 dB)
+# - Highway traffic noise simulation
+# Use for: Stress testing, noisy environments
+high_noise:
+  snr_db: 15
+  background_noise: "highway_traffic"

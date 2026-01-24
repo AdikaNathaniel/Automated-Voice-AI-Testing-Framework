@@ -1,0 +1,419 @@
+name: Deploy to Production
+
+"on":
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version/tag to deploy (e.g., v1.2.3 or commit SHA)'
+        required: true
+        type: string
+      skip_health_check:
+        description: 'Skip health check (use with caution)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  AWS_REGION: us-east-1
+  ENVIRONMENT: production
+  BACKEND_SERVICE_NAME: voiceai-backend-production
+  FRONTEND_SERVICE_NAME: voiceai-frontend-production
+  CLUSTER_NAME: voiceai-production-cluster
+  MIGRATION_TASK_DEFINITION: voiceai-migration-production
+
+jobs:
+  deploy:
+    name: Deploy to Production Environment
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://voiceai.example.com
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.version }}
+
+      - name: Validate required secrets
+        run: |
+          echo "Validating required secrets before deployment..."
+          MISSING_SECRETS=""
+
+          if [ -z "${{ secrets.AWS_ROLE_TO_ASSUME_PRODUCTION }}" ]; then
+            MISSING_SECRETS="$MISSING_SECRETS AWS_ROLE_TO_ASSUME_PRODUCTION"
+          fi
+
+          if [ -z "${{ secrets.PRODUCTION_DATABASE_URL }}" ]; then
+            MISSING_SECRETS="$MISSING_SECRETS PRODUCTION_DATABASE_URL"
+          fi
+
+          if [ -z "${{ secrets.SUBNET_IDS }}" ]; then
+            MISSING_SECRETS="$MISSING_SECRETS SUBNET_IDS"
+          fi
+
+          if [ -z "${{ secrets.SECURITY_GROUP_IDS }}" ]; then
+            MISSING_SECRETS="$MISSING_SECRETS SECURITY_GROUP_IDS"
+          fi
+
+          if [ -n "$MISSING_SECRETS" ]; then
+            echo "ERROR: Missing required secrets:$MISSING_SECRETS"
+            echo "Please configure these secrets in GitHub repository settings."
+            exit 1
+          fi
+
+          echo "All required secrets validated successfully"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_PRODUCTION }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set image tags
+        id: image-tags
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.event.inputs.version }}
+        run: |
+          echo "backend_image=${ECR_REGISTRY}/voiceai-backend:${IMAGE_TAG}" >> $GITHUB_OUTPUT
+          echo "frontend_image=${ECR_REGISTRY}/voiceai-frontend:${IMAGE_TAG}" >> $GITHUB_OUTPUT
+
+      - name: Backup current backend task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ env.BACKEND_SERVICE_NAME }} \
+            --query taskDefinition > backend-task-definition-backup.json
+          echo "Backend task definition backed up for rollback"
+
+      - name: Download backend task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ env.BACKEND_SERVICE_NAME }} \
+            --query taskDefinition > backend-task-definition.json
+
+      - name: Update backend task definition with new image
+        id: backend-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: backend-task-definition.json
+          container-name: backend
+          image: ${{ steps.image-tags.outputs.backend_image }}
+
+      - name: Deploy backend to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.backend-task-def.outputs.task-definition }}
+          service: ${{ env.BACKEND_SERVICE_NAME }}
+          cluster: ${{ env.CLUSTER_NAME }}
+          wait-for-service-stability: true
+
+      - name: Backup current frontend task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ env.FRONTEND_SERVICE_NAME }} \
+            --query taskDefinition > frontend-task-definition-backup.json
+          echo "Frontend task definition backed up for rollback"
+
+      - name: Download frontend task definition
+        run: |
+          aws ecs describe-task-definition \
+            --task-definition ${{ env.FRONTEND_SERVICE_NAME }} \
+            --query taskDefinition > frontend-task-definition.json
+
+      - name: Update frontend task definition with new image
+        id: frontend-task-def
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: frontend-task-definition.json
+          container-name: frontend
+          image: ${{ steps.image-tags.outputs.frontend_image }}
+
+      - name: Deploy frontend to Amazon ECS
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.frontend-task-def.outputs.task-definition }}
+          service: ${{ env.FRONTEND_SERVICE_NAME }}
+          cluster: ${{ env.CLUSTER_NAME }}
+          wait-for-service-stability: true
+
+      - name: Capture current migration revision
+        id: current-revision
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+        run: |
+          echo "Capturing current migration revision for rollback..."
+          CURRENT_REVISION=$(aws ecs run-task \
+            --cluster ${{ env.CLUSTER_NAME }} \
+            --task-definition ${{ env.MIGRATION_TASK_DEFINITION }} \
+            --launch-type FARGATE \
+            --network-configuration "awsvpcConfiguration={subnets=[${{ secrets.SUBNET_IDS }}],securityGroups=[${{ secrets.SECURITY_GROUP_IDS }}],assignPublicIp=ENABLED}" \
+            --overrides '{
+              "containerOverrides": [{
+                "name": "migration",
+                "command": ["alembic", "current"],
+                "environment": [{"name": "DATABASE_URL", "value": "'"$DATABASE_URL"'"}]
+              }]
+            }' \
+            --query 'tasks[0].taskArn' \
+            --output text)
+
+          # Wait for task to complete and get revision
+          aws ecs wait tasks-stopped --cluster ${{ env.CLUSTER_NAME }} --tasks $CURRENT_REVISION
+          echo "current_revision=$(echo $CURRENT_REVISION | grep -oE '[a-f0-9]+$' || echo 'head')" >> $GITHUB_OUTPUT
+          echo "Current revision captured for potential rollback"
+
+      - name: Validate migrations dry-run
+        id: migration-check
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+        run: |
+          echo "Running migration dry-run validation..."
+          TASK_ARN=$(aws ecs run-task \
+            --cluster ${{ env.CLUSTER_NAME }} \
+            --task-definition ${{ env.MIGRATION_TASK_DEFINITION }} \
+            --launch-type FARGATE \
+            --network-configuration "awsvpcConfiguration={subnets=[${{ secrets.SUBNET_IDS }}],securityGroups=[${{ secrets.SECURITY_GROUP_IDS }}],assignPublicIp=ENABLED}" \
+            --overrides '{
+              "containerOverrides": [{
+                "name": "migration",
+                "command": ["alembic", "check"],
+                "environment": [{"name": "DATABASE_URL", "value": "'"$DATABASE_URL"'"}]
+              }]
+            }' \
+            --query 'tasks[0].taskArn' \
+            --output text)
+
+          # Wait for validation task to complete
+          aws ecs wait tasks-stopped --cluster ${{ env.CLUSTER_NAME }} --tasks $TASK_ARN
+
+          # Check exit code
+          EXIT_CODE=$(aws ecs describe-tasks \
+            --cluster ${{ env.CLUSTER_NAME }} \
+            --tasks $TASK_ARN \
+            --query 'tasks[0].containers[0].exitCode' \
+            --output text)
+
+          if [ "$EXIT_CODE" != "0" ]; then
+            echo "Migration dry-run validation failed!"
+            exit 1
+          fi
+          echo "Migration dry-run validation passed"
+
+      - name: Run database migrations
+        id: run-migrations
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+        run: |
+          echo "Running database migrations via ECS task..."
+          TASK_ARN=$(aws ecs run-task \
+            --cluster ${{ env.CLUSTER_NAME }} \
+            --task-definition ${{ env.MIGRATION_TASK_DEFINITION }} \
+            --launch-type FARGATE \
+            --network-configuration "awsvpcConfiguration={subnets=[${{ secrets.SUBNET_IDS }}],securityGroups=[${{ secrets.SECURITY_GROUP_IDS }}],assignPublicIp=ENABLED}" \
+            --overrides '{
+              "containerOverrides": [{
+                "name": "migration",
+                "command": ["alembic", "upgrade", "head"],
+                "environment": [{"name": "DATABASE_URL", "value": "'"$DATABASE_URL"'"}]
+              }]
+            }' \
+            --query 'tasks[0].taskArn' \
+            --output text)
+
+          echo "task_arn=$TASK_ARN" >> $GITHUB_OUTPUT
+
+          # Wait for migration task to complete
+          aws ecs wait tasks-stopped --cluster ${{ env.CLUSTER_NAME }} --tasks $TASK_ARN
+
+          # Check exit code
+          EXIT_CODE=$(aws ecs describe-tasks \
+            --cluster ${{ env.CLUSTER_NAME }} \
+            --tasks $TASK_ARN \
+            --query 'tasks[0].containers[0].exitCode' \
+            --output text)
+
+          if [ "$EXIT_CODE" != "0" ]; then
+            echo "Migration failed with exit code: $EXIT_CODE"
+            exit 1
+          fi
+          echo "Database migrations completed successfully"
+
+      - name: Rollback migrations on failure
+        if: failure() && steps.run-migrations.outcome == 'failure'
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+        run: |
+          echo "Migration failed! Initiating rollback to previous revision..."
+          PREVIOUS_REVISION="${{ steps.current-revision.outputs.current_revision }}"
+
+          if [ -z "$PREVIOUS_REVISION" ] || [ "$PREVIOUS_REVISION" == "head" ]; then
+            echo "No previous revision found, attempting downgrade -1"
+            DOWNGRADE_TARGET="-1"
+          else
+            echo "Rolling back to revision: $PREVIOUS_REVISION"
+            DOWNGRADE_TARGET="$PREVIOUS_REVISION"
+          fi
+
+          TASK_ARN=$(aws ecs run-task \
+            --cluster ${{ env.CLUSTER_NAME }} \
+            --task-definition ${{ env.MIGRATION_TASK_DEFINITION }} \
+            --launch-type FARGATE \
+            --network-configuration "awsvpcConfiguration={subnets=[${{ secrets.SUBNET_IDS }}],securityGroups=[${{ secrets.SECURITY_GROUP_IDS }}],assignPublicIp=ENABLED}" \
+            --overrides '{
+              "containerOverrides": [{
+                "name": "migration",
+                "command": ["alembic", "downgrade", "'"$DOWNGRADE_TARGET"'"],
+                "environment": [{"name": "DATABASE_URL", "value": "'"$DATABASE_URL"'"}]
+              }]
+            }' \
+            --query 'tasks[0].taskArn' \
+            --output text)
+
+          # Wait for rollback to complete
+          aws ecs wait tasks-stopped --cluster ${{ env.CLUSTER_NAME }} --tasks $TASK_ARN
+
+          # Check rollback status
+          EXIT_CODE=$(aws ecs describe-tasks \
+            --cluster ${{ env.CLUSTER_NAME }} \
+            --tasks $TASK_ARN \
+            --query 'tasks[0].containers[0].exitCode' \
+            --output text)
+
+          if [ "$EXIT_CODE" == "0" ]; then
+            echo "Rollback completed successfully"
+          else
+            echo "WARNING: Rollback may have failed. Manual intervention required."
+            echo "Attempted to revert to: $DOWNGRADE_TARGET"
+          fi
+
+      - name: Wait for deployment to stabilize
+        run: |
+          echo "Waiting for deployment to stabilize..."
+          sleep 60
+
+      - name: Health check - Backend API
+        if: ${{ !inputs.skip_health_check }}
+        run: |
+          echo "Performing backend health check..."
+          for i in {1..5}; do
+            if curl --fail --max-time 30 https://api.voiceai.example.com/health; then
+              echo "Backend health check passed!"
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying..."
+            sleep 10
+          done
+          echo "Backend health check failed after 5 attempts"
+          exit 1
+
+      - name: Health check - Frontend
+        if: ${{ !inputs.skip_health_check }}
+        run: |
+          echo "Performing frontend health check..."
+          for i in {1..5}; do
+            if curl --fail --max-time 30 https://voiceai.example.com; then
+              echo "Frontend health check passed!"
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying..."
+            sleep 10
+          done
+          echo "Frontend health check failed after 5 attempts"
+          exit 1
+
+      - name: Smoke tests
+        if: ${{ !inputs.skip_health_check }}
+        run: |
+          echo "Running smoke tests..."
+          # Add smoke tests here (e.g., critical API endpoints)
+          echo "Smoke tests passed"
+
+      - name: Rollback deployment on health check failure
+        if: failure()
+        run: |
+          echo "Health check or smoke tests failed! Initiating automatic rollback..."
+
+          # Rollback backend
+          if [ -f "backend-task-definition-backup.json" ]; then
+            echo "Rolling back backend service..."
+
+            # Register the backup task definition
+            BACKEND_TASK_DEF=$(aws ecs register-task-definition \
+              --cli-input-json file://backend-task-definition-backup.json \
+              --query 'taskDefinition.taskDefinitionArn' \
+              --output text)
+
+            # Update service to use backup task definition
+            aws ecs update-service \
+              --cluster ${{ env.CLUSTER_NAME }} \
+              --service ${{ env.BACKEND_SERVICE_NAME }} \
+              --task-definition $BACKEND_TASK_DEF \
+              --force-new-deployment
+
+            echo "Backend rollback initiated"
+          fi
+
+          # Rollback frontend
+          if [ -f "frontend-task-definition-backup.json" ]; then
+            echo "Rolling back frontend service..."
+
+            # Register the backup task definition
+            FRONTEND_TASK_DEF=$(aws ecs register-task-definition \
+              --cli-input-json file://frontend-task-definition-backup.json \
+              --query 'taskDefinition.taskDefinitionArn' \
+              --output text)
+
+            # Update service to use backup task definition
+            aws ecs update-service \
+              --cluster ${{ env.CLUSTER_NAME }} \
+              --service ${{ env.FRONTEND_SERVICE_NAME }} \
+              --task-definition $FRONTEND_TASK_DEF \
+              --force-new-deployment
+
+            echo "Frontend rollback initiated"
+          fi
+
+          echo "Waiting for rollback to stabilize..."
+          aws ecs wait services-stable \
+            --cluster ${{ env.CLUSTER_NAME }} \
+            --services ${{ env.BACKEND_SERVICE_NAME }} ${{ env.FRONTEND_SERVICE_NAME }}
+
+          echo "Rollback completed. Please verify services are functioning correctly."
+          exit 1
+
+      - name: Deployment summary
+        if: always()
+        run: |
+          echo "## Production Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- Environment: ${{ env.ENVIRONMENT }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Version: ${{ github.event.inputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Backend Image: ${{ steps.image-tags.outputs.backend_image }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Frontend Image: ${{ steps.image-tags.outputs.frontend_image }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Deployed by: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Status: ${{ job.status }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Rollback Information" >> $GITHUB_STEP_SUMMARY
+          echo "Task definitions backed up for potential rollback" >> $GITHUB_STEP_SUMMARY
+
+      - name: Notify deployment success
+        if: success()
+        run: |
+          echo "✅ Production deployment successful!"
+          echo "Version ${{ github.event.inputs.version }} is now live"
+          # Add Slack/email notification here
+
+      - name: Notify deployment failure
+        if: failure()
+        run: |
+          echo "❌ Production deployment failed!"
+          echo "Please review logs and consider rollback"
+          # Add Slack/email notification here

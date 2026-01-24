@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Productive Playhouse</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #5BA9AC 0%, #11484D 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 24px 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #1a202c;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: #718096;
+            margin-top: 4px;
+        }
+
+        .permission-badge {
+            font-size: 11px;
+            padding: 4px 10px;
+            background: linear-gradient(135deg, #5BA9AC 0%, #11484D 100%);
+            color: white;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .date-picker {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            background: #f7fafc;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .date-input {
+            border: 1px solid #e2e8f0;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            background: white;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #5BA9AC 0%, #11484D 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #edf2f7;
+        }
+
+        .btn-secondary.active {
+            background: #5BA9AC;
+            color: white;
+            border-color: #5BA9AC;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tag {
+            padding: 6px 12px;
+            background: #edf2f7;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-tag.active {
+            background: #5BA9AC;
+            color: white;
+            border-color: #5BA9AC;
+        }
+
+        .filter-tag:hover {
+            border-color: #5BA9AC;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            color: #718096;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-icon {
+            font-size: 20px;
+            opacity: 0.7;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 8px;
+        }
+
+        .metric-change {
+            font-size: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .metric-change.positive {
+            color: #48bb78;
+        }
+
+        .metric-change.negative {
+            color: #f56565;
+        }
+
+        .metric-sparkline {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 40px;
+            opacity: 0.1;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tab-group {
+            display: flex;
+            gap: 4px;
+            background: #f7fafc;
+            padding: 4px;
+            border-radius: 8px;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #718096;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background: white;
+            color: #5BA9AC;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        .chart-large {
+            height: 400px;
+        }
+
+        .line-path {
+            fill: none;
+            stroke: #5BA9AC;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .line-area {
+            fill: url(#gradient);
+        }
+
+        .line-point {
+            fill: #5BA9AC;
+            stroke: white;
+            stroke-width: 2;
+        }
+
+        .bar {
+            transition: all 0.2s;
+        }
+
+        .bar:hover {
+            opacity: 0.8;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #718096;
+            border-bottom: 2px solid #e2e8f0;
+            background: #f7fafc;
+        }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th.sortable:hover {
+            color: #5BA9AC;
+        }
+
+        td {
+            padding: 14px 12px;
+            font-size: 14px;
+            color: #1a202c;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .badge-warning {
+            background: #feebc8;
+            color: #744210;
+        }
+
+        .badge-danger {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .badge-info {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #5BA9AC 0%, #11484D 100%);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .heatmap-cell {
+            transition: all 0.2s;
+        }
+
+        .heatmap-cell:hover {
+            stroke: #5BA9AC;
+            stroke-width: 2;
+        }
+
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            white-space: nowrap;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .anomaly-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #fed7d7;
+            color: #742a2a;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .comparison-mode {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            background: #f7fafc;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .comparison-item {
+            flex: 1;
+        }
+
+        .comparison-label {
+            font-size: 12px;
+            color: #718096;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .comparison-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .expand-btn {
+            background: none;
+            border: none;
+            color: #5BA9AC;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .expand-btn:hover {
+            text-decoration: underline;
+        }
+
+        .expanded-content {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        /* Navigation */
+        .main-nav {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border-radius: 16px;
+        }
+
+        .nav-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+
+        .nav-brand {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #5BA9AC 0%, #11484D 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            text-decoration: none;
+            color: #4a5568;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: #f7fafc;
+            color: #5BA9AC;
+        }
+
+        .nav-link.active {
+            color: #5BA9AC;
+            border-bottom-color: #5BA9AC;
+        }
+
+        @media (max-width: 1400px) {
+            .metrics-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .grid-3 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 16px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            .nav-link {
+                padding: 12px 16px;
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const AnalyticsDashboard = () => {
+            const [dateRange, setDateRange] = useState('7days');
+            const [comparisonMode, setComparisonMode] = useState(false);
+            const [selectedCategories, setSelectedCategories] = useState(['all']);
+            const [activeTab, setActiveTab] = useState('overview');
+            const [sortBy, setSortBy] = useState('tests');
+            const [sortDir, setSortDir] = useState('desc');
+            const [expandedSections, setExpandedSections] = useState({});
+            const [userRole, setUserRole] = useState('admin');
+
+            // Comprehensive metrics data
+            const metrics = {
+                '7days': {
+                    totalTests: 2847,
+                    change: 12.5,
+                    successRate: 96.2,
+                    rateChange: 2.3,
+                    avgDuration: 3.4,
+                    durationChange: -8.2,
+                    edgeCases: 47,
+                    edgeChange: 18.9,
+                    avgConfidence: 94.7,
+                    confidenceChange: 1.2,
+                    failureRate: 3.8,
+                    failureChange: -15.3,
+                    p95Duration: 6.8,
+                    p95Change: -5.1,
+                    throughput: 407,
+                    throughputChange: 12.5,
+                    anomalies: 3,
+                    anomalyChange: -40.0,
+                    coverageScore: 87.3,
+                    coverageChange: 4.2
+                },
+                '30days': {
+                    totalTests: 11234,
+                    change: 15.3,
+                    successRate: 95.8,
+                    rateChange: 1.8,
+                    avgDuration: 3.6,
+                    durationChange: -5.4,
+                    edgeCases: 189,
+                    edgeChange: 24.5,
+                    avgConfidence: 94.3,
+                    confidenceChange: 0.8,
+                    failureRate: 4.2,
+                    failureChange: -12.1,
+                    p95Duration: 7.2,
+                    p95Change: -3.4,
+                    throughput: 374,
+                    throughputChange: 15.3,
+                    anomalies: 12,
+                    anomalyChange: -33.3,
+                    coverageScore: 85.1,
+                    coverageChange: 6.8
+                },
+                '90days': {
+                    totalTests: 32145,
+                    change: 22.1,
+                    successRate: 94.9,
+                    rateChange: 3.2,
+                    avgDuration: 3.8,
+                    durationChange: -12.1,
+                    edgeCases: 542,
+                    edgeChange: 31.2,
+                    avgConfidence: 93.8,
+                    confidenceChange: 2.1,
+                    failureRate: 5.1,
+                    failureChange: -18.4,
+                    p95Duration: 7.8,
+                    p95Change: -8.2,
+                    throughput: 357,
+                    throughputChange: 22.1,
+                    anomalies: 45,
+                    anomalyChange: -28.6,
+                    coverageScore: 82.7,
+                    coverageChange: 12.3
+                }
+            };
+
+            const currentMetrics = metrics[dateRange];
+
+            // Trend data for charts
+            const trendData = {
+                '7days': [
+                    { day: 'Mon', tests: 385, success: 372, failed: 13, duration: 3.2 },
+                    { day: 'Tue', tests: 412, success: 398, failed: 14, duration: 3.4 },
+                    { day: 'Wed', tests: 398, success: 384, failed: 14, duration: 3.3 },
+                    { day: 'Thu', tests: 427, success: 410, failed: 17, duration: 3.5 },
+                    { day: 'Fri', tests: 445, success: 430, failed: 15, duration: 3.6 },
+                    { day: 'Sat', tests: 392, success: 378, failed: 14, duration: 3.4 },
+                    { day: 'Sun', tests: 388, success: 375, failed: 13, duration: 3.3 }
+                ],
+                '30days': [
+                    { day: 'Wk1', tests: 2654, success: 2542, failed: 112, duration: 3.5 },
+                    { day: 'Wk2', tests: 2789, success: 2678, failed: 111, duration: 3.6 },
+                    { day: 'Wk3', tests: 2912, success: 2801, failed: 111, duration: 3.7 },
+                    { day: 'Wk4', tests: 2879, success: 2765, failed: 114, duration: 3.6 }
+                ],
+                '90days': [
+                    { day: 'M1', tests: 9847, success: 9384, failed: 463, duration: 3.9 },
+                    { day: 'M2', tests: 10654, success: 10189, failed: 465, duration: 3.8 },
+                    { day: 'M3', tests: 11644, success: 11142, failed: 502, duration: 3.7 }
+                ]
+            };
+
+            // Category performance data
+            const categoryData = [
+                {
+                    name: 'Navigation',
+                    tests: 846,
+                    success: 821,
+                    successRate: 97.0,
+                    avgDuration: 3.8,
+                    edgeCases: 12,
+                    trend: [95, 96, 96, 97, 97, 97, 97]
+                },
+                {
+                    name: 'Media',
+                    tests: 712,
+                    success: 689,
+                    successRate: 96.8,
+                    avgDuration: 2.9,
+                    edgeCases: 8,
+                    trend: [95, 96, 97, 97, 96, 97, 97]
+                },
+                {
+                    name: 'Climate',
+                    tests: 534,
+                    success: 507,
+                    successRate: 95.0,
+                    avgDuration: 3.2,
+                    edgeCases: 9,
+                    trend: [94, 94, 95, 95, 95, 95, 95]
+                },
+                {
+                    name: 'Phone',
+                    tests: 423,
+                    success: 408,
+                    successRate: 96.5,
+                    avgDuration: 4.1,
+                    edgeCases: 7,
+                    trend: [95, 96, 96, 96, 97, 97, 97]
+                },
+                {
+                    name: 'Multi-turn',
+                    tests: 289,
+                    success: 271,
+                    successRate: 93.8,
+                    avgDuration: 5.2,
+                    edgeCases: 8,
+                    trend: [92, 93, 93, 94, 94, 94, 94]
+                },
+                {
+                    name: 'Edge Cases',
+                    tests: 43,
+                    success: 32,
+                    successRate: 74.4,
+                    avgDuration: 4.8,
+                    edgeCases: 43,
+                    trend: [70, 72, 73, 74, 74, 74, 74]
+                }
+            ];
+
+            // Language performance
+            const languageData = [
+                { lang: 'en-US', tests: 1842, successRate: 96.8, avgConfidence: 95.2, topIntent: 'navigation' },
+                { lang: 'en-GB', tests: 487, successRate: 96.1, avgConfidence: 94.8, topIntent: 'media_control' },
+                { lang: 'es-US', tests: 324, successRate: 95.4, avgConfidence: 93.7, topIntent: 'climate_control' },
+                { lang: 'fr-CA', tests: 194, successRate: 94.9, avgConfidence: 92.9, topIntent: 'phone' }
+            ];
+
+            // Heatmap data (hour vs day of week)
+            const heatmapData = Array.from({ length: 7 }, (_, day) =>
+                Array.from({ length: 24 }, (_, hour) => ({
+                    day,
+                    hour,
+                    value: Math.floor(Math.random() * 100) + 20
+                }))
+            ).flat();
+
+            const maxHeatmapValue = Math.max(...heatmapData.map(d => d.value));
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+            // Top failures
+            const topFailures = [
+                { test: 'Navigate to address with special characters', failures: 23, rate: 45.1, category: 'Navigation' },
+                { test: 'Multi-step climate adjustment with interruption', failures: 18, rate: 38.3, category: 'Multi-turn' },
+                { test: 'Call contact with ambiguous name match', failures: 15, rate: 31.9, category: 'Phone' },
+                { test: 'Play song with artist disambiguation', failures: 12, rate: 28.6, category: 'Media' },
+                { test: 'Set temperature in Fahrenheit/Celsius mix', failures: 9, rate: 25.7, category: 'Climate' }
+            ];
+
+            // Toggle category filter
+            const toggleCategory = (cat) => {
+                if (cat === 'all') {
+                    setSelectedCategories(['all']);
+                } else {
+                    const newCats = selectedCategories.filter(c => c !== 'all');
+                    if (newCats.includes(cat)) {
+                        const filtered = newCats.filter(c => c !== cat);
+                        setSelectedCategories(filtered.length === 0 ? ['all'] : filtered);
+                    } else {
+                        setSelectedCategories([...newCats, cat]);
+                    }
+                }
+            };
+
+            // Sort table
+            const sortTable = (column) => {
+                if (sortBy === column) {
+                    setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+                } else {
+                    setSortBy(column);
+                    setSortDir('desc');
+                }
+            };
+
+            const sortedCategoryData = [...categoryData].sort((a, b) => {
+                const multiplier = sortDir === 'asc' ? 1 : -1;
+                return (a[sortBy] - b[sortBy]) * multiplier;
+            });
+
+            // Toggle expanded sections
+            const toggleExpand = (section) => {
+                setExpandedSections({
+                    ...expandedSections,
+                    [section]: !expandedSections[section]
+                });
+            };
+
+            return (
+                <div className="container">
+                    {/* Navigation */}
+                    <nav className="main-nav">
+                        <div className="nav-container">
+                            <div className="nav-brand">Productive Playhouse</div>
+                            <div className="nav-links">
+                                <a href="dashboard.html" className="nav-link"><i data-lucide="layout-dashboard" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Dashboard</a>
+                                <a href="test-management.html" className="nav-link"><i data-lucide="flask-conical" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Test Management</a>
+                                <a href="analytics.html" className="nav-link active"><i data-lucide="trending-up" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Analytics</a>
+                                <a href="validation.html" className="nav-link"><i data-lucide="check-circle" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Validation</a>
+                                <a href="reports.html" className="nav-link"><i data-lucide="file-text" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Reports</a>
+                            </div>
+                        </div>
+                    </nav>
+
+                    {/* Header */}
+                    <div className="header">
+                        <div className="header-top">
+                            <div>
+                                <h1>Analytics
+                                    <span className="permission-badge">{userRole.toUpperCase()}</span>
+                                </h1>
+                                <div className="subtitle">Productive Playhouse × SoundHound Integration</div>
+                            </div>
+                            <div className="header-controls">
+                                <div className="date-picker">
+                                    <i data-lucide="calendar" style={{width: '14px', height: '14px'}}></i>
+                                    <input type="date" className="date-input" />
+                                    <span>to</span>
+                                    <input type="date" className="date-input" />
+                                </div>
+                                <div className="filter-group">
+                                    <button
+                                        className={`btn btn-secondary ${dateRange === '7days' ? 'active' : ''}`}
+                                        onClick={() => setDateRange('7days')}
+                                    >
+                                        7 Days
+                                    </button>
+                                    <button
+                                        className={`btn btn-secondary ${dateRange === '30days' ? 'active' : ''}`}
+                                        onClick={() => setDateRange('30days')}
+                                    >
+                                        30 Days
+                                    </button>
+                                    <button
+                                        className={`btn btn-secondary ${dateRange === '90days' ? 'active' : ''}`}
+                                        onClick={() => setDateRange('90days')}
+                                    >
+                                        90 Days
+                                    </button>
+                                </div>
+                                <button
+                                    className={`btn ${comparisonMode ? 'btn-primary' : 'btn-secondary'}`}
+                                    onClick={() => setComparisonMode(!comparisonMode)}
+                                >
+                                    <i data-lucide="git-compare" style={{width: '14px', height: '14px'}}></i> Compare
+                                </button>
+                                <button className="btn btn-primary">
+                                    <i data-lucide="download" style={{width: '14px', height: '14px'}}></i> Export
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Category Filters */}
+                        <div style={{marginTop: '16px', display: 'flex', gap: '8px', flexWrap: 'wrap'}}>
+                            <div style={{fontSize: '13px', fontWeight: '600', color: '#718096', display: 'flex', alignItems: 'center'}}>
+                                Filters:
+                            </div>
+                            {['all', 'Navigation', 'Media', 'Climate', 'Phone', 'Multi-turn', 'Edge Cases'].map(cat => (
+                                <div
+                                    key={cat}
+                                    className={`filter-tag ${selectedCategories.includes(cat) ? 'active' : ''}`}
+                                    onClick={() => toggleCategory(cat)}
+                                >
+                                    {cat === 'all' ? <><i data-lucide="globe" style={{width: '12px', height: '12px', marginRight: '4px'}}></i> All Categories</> : cat}
+                                    {selectedCategories.includes(cat) && cat !== 'all' && <i data-lucide="x" style={{width: '12px', height: '12px', marginLeft: '4px'}}></i>}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Key Metrics */}
+                    <div className="metrics-grid">
+                        <div className="metric-card">
+                            <div className="metric-header">
+                                <div className="metric-label">Total Tests</div>
+                                <div className="metric-icon"><i data-lucide="flask-conical" style={{width: '20px', height: '20px'}}></i></div>
+                            </div>
+                            <div className="metric-value">{currentMetrics.totalTests.toLocaleString()}</div>
+                            <div className={`metric-change ${currentMetrics.change > 0 ? 'positive' : 'negative'}`}>
+                                {currentMetrics.change > 0 ? '↑' : '↓'} {Math.abs(currentMetrics.change)}% vs prev
+                            </div>
+                            <svg className="metric-sparkline" viewBox="0 0 100 40" preserveAspectRatio="none">
+                                <path d="M0,30 L20,25 L40,28 L60,20 L80,15 L100,18" fill="none" stroke="#5BA9AC" strokeWidth="2"/>
+                            </svg>
+                        </div>
+
+                        <div className="metric-card">
+                            <div className="metric-header">
+                                <div className="metric-label">Success Rate</div>
+                                <div className="metric-icon"><i data-lucide="check-circle" style={{width: '20px', height: '20px'}}></i></div>
+                            </div>
+                            <div className="metric-value">{currentMetrics.successRate}%</div>
+                            <div className={`metric-change ${currentMetrics.rateChange > 0 ? 'positive' : 'negative'}`}>
+                                {currentMetrics.rateChange > 0 ? '↑' : '↓'} {Math.abs(currentMetrics.rateChange)}% vs prev
+                            </div>
+                            <svg className="metric-sparkline" viewBox="0 0 100 40" preserveAspectRatio="none">
+                                <path d="M0,25 L20,22 L40,20 L60,18 L80,17 L100,15" fill="none" stroke="#48bb78" strokeWidth="2"/>
+                            </svg>
+                        </div>
+
+                        <div className="metric-card">
+                            <div className="metric-header">
+                                <div className="metric-label">Avg Duration</div>
+                                <div className="metric-icon"><i data-lucide="timer" style={{width: '20px', height: '20px'}}></i></div>
+                            </div>
+                            <div className="metric-value">{currentMetrics.avgDuration}s</div>
+                            <div className={`metric-change ${currentMetrics.durationChange < 0 ? 'positive' : 'negative'}`}>
+                                {currentMetrics.durationChange > 0 ? '↑' : '↓'} {Math.abs(currentMetrics.durationChange)}% vs prev
+                            </div>
+                            <svg className="metric-sparkline" viewBox="0 0 100 40" preserveAspectRatio="none">
+                                <path d="M0,15 L20,18 L40,17 L60,20 L80,22 L100,20" fill="none" stroke="#f6ad55" strokeWidth="2"/>
+                            </svg>
+                        </div>
+
+                        <div className="metric-card">
+                            <div className="metric-header">
+                                <div className="metric-label">P95 Duration</div>
+                                <div className="metric-icon"><i data-lucide="bar-chart-2" style={{width: '20px', height: '20px'}}></i></div>
+                            </div>
+                            <div className="metric-value">{currentMetrics.p95Duration}s</div>
+                            <div className={`metric-change ${currentMetrics.p95Change < 0 ? 'positive' : 'negative'}`}>
+                                {currentMetrics.p95Change > 0 ? '↑' : '↓'} {Math.abs(currentMetrics.p95Change)}% vs prev
+                            </div>
+                            <svg className="metric-sparkline" viewBox="0 0 100 40" preserveAspectRatio="none">
+                                <path d="M0,20 L20,22 L40,19 L60,18 L80,16 L100,15" fill="none" stroke="#9f7aea" strokeWidth="2"/>
+                            </svg>
+                        </div>
+
+                        <div className="metric-card">
+                            <div className="metric-header">
+                                <div className="metric-label">Edge Cases</div>
+                                <div className="metric-icon"><i data-lucide="alert-triangle" style={{width: '20px', height: '20px'}}></i></div>
+                            </div>
+                            <div className="metric-value">{currentMetrics.edgeCases}</div>
+                            <div className="metric-change positive">
+                                ↑ {currentMetrics.edgeChange}% vs prev
+                            </div>
+                            <svg className="metric-sparkline" viewBox="0 0 100 40" preserveAspectRatio="none">
+                                <path d="M0,35 L20,32 L40,30 L60,25 L80,22 L100,20" fill="none" stroke="#f56565" strokeWidth="2"/>
+                            </svg>
+                        </div>
+
+                        <div className="metric-card">
+                            <div className="metric-header">
+                                <div className="metric-label">Avg Confidence</div>
+                                <div className="metric-icon"><i data-lucide="percent" style={{width: '20px', height: '20px'}}></i></div>
+                            </div>
+                            <div className="metric-value">{currentMetrics.avgConfidence}%</div>
+                            <div className={`metric-change ${currentMetrics.confidenceChange > 0 ? 'positive' : 'negative'}`}>
+                                {currentMetrics.confidenceChange > 0 ? '↑' : '↓'} {Math.abs(currentMetrics.confidenceChange)}% vs prev
+                            </div>
+                            <svg className="metric-sparkline" viewBox="0 0 100 40" preserveAspectRatio="none">
+                                <path d="M0,22 L20,20 L40,19 L60,18 L80,17 L100,16" fill="none" stroke="#5BA9AC" strokeWidth="2"/>
+                            </svg>
+                        </div>
+
+                        <div className="metric-card">
+                            <div className="metric-header">
+                                <div className="metric-label">Failure Rate</div>
+                                <div className="metric-icon"><i data-lucide="x-circle" style={{width: '20px', height: '20px'}}></i></div>
+                            </div>
+                            <div className="metric-value">{currentMetrics.failureRate}%</div>
+                            <div className={`metric-change ${currentMetrics.failureChange < 0 ? 'positive' : 'negative'}`}>
+                                {currentMetrics.failureChange > 0 ? '↑' : '↓'} {Math.abs(currentMetrics.failureChange)}% vs prev
+                            </div>
+                            <svg className="metric-sparkline" viewBox="0 0 100 40" preserveAspectRatio="none">
+                                <path d="M0,15 L20,17 L40,16 L60,18 L80,19 L100,18" fill="none" stroke="#f56565" strokeWidth="2"/>
+                            </svg>
+                        </div>
+
+                        <div className="metric-card">
+                            <div className="metric-header">
+                                <div className="metric-label">Throughput</div>
+                                <div className="metric-icon"><i data-lucide="zap" style={{width: '20px', height: '20px'}}></i></div>
+                            </div>
+                            <div className="metric-value">{currentMetrics.throughput}/day</div>
+                            <div className={`metric-change ${currentMetrics.throughputChange > 0 ? 'positive' : 'negative'}`}>
+                                {currentMetrics.throughputChange > 0 ? '↑' : '↓'} {Math.abs(currentMetrics.throughputChange)}% vs prev
+                            </div>
+                            <svg className="metric-sparkline" viewBox="0 0 100 40" preserveAspectRatio="none">
+                                <path d="M0,30 L20,28 L40,25 L60,23 L80,20 L100,18" fill="none" stroke="#48bb78" strokeWidth="2"/>
+                            </svg>
+                        </div>
+
+                        <div className="metric-card">
+                            {currentMetrics.anomalies > 0 && (
+                                <div className="anomaly-badge"><i data-lucide="alert-triangle" style={{width: '10px', height: '10px', marginRight: '4px'}}></i> {currentMetrics.anomalies}</div>
+                            )}
+                            <div className="metric-header">
+                                <div className="metric-label">Coverage Score</div>
+                                <div className="metric-icon"><i data-lucide="target" style={{width: '20px', height: '20px'}}></i></div>
+                            </div>
+                            <div className="metric-value">{currentMetrics.coverageScore}%</div>
+                            <div className={`metric-change ${currentMetrics.coverageChange > 0 ? 'positive' : 'negative'}`}>
+                                {currentMetrics.coverageChange > 0 ? '↑' : '↓'} {Math.abs(currentMetrics.coverageChange)}% vs prev
+                            </div>
+                            <svg className="metric-sparkline" viewBox="0 0 100 40" preserveAspectRatio="none">
+                                <path d="M0,28 L20,26 L40,24 L60,22 L80,20 L100,18" fill="none" stroke="#9f7aea" strokeWidth="2"/>
+                            </svg>
+                        </div>
+
+                        <div className="metric-card">
+                            <div className="metric-header">
+                                <div className="metric-label">Anomalies</div>
+                                <div className="metric-icon"><i data-lucide="search" style={{width: '20px', height: '20px'}}></i></div>
+                            </div>
+                            <div className="metric-value">{currentMetrics.anomalies}</div>
+                            <div className={`metric-change ${currentMetrics.anomalyChange < 0 ? 'positive' : 'negative'}`}>
+                                {currentMetrics.anomalyChange > 0 ? '↑' : '↓'} {Math.abs(currentMetrics.anomalyChange)}% vs prev
+                            </div>
+                            <svg className="metric-sparkline" viewBox="0 0 100 40" preserveAspectRatio="none">
+                                <path d="M0,25 L20,20 L40,22 L60,18 L80,15 L100,14" fill="none" stroke="#f56565" strokeWidth="2"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    {/* Comparison Mode */}
+                    {comparisonMode && (
+                        <div className="comparison-mode">
+                            <div className="comparison-item">
+                                <div className="comparison-label">Current Period ({dateRange})</div>
+                                <div className="comparison-value">{currentMetrics.totalTests.toLocaleString()} tests</div>
+                                <div className="stat-grid" style={{gridTemplateColumns: 'repeat(2, 1fr)', marginTop: '12px'}}>
+                                    <div>
+                                        <div style={{fontSize: '14px', fontWeight: '600'}}>{currentMetrics.successRate}%</div>
+                                        <div style={{fontSize: '11px', color: '#718096'}}>Success</div>
+                                    </div>
+                                    <div>
+                                        <div style={{fontSize: '14px', fontWeight: '600'}}>{currentMetrics.avgDuration}s</div>
+                                        <div style={{fontSize: '11px', color: '#718096'}}>Avg Duration</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="comparison-item">
+                                <div className="comparison-label">Previous Period</div>
+                                <div className="comparison-value">
+                                    {Math.floor(currentMetrics.totalTests / (1 + currentMetrics.change / 100)).toLocaleString()} tests
+                                </div>
+                                <div className="stat-grid" style={{gridTemplateColumns: 'repeat(2, 1fr)', marginTop: '12px'}}>
+                                    <div>
+                                        <div style={{fontSize: '14px', fontWeight: '600'}}>
+                                            {(currentMetrics.successRate - currentMetrics.rateChange).toFixed(1)}%
+                                        </div>
+                                        <div style={{fontSize: '11px', color: '#718096'}}>Success</div>
+                                    </div>
+                                    <div>
+                                        <div style={{fontSize: '14px', fontWeight: '600'}}>
+                                            {(currentMetrics.avgDuration * (1 - currentMetrics.durationChange / 100)).toFixed(1)}s
+                                        </div>
+                                        <div style={{fontSize: '11px', color: '#718096'}}>Avg Duration</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="comparison-item">
+                                <div className="comparison-label">Difference</div>
+                                <div className="comparison-value" style={{color: '#5BA9AC'}}>
+                                    +{Math.floor(currentMetrics.totalTests * currentMetrics.change / 100).toLocaleString()}
+                                </div>
+                                <div className="stat-grid" style={{gridTemplateColumns: 'repeat(2, 1fr)', marginTop: '12px'}}>
+                                    <div>
+                                        <div style={{fontSize: '14px', fontWeight: '600', color: '#48bb78'}}>
+                                            +{currentMetrics.rateChange}%
+                                        </div>
+                                        <div style={{fontSize: '11px', color: '#718096'}}>Success</div>
+                                    </div>
+                                    <div>
+                                        <div style={{fontSize: '14px', fontWeight: '600', color: '#48bb78'}}>
+                                            {currentMetrics.durationChange}%
+                                        </div>
+                                        <div style={{fontSize: '11px', color: '#718096'}}>Duration</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Main Charts */}
+                    <div className="grid-2">
+                        {/* Test Volume Trend */}
+                        <div className="card">
+                            <div className="card-header">
+                                <div className="card-title">Test Volume & Success Trend</div>
+                                <div className="tab-group">
+                                    <button className="tab active">Volume</button>
+                                    <button className="tab">Success</button>
+                                    <button className="tab">Failed</button>
+                                </div>
+                            </div>
+                            <div className="chart-container">
+                                <svg width="100%" height="100%" viewBox="0 0 600 300">
+                                    <defs>
+                                        <linearGradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stopColor="#5BA9AC" stopOpacity="0.3"/>
+                                            <stop offset="100%" stopColor="#5BA9AC" stopOpacity="0"/>
+                                        </linearGradient>
+                                        <linearGradient id="gradient-success" x1="0%" y1="0%" x2="0%" y2="100%">
+                                            <stop offset="0%" stopColor="#48bb78" stopOpacity="0.3"/>
+                                            <stop offset="100%" stopColor="#48bb78" stopOpacity="0"/>
+                                        </linearGradient>
+                                    </defs>
+                                    {/* Grid lines */}
+                                    {[0, 1, 2, 3, 4].map(i => (
+                                        <line
+                                            key={i}
+                                            x1="50"
+                                            y1={50 + i * 50}
+                                            x2="550"
+                                            y2={50 + i * 50}
+                                            stroke="#e2e8f0"
+                                            strokeWidth="1"
+                                        />
+                                    ))}
+                                    {/* Y-axis labels */}
+                                    {[500, 400, 300, 200, 100, 0].map((val, i) => (
+                                        <text key={i} x="40" y={55 + i * 50} fontSize="11" fill="#718096" textAnchor="end">
+                                            {val}
+                                        </text>
+                                    ))}
+                                    {/* Success area */}
+                                    <path
+                                        d={`${trendData[dateRange].map((d, i) => {
+                                            const x = 80 + i * (450 / (trendData[dateRange].length - 1));
+                                            const y = 250 - (d.success / 500) * 180;
+                                            return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+                                        }).join(' ')} L ${80 + (trendData[dateRange].length - 1) * (450 / (trendData[dateRange].length - 1))} 250 L 80 250 Z`}
+                                        fill="url(#gradient-success)"
+                                    />
+                                    {/* Success line */}
+                                    <path
+                                        d={trendData[dateRange].map((d, i) => {
+                                            const x = 80 + i * (450 / (trendData[dateRange].length - 1));
+                                            const y = 250 - (d.success / 500) * 180;
+                                            return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+                                        }).join(' ')}
+                                        fill="none"
+                                        stroke="#48bb78"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                    />
+                                    {/* Total area */}
+                                    <path
+                                        d={`${trendData[dateRange].map((d, i) => {
+                                            const x = 80 + i * (450 / (trendData[dateRange].length - 1));
+                                            const y = 250 - (d.tests / 500) * 180;
+                                            return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+                                        }).join(' ')} L ${80 + (trendData[dateRange].length - 1) * (450 / (trendData[dateRange].length - 1))} 250 L 80 250 Z`}
+                                        fill="url(#gradient)"
+                                    />
+                                    {/* Total line */}
+                                    <path
+                                        d={trendData[dateRange].map((d, i) => {
+                                            const x = 80 + i * (450 / (trendData[dateRange].length - 1));
+                                            const y = 250 - (d.tests / 500) * 180;
+                                            return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+                                        }).join(' ')}
+                                        fill="none"
+                                        stroke="#5BA9AC"
+                                        strokeWidth="3"
+                                        strokeLinecap="round"
+                                    />
+                                    {/* Data points */}
+                                    {trendData[dateRange].map((d, i) => {
+                                        const x = 80 + i * (450 / (trendData[dateRange].length - 1));
+                                        const y = 250 - (d.tests / 500) * 180;
+                                        return (
+                                            <g key={i}>
+                                                <circle cx={x} cy={y} r="5" fill="#5BA9AC" stroke="white" strokeWidth="2"/>
+                                                <text x={x} y="280" textAnchor="middle" fontSize="12" fill="#718096">
+                                                    {d.day}
+                                                </text>
+                                                <text x={x} y="270" textAnchor="middle" fontSize="11" fill="#1a202c" fontWeight="600">
+                                                    {d.tests}
+                                                </text>
+                                            </g>
+                                        );
+                                    })}
+                                </svg>
+                            </div>
+                            <div className="stat-grid">
+                                <div className="stat-item">
+                                    <div className="stat-value">{trendData[dateRange].reduce((sum, d) => sum + d.tests, 0)}</div>
+                                    <div className="stat-label">Total Tests</div>
+                                </div>
+                                <div className="stat-item">
+                                    <div className="stat-value">{trendData[dateRange].reduce((sum, d) => sum + d.success, 0)}</div>
+                                    <div className="stat-label">Successful</div>
+                                </div>
+                                <div className="stat-item">
+                                    <div className="stat-value">{trendData[dateRange].reduce((sum, d) => sum + d.failed, 0)}</div>
+                                    <div className="stat-label">Failed</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Duration Distribution */}
+                        <div className="card">
+                            <div className="card-header">
+                                <div className="card-title">Response Time Distribution</div>
+                                <div className="tab-group">
+                                    <button className="tab active">Histogram</button>
+                                    <button className="tab">Percentiles</button>
+                                </div>
+                            </div>
+                            <div className="chart-container">
+                                <svg width="100%" height="100%" viewBox="0 0 600 300">
+                                    {/* Grid lines */}
+                                    {[0, 1, 2, 3, 4].map(i => (
+                                        <line
+                                            key={i}
+                                            x1="50"
+                                            y1={50 + i * 50}
+                                            x2="550"
+                                            y2={50 + i * 50}
+                                            stroke="#e2e8f0"
+                                            strokeWidth="1"
+                                        />
+                                    ))}
+                                    {/* Histogram bars */}
+                                    {[
+                                        {range: '0-2s', count: 420, pct: 15},
+                                        {range: '2-3s', count: 1124, pct: 40},
+                                        {range: '3-4s', count: 847, pct: 30},
+                                        {range: '4-5s', count: 281, pct: 10},
+                                        {range: '5-6s', count: 112, pct: 4},
+                                        {range: '6+s', count: 63, pct: 2}
+                                    ].map((bar, i) => {
+                                        const x = 80 + i * 75;
+                                        const height = (bar.pct / 40) * 180;
+                                        const y = 250 - height;
+                                        return (
+                                            <g key={i}>
+                                                <rect
+                                                    x={x}
+                                                    y={y}
+                                                    width="60"
+                                                    height={height}
+                                                    fill="#5BA9AC"
+                                                    opacity="0.8"
+                                                    rx="4"
+                                                    className="bar"
+                                                />
+                                                <text x={x + 30} y="280" textAnchor="middle" fontSize="11" fill="#718096">
+                                                    {bar.range}
+                                                </text>
+                                                <text x={x + 30} y={y - 5} textAnchor="middle" fontSize="11" fill="#1a202c" fontWeight="600">
+                                                    {bar.count}
+                                                </text>
+                                            </g>
+                                        );
+                                    })}
+                                </svg>
+                            </div>
+                            <div className="stat-grid">
+                                <div className="stat-item">
+                                    <div className="stat-value">{currentMetrics.avgDuration}s</div>
+                                    <div className="stat-label">Mean</div>
+                                </div>
+                                <div className="stat-item">
+                                    <div className="stat-value">3.2s</div>
+                                    <div className="stat-label">Median</div>
+                                </div>
+                                <div className="stat-item">
+                                    <div className="stat-value">{currentMetrics.p95Duration}s</div>
+                                    <div className="stat-label">P95</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Category Performance Table */}
+                    <div className="card">
+                        <div className="card-header">
+                            <div className="card-title">Category Performance Breakdown</div>
+                            <div className="card-actions">
+                                <button className="btn btn-secondary"><i data-lucide="bar-chart-3" style={{width: '14px', height: '14px'}}></i> Visualize</button>
+                                <button className="btn btn-secondary"><i data-lucide="download" style={{width: '14px', height: '14px'}}></i> Export</button>
+                            </div>
+                        </div>
+                        <div className="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th className="sortable" onClick={() => sortTable('name')}>
+                                            Category {sortBy === 'name' && (sortDir === 'asc' ? '↑' : '↓')}
+                                        </th>
+                                        <th className="sortable" onClick={() => sortTable('tests')}>
+                                            Total Tests {sortBy === 'tests' && (sortDir === 'asc' ? '↑' : '↓')}
+                                        </th>
+                                        <th className="sortable" onClick={() => sortTable('success')}>
+                                            Successful {sortBy === 'success' && (sortDir === 'asc' ? '↑' : '↓')}
+                                        </th>
+                                        <th className="sortable" onClick={() => sortTable('successRate')}>
+                                            Success Rate {sortBy === 'successRate' && (sortDir === 'asc' ? '↑' : '↓')}
+                                        </th>
+                                        <th className="sortable" onClick={() => sortTable('avgDuration')}>
+                                            Avg Duration {sortBy === 'avgDuration' && (sortDir === 'asc' ? '↑' : '↓')}
+                                        </th>
+                                        <th className="sortable" onClick={() => sortTable('edgeCases')}>
+                                            Edge Cases {sortBy === 'edgeCases' && (sortDir === 'asc' ? '↑' : '↓')}
+                                        </th>
+                                        <th>7-Day Trend</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {sortedCategoryData.map((cat, idx) => (
+                                        <tr key={idx}>
+                                            <td style={{fontWeight: '600'}}>{cat.name}</td>
+                                            <td>{cat.tests.toLocaleString()}</td>
+                                            <td>{cat.success.toLocaleString()}</td>
+                                            <td>
+                                                <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                                    <span className={`badge ${cat.successRate >= 96 ? 'badge-success' : cat.successRate >= 90 ? 'badge-warning' : 'badge-danger'}`}>
+                                                        {cat.successRate}%
+                                                    </span>
+                                                    <div className="progress-bar" style={{flex: 1}}>
+                                                        <div className="progress-fill" style={{width: `${cat.successRate}%`}}></div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>{cat.avgDuration}s</td>
+                                            <td>
+                                                <span className={`badge ${cat.edgeCases > 10 ? 'badge-danger' : cat.edgeCases > 5 ? 'badge-warning' : 'badge-info'}`}>
+                                                    {cat.edgeCases}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <svg width="80" height="30" viewBox="0 0 80 30">
+                                                    <path
+                                                        d={cat.trend.map((val, i) => {
+                                                            const x = 5 + i * 12;
+                                                            const y = 25 - ((val - 70) / 30) * 20;
+                                                            return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
+                                                        }).join(' ')}
+                                                        fill="none"
+                                                        stroke="#5BA9AC"
+                                                        strokeWidth="2"
+                                                    />
+                                                </svg>
+                                            </td>
+                                            <td>
+                                                <button className="expand-btn" onClick={() => toggleExpand(cat.name)}>
+                                                    {expandedSections[cat.name] ? <><i data-lucide="chevron-down" style={{width: '14px', height: '14px'}}></i> Details</> : <><i data-lucide="chevron-right" style={{width: '14px', height: '14px'}}></i> Details</>}
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* Language Performance & Top Failures */}
+                    <div className="grid-2">
+                        {/* Language Performance */}
+                        <div className="card">
+                            <div className="card-header">
+                                <div className="card-title">Language Performance</div>
+                                <button className="btn btn-secondary">+ Add Language</button>
+                            </div>
+                            <div className="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Language</th>
+                                            <th>Tests</th>
+                                            <th>Success Rate</th>
+                                            <th>Avg Confidence</th>
+                                            <th>Top Intent</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {languageData.map((lang, idx) => (
+                                            <tr key={idx}>
+                                                <td style={{fontWeight: '600'}}>{lang.lang}</td>
+                                                <td>{lang.tests.toLocaleString()}</td>
+                                                <td>
+                                                    <span className={`badge ${lang.successRate >= 96 ? 'badge-success' : 'badge-warning'}`}>
+                                                        {lang.successRate}%
+                                                    </span>
+                                                </td>
+                                                <td>{lang.avgConfidence}%</td>
+                                                <td>
+                                                    <span className="badge badge-info">{lang.topIntent}</span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {/* Top Failures */}
+                        <div className="card">
+                            <div className="card-header">
+                                <div className="card-title">Top Failure Patterns</div>
+                                <button className="btn btn-secondary">View All</button>
+                            </div>
+                            <div className="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Test Case</th>
+                                            <th>Failures</th>
+                                            <th>Failure Rate</th>
+                                            <th>Category</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {topFailures.map((failure, idx) => (
+                                            <tr key={idx}>
+                                                <td style={{fontSize: '13px', maxWidth: '250px'}}>
+                                                    {failure.test}
+                                                </td>
+                                                <td>{failure.failures}</td>
+                                                <td>
+                                                    <span className="badge badge-danger">{failure.rate}%</span>
+                                                </td>
+                                                <td>
+                                                    <span className="badge badge-info">{failure.category}</span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Heatmap - Time of Day Performance */}
+                    <div className="card">
+                        <div className="card-header">
+                            <div className="card-title">Test Activity Heatmap (Hour × Day of Week)</div>
+                            <div className="tab-group">
+                                <button className="tab active">Volume</button>
+                                <button className="tab">Success Rate</button>
+                                <button className="tab">Duration</button>
+                            </div>
+                        </div>
+                        <div className="chart-container chart-large">
+                            <svg width="100%" height="100%" viewBox="0 0 800 350">
+                                {/* Day labels */}
+                                {days.map((day, i) => (
+                                    <text key={i} x="45" y={50 + i * 40 + 25} fontSize="12" fill="#718096" textAnchor="end">
+                                        {day}
+                                    </text>
+                                ))}
+                                {/* Hour labels */}
+                                {Array.from({length: 24}, (_, i) => (
+                                    <text key={i} x={60 + i * 30 + 15} y="35" fontSize="11" fill="#718096" textAnchor="middle">
+                                        {i}
+                                    </text>
+                                ))}
+                                {/* Heatmap cells */}
+                                {heatmapData.map((cell, idx) => {
+                                    const intensity = cell.value / maxHeatmapValue;
+                                    const color = `rgba(102, 126, 234, ${intensity})`;
+                                    return (
+                                        <rect
+                                            key={idx}
+                                            x={60 + cell.hour * 30}
+                                            y={50 + cell.day * 40}
+                                            width="28"
+                                            height="38"
+                                            fill={color}
+                                            rx="4"
+                                            className="heatmap-cell"
+                                        />
+                                    );
+                                })}
+                                {/* Legend */}
+                                <text x="60" y="330" fontSize="11" fill="#718096">Low Activity</text>
+                                <rect x="150" y="320" width="400" height="15" fill="url(#legend-gradient)" rx="4"/>
+                                <text x="560" y="330" fontSize="11" fill="#718096">High Activity</text>
+                                <defs>
+                                    <linearGradient id="legend-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stopColor="rgba(102, 126, 234, 0.1)"/>
+                                        <stop offset="100%" stopColor="rgba(102, 126, 234, 1)"/>
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<AnalyticsDashboard />, document.getElementById('root'));
+
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    </script>
+</body>
+</html>

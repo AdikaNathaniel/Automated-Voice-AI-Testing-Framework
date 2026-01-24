@@ -1,0 +1,43 @@
+# Voice AI Testing Framework - Backup Schedule
+# Install with: crontab scripts/backup/backup.cron
+
+# Environment variables
+SHELL=/bin/bash
+PATH=/usr/local/bin:/usr/bin:/bin
+MAILTO=ops@voiceai-testing.local
+
+# =============================================================================
+# Daily Backups (2 AM UTC)
+# =============================================================================
+
+# PostgreSQL full backup - Daily at 2:00 AM
+0 2 * * * /home/ubuntu/workspace/automated-testing/scripts/backup/postgres_backup.sh >> /var/log/voiceai/postgres_backup.log 2>&1
+
+# Redis snapshot backup - Daily at 2:30 AM
+30 2 * * * /home/ubuntu/workspace/automated-testing/scripts/backup/redis_backup.sh >> /var/log/voiceai/redis_backup.log 2>&1
+
+# MinIO bucket sync - Daily at 3:00 AM
+0 3 * * * /home/ubuntu/workspace/automated-testing/scripts/backup/minio_backup.sh >> /var/log/voiceai/minio_backup.log 2>&1
+
+# =============================================================================
+# Weekly Tasks
+# =============================================================================
+
+# Verify backup integrity - Weekly on Sunday at 4:00 AM
+0 4 * * 0 /home/ubuntu/workspace/automated-testing/scripts/backup/verify_backups.sh >> /var/log/voiceai/backup_verify.log 2>&1
+
+# =============================================================================
+# Cleanup Tasks
+# =============================================================================
+
+# Clean old log files (>30 days) - Daily at 5:00 AM
+0 5 * * * find /var/log/voiceai -name "*.log" -type f -mtime +30 -delete
+
+# =============================================================================
+# Notes
+# =============================================================================
+# - Logs are stored in /var/log/voiceai/
+# - Backup retention is controlled by BACKUP_RETENTION_DAYS environment variable
+# - Default retention: 30 days
+# - For immediate manual backup: run scripts directly
+# - To restore: ./scripts/backup/postgres_restore.sh <backup_filename>

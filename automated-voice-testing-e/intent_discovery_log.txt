@@ -1,0 +1,6 @@
+================================================================================
+HOUNDIFY INTENT DISCOVERY TOOL
+================================================================================
+
+🔑 Using Client ID: LkHL0TJ1CKm_H9Gjyr2h...
+❌ Error: Queries file not found: discovery_queries.txt

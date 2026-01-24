@@ -1,0 +1,117 @@
+{
+  "version": "1.0",
+  "description": "Demo configuration for GitHub/Jira/Slack integrations",
+  "integrations": {
+    "github": {
+      "enabled": true,
+      "token": "${GITHUB_TOKEN}",
+      "repo_owner": "demo-org",
+      "repo_name": "voice-ai-testing-demo",
+      "features": {
+        "commit_status": {
+          "enabled": true,
+          "context": "continuous-integration/voice-ai-tests",
+          "auto_update": true
+        },
+        "issue_creation": {
+          "enabled": true,
+          "on_failure": true,
+          "labels": ["test-failure", "automated"],
+          "assignees": [],
+          "auto_close_on_success": false
+        }
+      },
+      "webhooks": {
+        "enabled": true,
+        "events": ["push", "pull_request"],
+        "trigger_tests_on": ["push"]
+      }
+    },
+    "jira": {
+      "enabled": true,
+      "email": "${JIRA_EMAIL}",
+      "api_token": "${JIRA_API_TOKEN}",
+      "base_url": "https://demo-voiceai.atlassian.net/rest/api/3",
+      "project": "VOICEAI",
+      "features": {
+        "issue_creation": {
+          "enabled": true,
+          "on_critical_failure": true,
+          "issue_type": "Bug",
+          "priority_mapping": {
+            "critical": "Highest",
+            "high": "High",
+            "medium": "Medium",
+            "low": "Low"
+          }
+        },
+        "issue_updates": {
+          "enabled": true,
+          "auto_close_on_fix": true,
+          "add_comment_on_retest": true
+        }
+      }
+    },
+    "slack": {
+      "enabled": true,
+      "webhook_url": "${SLACK_WEBHOOK_URL}",
+      "default_channel": "#voice-ai-test-alerts",
+      "username": "Voice AI Test Bot",
+      "icon_emoji": ":robot_face:",
+      "features": {
+        "test_run_notifications": {
+          "enabled": true,
+          "notify_on": ["failure", "success"],
+          "include_metrics": true
+        },
+        "defect_alerts": {
+          "enabled": true,
+          "channel_override": "#voice-ai-critical",
+          "mention_team": "@voice-ai-team"
+        },
+        "system_alerts": {
+          "enabled": true,
+          "severity_threshold": "warning"
+        }
+      },
+      "notification_rules": {
+        "success_threshold": 0.95,
+        "notify_on_regression": true,
+        "batch_notifications": false
+      }
+    }
+  },
+  "notification_routing": {
+    "test_run_complete": {
+      "github": true,
+      "slack": true,
+      "jira": false
+    },
+    "test_failure": {
+      "github": true,
+      "slack": true,
+      "jira": false
+    },
+    "critical_failure": {
+      "github": true,
+      "slack": true,
+      "jira": true
+    },
+    "regression_detected": {
+      "github": true,
+      "slack": true,
+      "jira": true
+    }
+  },
+  "demo_metadata": {
+    "setup_date": "2025-01-18",
+    "demo_repository": "https://github.com/demo-org/voice-ai-testing-demo",
+    "jira_project_url": "https://demo-voiceai.atlassian.net/projects/VOICEAI",
+    "slack_workspace": "demo-voiceai.slack.com",
+    "test_data": {
+      "sample_test_run_id": "demo-run-001",
+      "sample_commit_sha": "abc123def456",
+      "sample_test_suite": "Voice AI Integration Tests"
+    }
+  }
+}

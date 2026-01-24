@@ -1,0 +1,310 @@
+# Houndify Intent Discovery - Test Queries
+# One query per line, organized by expected domain
+
+# ============================================================================
+# Weather Domain
+# ============================================================================
+What's the weather?
+What's the weather in San Francisco?
+Will it rain tomorrow?
+What's the forecast for this weekend?
+What's the temperature outside?
+Is it going to snow today?
+What's the weather like in New York?
+Give me the 5 day forecast
+What's the humidity today?
+When will it stop raining?
+
+# ============================================================================
+# Restaurant Domain
+# ============================================================================
+Book a table at Pizza Palace
+Find restaurants near me
+Reserve a table for 4 people at 7pm
+What are the best Italian restaurants nearby?
+Show me pizza places
+Find Chinese restaurants in San Francisco
+What time does Olive Garden close?
+Get me a reservation at a steakhouse
+Find vegetarian restaurants
+What's on the menu at Chipotle?
+
+# ============================================================================
+# Music Domain
+# ============================================================================
+Play music
+Play some jazz
+Play Bohemian Rhapsody by Queen
+Play my workout playlist
+What song is this?
+Who sings this song?
+Play classical music
+Skip this song
+Pause the music
+Turn up the volume
+
+# ============================================================================
+# Navigation Domain
+# ============================================================================
+Navigate to the airport
+Get directions to 123 Main Street
+How do I get to San Francisco?
+What's the fastest route home?
+Find a gas station nearby
+Show me traffic on Highway 101
+How far is Los Angeles from here?
+Take me to the nearest hospital
+What's my ETA?
+Avoid tolls
+
+# ============================================================================
+# Local Business / Places
+# ============================================================================
+Find a coffee shop near me
+Where's the nearest ATM?
+Find a pharmacy that's open now
+Show me hotels in downtown
+Find a parking garage nearby
+Where can I get my car washed?
+Find a gym near me
+Show me banks nearby
+Find a post office
+Where's the nearest supermarket?
+
+# ============================================================================
+# Hotel / Travel
+# ============================================================================
+Find hotels in Las Vegas
+Book a hotel room for tonight
+What's the price of hotels in Miami?
+Find a 5 star hotel
+Show me hotels near the airport
+Find hotels with pools
+What hotels have availability this weekend?
+Book a room at the Hilton
+Find pet-friendly hotels
+Show me hotel reviews
+
+# ============================================================================
+# Flight Domain
+# ============================================================================
+Find flights to New York
+What's the status of flight UA123?
+When does my flight leave?
+Find cheap flights to Miami
+Book a flight to Chicago
+What time does the flight arrive?
+Are there any delays for flight AA456?
+Find one-way flights
+Show me direct flights only
+What's the baggage allowance?
+
+# ============================================================================
+# Stocks / Finance
+# ============================================================================
+What's the stock price of Apple?
+How is Tesla stock doing?
+What's the Dow Jones at?
+Show me Google's stock price
+What did Amazon close at yesterday?
+What's the market doing today?
+How much is Bitcoin worth?
+What's the S&P 500 at?
+Show me Microsoft stock
+What's the price of gold?
+
+# ============================================================================
+# Sports
+# ============================================================================
+What's the score of the Warriors game?
+When do the Lakers play next?
+Who won the Super Bowl?
+What's the NFL schedule today?
+Show me NBA standings
+Who's winning the World Series?
+What time is the soccer game?
+What channel is the game on?
+Who has the most home runs?
+Show me football scores
+
+# ============================================================================
+# Math / Calculator
+# ============================================================================
+What's 5 plus 7?
+Calculate 15 times 23
+What's 100 divided by 4?
+What's the square root of 144?
+Calculate 20 percent of 80
+What's 5 squared?
+Convert 50 miles to kilometers
+What's 100 degrees Fahrenheit in Celsius?
+Calculate the tip on 45 dollars
+What's 1000 minus 347?
+
+# ============================================================================
+# Time / Date / Alarm
+# ============================================================================
+What time is it?
+What's today's date?
+Set an alarm for 7am
+What day is it?
+What time is it in London?
+Set a timer for 10 minutes
+Cancel my alarm
+What's the time in Tokyo?
+When is sunrise?
+When is sunset?
+
+# ============================================================================
+# General Knowledge / Wikipedia
+# ============================================================================
+Who is Barack Obama?
+What is the capital of France?
+How tall is Mount Everest?
+Who invented the telephone?
+What is quantum physics?
+When was World War 2?
+How many people live in China?
+What is photosynthesis?
+Who wrote Harry Potter?
+What is the speed of light?
+
+# ============================================================================
+# News
+# ============================================================================
+What's in the news today?
+Tell me the latest headlines
+What's happening in the world?
+Give me technology news
+What's the weather news?
+Show me sports news
+What are the top stories?
+Tell me about current events
+What's trending?
+Give me business news
+
+# ============================================================================
+# Home Automation
+# ============================================================================
+Turn on the lights
+Set the thermostat to 72 degrees
+Turn off the kitchen lights
+Dim the bedroom lights
+What's the temperature inside?
+Lock the front door
+Turn on the TV
+Set the alarm system
+Open the garage door
+Turn off all lights
+
+# ============================================================================
+# Phone / Contacts
+# ============================================================================
+Call John
+Call mom
+Dial 555-1234
+Send a text to Sarah
+What's John's phone number?
+Show me recent calls
+Call the last number
+Redial
+Show my contacts
+Add a new contact
+
+# ============================================================================
+# Calendar / Reminders
+# ============================================================================
+What's on my calendar today?
+Schedule a meeting for 3pm
+Set a reminder to buy milk
+What do I have tomorrow?
+Add dentist appointment to calendar
+Create an event for Friday
+What's my next appointment?
+Cancel my 2pm meeting
+Remind me to call mom
+What meetings do I have this week?
+
+# ============================================================================
+# Shopping / E-commerce
+# ============================================================================
+Find deals on laptops
+Where can I buy an iPhone?
+Compare prices for headphones
+Find the cheapest TV
+Show me reviews for this product
+Where's the nearest Best Buy?
+Find coupons for Target
+What's on sale at Amazon?
+Compare iPad prices
+Find black friday deals
+
+# ============================================================================
+# Movie / Entertainment
+# ============================================================================
+What movies are playing?
+Show me movie times for Avatar
+What's playing at the cinema?
+Find action movies
+What's the rating of Inception?
+Who directed The Godfather?
+Show me comedy movies
+What time is the 7pm showing?
+Find movies near me
+What's new on Netflix?
+
+# ============================================================================
+# Uber / Ride Sharing
+# ============================================================================
+Get me an Uber
+Call a ride to the airport
+How much is an Uber to downtown?
+Request a Lyft
+Where's my Uber?
+Cancel my ride
+Get me an Uber XL
+How long until my ride arrives?
+Find the cheapest ride option
+Request a ride home
+
+# ============================================================================
+# Translation
+# ============================================================================
+How do you say hello in Spanish?
+Translate good morning to French
+What does bonjour mean?
+Say thank you in Japanese
+Translate this to German
+How do you say goodbye in Italian?
+What's the Spanish word for cat?
+Translate I love you to Chinese
+Say please in Portuguese
+What does gracias mean?
+
+# ============================================================================
+# Unit Conversion
+# ============================================================================
+Convert 100 pounds to kilograms
+How many feet in a mile?
+Convert 5 gallons to liters
+What's 100 kilometers in miles?
+Convert 32 Fahrenheit to Celsius
+How many ounces in a pound?
+Convert square feet to square meters
+What's 1000 milliliters in cups?
+Convert yards to meters
+How many seconds in an hour?
+
+# ============================================================================
+# Miscellaneous / General Commands
+# ============================================================================
+Tell me a joke
+Flip a coin
+Roll a dice
+What's your name?
+How are you?
+Sing a song
+Tell me a story
+What can you do?
+Give me a random number
+What's the meaning of life?

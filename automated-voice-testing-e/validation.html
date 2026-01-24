@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validation - Productive Playhouse</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #5BA9AC 0%, #11484D 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 16px;
+            padding: 24px 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #1a202c;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .subtitle {
+            font-size: 13px;
+            color: #718096;
+            margin-top: 4px;
+        }
+
+        .permission-badge {
+            font-size: 11px;
+            padding: 4px 10px;
+            background: linear-gradient(135deg, #5BA9AC 0%, #11484D 100%);
+            color: white;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .stat-item:hover {
+            background: #edf2f7;
+        }
+
+        .stat-item.active {
+            background: #5BA9AC;
+            color: white;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 4px;
+        }
+
+        .stat-item.active .stat-value,
+        .stat-item.active .stat-label {
+            color: white;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .queue-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            max-height: calc(100vh - 300px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .panel-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a202c;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #5BA9AC;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tag {
+            padding: 6px 12px;
+            background: #edf2f7;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-tag.active {
+            background: #5BA9AC;
+            color: white;
+            border-color: #5BA9AC;
+        }
+
+        .filter-tag:hover {
+            border-color: #5BA9AC;
+        }
+
+        .queue-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .queue-item {
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .queue-item:hover {
+            border-color: #5BA9AC;
+            background: #f7fafc;
+        }
+
+        .queue-item.active {
+            border-color: #5BA9AC;
+            background: #eef2ff;
+            border-width: 2px;
+        }
+
+        .queue-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .queue-item-id {
+            font-size: 12px;
+            font-weight: 700;
+            color: #5BA9AC;
+        }
+
+        .priority-badge {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .priority-high {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .priority-medium {
+            background: #feebc8;
+            color: #744210;
+        }
+
+        .priority-low {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .queue-item-text {
+            font-size: 13px;
+            color: #1a202c;
+            margin-bottom: 6px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .queue-item-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #718096;
+        }
+
+        .confidence-badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .confidence-high {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .confidence-medium {
+            background: #feebc8;
+            color: #744210;
+        }
+
+        .confidence-low {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .review-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .review-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #f7fafc;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #edf2f7;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #5BA9AC 0%, #11484D 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .test-details {
+            background: #f7fafc;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #718096;
+            letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #1a202c;
+        }
+
+        .audio-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .audio-player {
+            background: #f7fafc;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .waveform {
+            height: 80px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .waveform-bars {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            height: 100%;
+            padding: 0 8px;
+        }
+
+        .waveform-bar {
+            width: 3px;
+            background: linear-gradient(180deg, #5BA9AC 0%, #11484D 100%);
+            border-radius: 2px;
+            transition: all 0.1s;
+        }
+
+        .playback-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .play-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #5BA9AC 0%, #11484D 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .play-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .time-display {
+            font-size: 12px;
+            color: #718096;
+            font-weight: 600;
+        }
+
+        .speed-control {
+            margin-left: auto;
+            display: flex;
+            gap: 4px;
+        }
+
+        .speed-btn {
+            padding: 4px 8px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .speed-btn.active {
+            background: #5BA9AC;
+            color: white;
+            border-color: #5BA9AC;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .comparison-box {
+            padding: 16px;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .comparison-box.expected {
+            background: #f7fafc;
+        }
+
+        .comparison-box.actual {
+            background: #eef2ff;
+            border-color: #5BA9AC;
+        }
+
+        .comparison-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .comparison-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #718096;
+            letter-spacing: 0.5px;
+        }
+
+        .match-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .match-yes {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .match-no {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .comparison-text {
+            font-size: 14px;
+            color: #1a202c;
+            line-height: 1.6;
+        }
+
+        .quality-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .metric-box {
+            background: #f7fafc;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 4px;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .intent-entity-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .intent-entity-box {
+            padding: 16px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .entity-list {
+            margin-top: 8px;
+        }
+
+        .entity-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+
+        .entity-name {
+            font-weight: 600;
+            color: #1a202c;
+        }
+
+        .entity-value {
+            color: #718096;
+        }
+
+        .notes-section {
+            margin-bottom: 20px;
+        }
+
+        .notes-textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .notes-textarea:focus {
+            outline: none;
+            border-color: #5BA9AC;
+        }
+
+        .keyboard-shortcuts {
+            background: #f7fafc;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            color: #718096;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .shortcut {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .key {
+            padding: 2px 6px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-weight: 600;
+            font-family: monospace;
+        }
+
+        .progress-indicator {
+            background: #f7fafc;
+            padding: 12px 16px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .progress-text {
+            font-size: 13px;
+            color: #718096;
+            font-weight: 600;
+        }
+
+        .progress-bar-container {
+            flex: 1;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            margin: 0 16px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #5BA9AC 0%, #11484D 100%);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .badge-warning {
+            background: #feebc8;
+            color: #744210;
+        }
+
+        .badge-danger {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .badge-info {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .badge-navigation {
+            background: #e6fffa;
+            color: #234e52;
+        }
+
+        .badge-media {
+            background: #faf5ff;
+            color: #553c9a;
+        }
+
+        .badge-climate {
+            background: #fff5f5;
+            color: #742a2a;
+        }
+
+        .badge-phone {
+            background: #ebf8ff;
+            color: #2c5282;
+        }
+
+        .bulk-actions {
+            display: flex;
+            gap: 8px;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .similar-tests {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e2e8f0;
+        }
+
+        .similar-test-item {
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .similar-test-item:hover {
+            background: #edf2f7;
+        }
+
+        .reviewer-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 24px;
+        }
+
+        .reviewer-stat {
+            text-align: center;
+        }
+
+        .reviewer-stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #5BA9AC;
+            margin-bottom: 4px;
+        }
+
+        .reviewer-stat-label {
+            font-size: 12px;
+            color: #718096;
+            font-weight: 600;
+        }
+
+        /* Navigation */
+        .main-nav {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border-radius: 16px;
+        }
+
+        .nav-container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+
+        .nav-brand {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #5BA9AC 0%, #11484D 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            text-decoration: none;
+            color: #4a5568;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: #f7fafc;
+            color: #5BA9AC;
+        }
+
+        .nav-link.active {
+            color: #5BA9AC;
+            border-bottom-color: #5BA9AC;
+        }
+
+        @media (max-width: 1200px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-grid,
+            .intent-entity-grid,
+            .quality-metrics {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-bar,
+            .reviewer-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                flex-wrap: wrap;
+                width: 100%;
+                overflow-x: auto;
+            }
+
+            .nav-link {
+                padding: 12px 16px;
+                white-space: nowrap;
+            }
+
+            .stats-bar,
+            .quality-metrics,
+            .reviewer-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Sample validation data
+        const VALIDATION_DATA = [
+            {
+                id: 'VAL-2847',
+                testId: 'TC-1234',
+                input: 'Navigate to the nearest coffee shop on Main Street',
+                expected: 'Route calculated to Starbucks on Main Street',
+                actual: 'Route calculated to Starbucks on Main Street',
+                confidence: 97.8,
+                language: 'en-US',
+                duration: 3.2,
+                timestamp: '2h ago',
+                status: 'pending',
+                category: 'Navigation',
+                audioQuality: 94.5,
+                intentMatch: true,
+                entityMatch: true,
+                priority: 'high',
+                intent: {
+                    expected: 'navigation.find_poi',
+                    actual: 'navigation.find_poi',
+                    confidence: 98.2
+                },
+                entities: {
+                    expected: [
+                        { name: 'poi_type', value: 'coffee shop' },
+                        { name: 'location', value: 'Main Street' }
+                    ],
+                    actual: [
+                        { name: 'poi_type', value: 'coffee shop' },
+                        { name: 'location', value: 'Main Street' }
+                    ]
+                },
+                assignedTo: 'Current User',
+                similarTests: 3
+            },
+            {
+                id: 'VAL-2846',
+                testId: 'TC-1235',
+                input: 'Play my workout playlist on Spotify',
+                expected: 'Playing "Workout Mix" playlist on Spotify',
+                actual: 'Playing "Workout Mix" playlist',
+                confidence: 96.5,
+                language: 'en-US',
+                duration: 2.8,
+                timestamp: '3h ago',
+                status: 'pending',
+                category: 'Media',
+                audioQuality: 96.2,
+                intentMatch: true,
+                entityMatch: false,
+                priority: 'medium',
+                intent: {
+                    expected: 'media.play_music',
+                    actual: 'media.play_music',
+                    confidence: 97.1
+                },
+                entities: {
+                    expected: [
+                        { name: 'playlist_name', value: 'Workout Mix' },
+                        { name: 'music_service', value: 'Spotify' }
+                    ],
+                    actual: [
+                        { name: 'playlist_name', value: 'Workout Mix' }
+                    ]
+                },
+                assignedTo: 'Current User',
+                similarTests: 5
+            },
+            {
+                id: 'VAL-2845',
+                testId: 'TC-1236',
+                input: 'Set the temperature to seventy two degrees',
+                expected: 'Setting temperature to 72°F',
+                actual: 'Setting temperature to 72°F',
+                confidence: 95.2,
+                language: 'en-US',
+                duration: 2.5,
+                timestamp: '4h ago',
+                status: 'pending',
+                category: 'Climate',
+                audioQuality: 93.8,
+                intentMatch: true,
+                entityMatch: true,
+                priority: 'low',
+                intent: {
+                    expected: 'climate.set_temperature',
+                    actual: 'climate.set_temperature',
+                    confidence: 96.3
+                },
+                entities: {
+                    expected: [
+                        { name: 'temperature', value: '72' },
+                        { name: 'unit', value: 'fahrenheit' }
+                    ],
+                    actual: [
+                        { name: 'temperature', value: '72' },
+                        { name: 'unit', value: 'fahrenheit' }
+                    ]
+                },
+                assignedTo: 'Current User',
+                similarTests: 8
+            },
+            {
+                id: 'VAL-2844',
+                testId: 'TC-1237',
+                input: 'Call mom on her cell phone',
+                expected: 'Calling Mom - Mobile',
+                actual: 'Calling Mom - Home',
+                confidence: 89.3,
+                language: 'en-US',
+                duration: 3.1,
+                timestamp: '5h ago',
+                status: 'pending',
+                category: 'Phone',
+                audioQuality: 91.2,
+                intentMatch: true,
+                entityMatch: false,
+                priority: 'high',
+                intent: {
+                    expected: 'phone.make_call',
+                    actual: 'phone.make_call',
+                    confidence: 94.7
+                },
+                entities: {
+                    expected: [
+                        { name: 'contact_name', value: 'Mom' },
+                        { name: 'phone_type', value: 'mobile' }
+                    ],
+                    actual: [
+                        { name: 'contact_name', value: 'Mom' },
+                        { name: 'phone_type', value: 'home' }
+                    ]
+                },
+                assignedTo: 'Current User',
+                similarTests: 4
+            },
+            {
+                id: 'VAL-2843',
+                testId: 'TC-1238',
+                input: 'What\'s the weather like tomorrow morning',
+                expected: 'Tomorrow morning: Partly cloudy, 65°F',
+                actual: 'Tomorrow morning: Partly cloudy, 65 degrees',
+                confidence: 92.1,
+                language: 'en-US',
+                duration: 3.5,
+                timestamp: '6h ago',
+                status: 'pending',
+                category: 'Climate',
+                audioQuality: 88.7,
+                intentMatch: true,
+                entityMatch: true,
+                priority: 'medium',
+                intent: {
+                    expected: 'weather.get_forecast',
+                    actual: 'weather.get_forecast',
+                    confidence: 93.4
+                },
+                entities: {
+                    expected: [
+                        { name: 'time', value: 'tomorrow morning' }
+                    ],
+                    actual: [
+                        { name: 'time', value: 'tomorrow morning' }
+                    ]
+                },
+                assignedTo: 'Current User',
+                similarTests: 6
+            },
+            {
+                id: 'VAL-2842',
+                testId: 'TC-1239',
+                input: 'Find gas stations near me',
+                expected: 'Showing 5 gas stations within 2 miles',
+                actual: 'Showing 5 gas stations within 2 miles',
+                confidence: 98.1,
+                language: 'en-US',
+                duration: 2.9,
+                timestamp: '1d ago',
+                status: 'approved',
+                category: 'Navigation',
+                audioQuality: 97.3,
+                intentMatch: true,
+                entityMatch: true,
+                priority: 'low',
+                intent: {
+                    expected: 'navigation.find_poi',
+                    actual: 'navigation.find_poi',
+                    confidence: 98.9
+                },
+                entities: {
+                    expected: [
+                        { name: 'poi_type', value: 'gas station' },
+                        { name: 'location', value: 'near me' }
+                    ],
+                    actual: [
+                        { name: 'poi_type', value: 'gas station' },
+                        { name: 'location', value: 'near me' }
+                    ]
+                },
+                assignedTo: 'John Doe',
+                similarTests: 2
+            },
+            {
+                id: 'VAL-2841',
+                testId: 'TC-1240',
+                input: 'Turn off the radio please',
+                expected: 'Radio off',
+                actual: 'Turning off FM radio',
+                confidence: 87.2,
+                language: 'en-US',
+                duration: 2.3,
+                timestamp: '1d ago',
+                status: 'rejected',
+                category: 'Media',
+                audioQuality: 85.4,
+                intentMatch: true,
+                entityMatch: false,
+                priority: 'low',
+                intent: {
+                    expected: 'media.turn_off',
+                    actual: 'media.turn_off',
+                    confidence: 91.2
+                },
+                entities: {
+                    expected: [
+                        { name: 'media_type', value: 'radio' }
+                    ],
+                    actual: [
+                        { name: 'media_type', value: 'FM radio' }
+                    ]
+                },
+                assignedTo: 'Jane Smith',
+                similarTests: 7
+            }
+        ];
+
+        const ValidationInterface = () => {
+            // State management
+            const [filter, setFilter] = useState('pending');
+            const [selectedItem, setSelectedItem] = useState(null);
+            const [searchQuery, setSearchQuery] = useState('');
+            const [confidenceFilter, setConfidenceFilter] = useState('all');
+            const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
+            const [notes, setNotes] = useState('');
+            const [autoPlayNext, setAutoPlayNext] = useState(true);
+            const [userRole, setUserRole] = useState('admin');
+
+            // Filter items based on status, search, and confidence
+            const filteredItems = VALIDATION_DATA.filter(item => {
+                const matchesStatus = filter === 'all' || item.status === filter;
+                const matchesSearch = !searchQuery ||
+                    item.input.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    item.id.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchesConfidence = confidenceFilter === 'all' ||
+                    (confidenceFilter === 'high' && item.confidence >= 95) ||
+                    (confidenceFilter === 'medium' && item.confidence >= 90 && item.confidence < 95) ||
+                    (confidenceFilter === 'low' && item.confidence < 90);
+
+                return matchesStatus && matchesSearch && matchesConfidence;
+            });
+
+            // Calculate statistics
+            const stats = {
+                total: VALIDATION_DATA.length,
+                pending: VALIDATION_DATA.filter(i => i.status === 'pending').length,
+                approved: VALIDATION_DATA.filter(i => i.status === 'approved').length,
+                rejected: VALIDATION_DATA.filter(i => i.status === 'rejected').length,
+                flagged: VALIDATION_DATA.filter(i => i.priority === 'high').length
+            };
+
+            // Current item logic
+            const currentItem = selectedItem || (filteredItems.length > 0 ? filteredItems[0] : null);
+            const currentIndex = currentItem ? filteredItems.findIndex(i => i.id === currentItem.id) : -1;
+            const progress = filteredItems.length > 0 ? ((currentIndex + 1) / filteredItems.length) * 100 : 0;
+
+            // Reviewer statistics
+            const reviewerStats = {
+                reviewed: 847,
+                accuracy: 96.4,
+                avgTime: '2.3 min',
+                streak: 12
+            };
+
+            // Action handlers
+            const handleApprove = () => {
+                if (!currentItem) return;
+                alert(`Approved: ${currentItem.id}`);
+                if (autoPlayNext && currentIndex < filteredItems.length - 1) {
+                    setSelectedItem(filteredItems[currentIndex + 1]);
+                }
+            };
+
+            const handleReject = () => {
+                if (!currentItem) return;
+                alert(`Rejected: ${currentItem.id}`);
+                if (autoPlayNext && currentIndex < filteredItems.length - 1) {
+                    setSelectedItem(filteredItems[currentIndex + 1]);
+                }
+            };
+
+            const handleFlag = () => {
+                if (!currentItem) return;
+                alert(`Flagged for review: ${currentItem.id}`);
+            };
+
+            const handleSkip = () => {
+                if (currentIndex < filteredItems.length - 1) {
+                    setSelectedItem(filteredItems[currentIndex + 1]);
+                }
+            };
+
+            // Keyboard shortcuts
+            useEffect(() => {
+                const handleKeyPress = (e) => {
+                    if (!currentItem || e.target.matches('textarea, input')) return;
+
+                    if (e.key === 'a') {
+                        handleApprove();
+                    } else if (e.key === 'r') {
+                        handleReject();
+                    } else if (e.key === 'f') {
+                        handleFlag();
+                    } else if (e.key === 's') {
+                        handleSkip();
+                    }
+                };
+
+                window.addEventListener('keydown', handleKeyPress);
+                return () => window.removeEventListener('keydown', handleKeyPress);
+            });
+
+            // Render empty state if no items
+            if (!currentItem) {
+                return (
+                    <div className="container">
+                        <nav className="main-nav">
+                            <div className="nav-container">
+                                <div className="nav-brand">Productive Playhouse</div>
+                                <div className="nav-links">
+                                    <a href="dashboard.html" className="nav-link"><i data-lucide="layout-dashboard" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Dashboard</a>
+                                    <a href="test-management.html" className="nav-link"><i data-lucide="flask-conical" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Test Management</a>
+                                    <a href="analytics.html" className="nav-link"><i data-lucide="trending-up" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Analytics</a>
+                                    <a href="validation.html" className="nav-link active"><i data-lucide="check-circle" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Validation</a>
+                                    <a href="reports.html" className="nav-link"><i data-lucide="file-text" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Reports</a>
+                                </div>
+                            </div>
+                        </nav>
+
+                        <div className="header">
+                            <h1>Validation</h1>
+                            <p>No items in queue</p>
+                        </div>
+                    </div>
+                );
+            }
+
+            // Main render
+            return (
+                <div className="container">
+                    {/* Navigation */}
+                    <nav className="main-nav">
+                        <div className="nav-container">
+                            <div className="nav-brand">Productive Playhouse</div>
+                            <div className="nav-links">
+                                <a href="dashboard.html" className="nav-link"><i data-lucide="layout-dashboard" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Dashboard</a>
+                                <a href="test-management.html" className="nav-link"><i data-lucide="flask-conical" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Test Management</a>
+                                <a href="analytics.html" className="nav-link"><i data-lucide="trending-up" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Analytics</a>
+                                <a href="validation.html" className="nav-link active"><i data-lucide="check-circle" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Validation</a>
+                                <a href="reports.html" className="nav-link"><i data-lucide="file-text" style={{width: '16px', height: '16px', marginRight: '6px'}}></i>Reports</a>
+                            </div>
+                        </div>
+                    </nav>
+
+                    {/* Header */}
+                    <div className="header">
+                        <div className="header-top">
+                            <div>
+                                <h1>Validation
+                                    <span className="permission-badge">{userRole.toUpperCase()}</span>
+                                </h1>
+                                <div className="subtitle">Productive Playhouse × SoundHound Integration</div>
+                            </div>
+                            <div className="review-actions">
+                                <button className="btn btn-secondary">
+                                    <i data-lucide="settings" style={{width: '14px', height: '14px'}}></i> Settings
+                                </button>
+                                <button className="btn btn-secondary">
+                                    <i data-lucide="download" style={{width: '14px', height: '14px'}}></i> Export Results
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Stats Bar */}
+                        <div className="stats-bar">
+                            <div
+                                className={`stat-item ${filter === 'all' ? 'active' : ''}`}
+                                onClick={() => setFilter('all')}
+                            >
+                                <div className="stat-value">{stats.total}</div>
+                                <div className="stat-label">Total Queue</div>
+                            </div>
+                            <div
+                                className={`stat-item ${filter === 'pending' ? 'active' : ''}`}
+                                onClick={() => setFilter('pending')}
+                            >
+                                <div className="stat-value">{stats.pending}</div>
+                                <div className="stat-label">Pending</div>
+                            </div>
+                            <div
+                                className={`stat-item ${filter === 'approved' ? 'active' : ''}`}
+                                onClick={() => setFilter('approved')}
+                            >
+                                <div className="stat-value">{stats.approved}</div>
+                                <div className="stat-label">Approved</div>
+                            </div>
+                            <div
+                                className={`stat-item ${filter === 'rejected' ? 'active' : ''}`}
+                                onClick={() => setFilter('rejected')}
+                            >
+                                <div className="stat-value">{stats.rejected}</div>
+                                <div className="stat-label">Rejected</div>
+                            </div>
+                            <div className="stat-item">
+                                <div className="stat-value">{stats.flagged}</div>
+                                <div className="stat-label">High Priority</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Reviewer Stats */}
+                    <div className="reviewer-stats">
+                        <div className="reviewer-stat">
+                            <div className="reviewer-stat-value">{reviewerStats.reviewed}</div>
+                            <div className="reviewer-stat-label">Tests Reviewed</div>
+                        </div>
+                        <div className="reviewer-stat">
+                            <div className="reviewer-stat-value">{reviewerStats.accuracy}%</div>
+                            <div className="reviewer-stat-label">Accuracy Rate</div>
+                        </div>
+                        <div className="reviewer-stat">
+                            <div className="reviewer-stat-value">{reviewerStats.avgTime}</div>
+                            <div className="reviewer-stat-label">Avg Review Time</div>
+                        </div>
+                        <div className="reviewer-stat">
+                            <div className="reviewer-stat-value">{reviewerStats.streak} <i data-lucide="flame" style={{width: '20px', height: '20px', color: '#ed8936'}}></i></div>
+                            <div className="reviewer-stat-label">Day Streak</div>
+                        </div>
+                    </div>
+
+                    {/* Main Layout */}
+                    <div className="main-layout">
+                        {/* Queue Panel */}
+                        <div className="queue-panel">
+                            <div className="panel-header">
+                                <div className="panel-title">Validation Queue</div>
+                                <div style={{fontSize: '12px', color: '#718096', fontWeight: '600'}}>
+                                    {filteredItems.length} items
+                                </div>
+                            </div>
+
+                            {/* Search */}
+                            <input
+                                type="text"
+                                className="search-box"
+                                placeholder="Search by ID or text..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+
+                            {/* Confidence Filter */}
+                            <div className="filter-group">
+                                <div
+                                    className={`filter-tag ${confidenceFilter === 'all' ? 'active' : ''}`}
+                                    onClick={() => setConfidenceFilter('all')}
+                                >
+                                    All
+                                </div>
+                                <div
+                                    className={`filter-tag ${confidenceFilter === 'high' ? 'active' : ''}`}
+                                    onClick={() => setConfidenceFilter('high')}
+                                >
+                                    High (95%+)
+                                </div>
+                                <div
+                                    className={`filter-tag ${confidenceFilter === 'medium' ? 'active' : ''}`}
+                                    onClick={() => setConfidenceFilter('medium')}
+                                >
+                                    Medium (90-95%)
+                                </div>
+                                <div
+                                    className={`filter-tag ${confidenceFilter === 'low' ? 'active' : ''}`}
+                                    onClick={() => setConfidenceFilter('low')}
+                                >
+                                    Low (&lt;90%)
+                                </div>
+                            </div>
+
+                            {/* Bulk Actions */}
+                            {filter === 'pending' && (
+                                <div className="bulk-actions">
+                                    <input type="checkbox" className="checkbox" />
+                                    <button className="btn btn-secondary" style={{fontSize: '11px', padding: '6px 12px'}}>
+                                        Approve Selected
+                                    </button>
+                                    <button className="btn btn-secondary" style={{fontSize: '11px', padding: '6px 12px'}}>
+                                        Reject Selected
+                                    </button>
+                                </div>
+                            )}
+
+                            {/* Queue List */}
+                            <div className="queue-list">
+                                {filteredItems.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        className={`queue-item ${currentItem.id === item.id ? 'active' : ''}`}
+                                        onClick={() => setSelectedItem(item)}
+                                    >
+                                        <div className="queue-item-header">
+                                            <div className="queue-item-id">{item.id}</div>
+                                            <div className={`priority-badge priority-${item.priority}`}>
+                                                {item.priority.toUpperCase()}
+                                            </div>
+                                        </div>
+                                        <div className="queue-item-text">{item.input}</div>
+                                        <div className="queue-item-meta">
+                                            <div>
+                                                <span className={`confidence-badge confidence-${
+                                                    item.confidence >= 95 ? 'high' :
+                                                    item.confidence >= 90 ? 'medium' : 'low'
+                                                }`}>
+                                                    {item.confidence}%
+                                                </span>
+                                            </div>
+                                            <div>{item.timestamp}</div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Review Panel */}
+                        <div className="review-panel">
+                            {/* Progress Indicator */}
+                            <div className="progress-indicator">
+                                <div className="progress-text">
+                                    Item {currentIndex + 1} of {filteredItems.length}
+                                </div>
+                                <div className="progress-bar-container">
+                                    <div className="progress-bar-fill" style={{width: `${progress}%`}}></div>
+                                </div>
+                                <div className="progress-text">{Math.round(progress)}%</div>
+                            </div>
+
+                            {/* Review Header */}
+                            <div className="review-header">
+                                <div>
+                                    <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+                                        <div className="panel-title">{currentItem.id}</div>
+                                        <span className={`badge badge-${currentItem.category.toLowerCase()}`}>
+                                            {currentItem.category}
+                                        </span>
+                                        <span className={`priority-badge priority-${currentItem.priority}`}>
+                                            {currentItem.priority}
+                                        </span>
+                                    </div>
+                                    <div style={{fontSize: '12px', color: '#718096', marginTop: '4px'}}>
+                                        Test ID: {currentItem.testId} • {currentItem.timestamp}
+                                    </div>
+                                </div>
+                                <div className="review-actions">
+                                    <button className="btn btn-success" onClick={handleApprove}>
+                                        <i data-lucide="check" style={{width: '14px', height: '14px'}}></i> Approve (A)
+                                    </button>
+                                    <button className="btn btn-danger" onClick={handleReject}>
+                                        <i data-lucide="x" style={{width: '14px', height: '14px'}}></i> Reject (R)
+                                    </button>
+                                    <button className="btn btn-secondary" onClick={handleFlag}>
+                                        <i data-lucide="flag" style={{width: '14px', height: '14px'}}></i> Flag (F)
+                                    </button>
+                                    <button className="btn btn-secondary" onClick={handleSkip}>
+                                        <i data-lucide="skip-forward" style={{width: '14px', height: '14px'}}></i> Skip (S)
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Test Details */}
+                            <div className="test-details">
+                                <div className="detail-row">
+                                    <div className="detail-label">Input Text</div>
+                                    <div className="detail-value" style={{fontWeight: '600'}}>
+                                        "{currentItem.input}"
+                                    </div>
+                                </div>
+                                <div className="detail-row">
+                                    <div className="detail-label">Language</div>
+                                    <div className="detail-value">{currentItem.language}</div>
+                                </div>
+                                <div className="detail-row">
+                                    <div className="detail-label">Duration</div>
+                                    <div className="detail-value">{currentItem.duration}s</div>
+                                </div>
+                                <div className="detail-row">
+                                    <div className="detail-label">Similar Tests</div>
+                                    <div className="detail-value">
+                                        <span className="badge badge-info">{currentItem.similarTests} found</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Quality Metrics */}
+                            <div className="section-title">Quality Metrics</div>
+                            <div className="quality-metrics">
+                                <div className="metric-box">
+                                    <div className="metric-value" style={{color: currentItem.confidence >= 95 ? '#48bb78' : currentItem.confidence >= 90 ? '#f6ad55' : '#f56565'}}>
+                                        {currentItem.confidence}%
+                                    </div>
+                                    <div className="metric-label">Confidence</div>
+                                </div>
+                                <div className="metric-box">
+                                    <div className="metric-value" style={{color: currentItem.audioQuality >= 90 ? '#48bb78' : '#f6ad55'}}>
+                                        {currentItem.audioQuality}%
+                                    </div>
+                                    <div className="metric-label">Audio Quality</div>
+                                </div>
+                                <div className="metric-box">
+                                    <div className="metric-value" style={{color: currentItem.intentMatch ? '#48bb78' : '#f56565'}}>
+                                        <i data-lucide={currentItem.intentMatch ? 'check' : 'x'} style={{width: '20px', height: '20px'}}></i>
+                                    </div>
+                                    <div className="metric-label">Intent Match</div>
+                                </div>
+                                <div className="metric-box">
+                                    <div className="metric-value" style={{color: currentItem.entityMatch ? '#48bb78' : '#f56565'}}>
+                                        <i data-lucide={currentItem.entityMatch ? 'check' : 'x'} style={{width: '20px', height: '20px'}}></i>
+                                    </div>
+                                    <div className="metric-label">Entity Match</div>
+                                </div>
+                            </div>
+
+                            {/* Audio Section */}
+                            <div className="audio-section">
+                                <div className="section-title"><i data-lucide="audio-lines" style={{width: '16px', height: '16px', marginRight: '6px'}}></i> Audio Recording</div>
+                                <div className="audio-player">
+                                    <div className="waveform">
+                                        <div className="waveform-bars">
+                                            {Array.from({length: 80}, (_, i) => (
+                                                <div
+                                                    key={i}
+                                                    className="waveform-bar"
+                                                    style={{height: `${Math.random() * 60 + 20}%`}}
+                                                ></div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="playback-controls">
+                                        <button className="play-btn"><i data-lucide="play" style={{width: '16px', height: '16px'}}></i></button>
+                                        <div className="time-display">0:00 / {currentItem.duration.toFixed(1)}</div>
+                                        <div className="speed-control">
+                                            <div style={{fontSize: '11px', color: '#718096', marginRight: '6px'}}>Speed:</div>
+                                            {[0.5, 0.75, 1.0, 1.25, 1.5].map(speed => (
+                                                <button
+                                                    key={speed}
+                                                    className={`speed-btn ${playbackSpeed === speed ? 'active' : ''}`}
+                                                    onClick={() => setPlaybackSpeed(speed)}
+                                                >
+                                                    {speed}x
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Response Comparison */}
+                            <div className="section-title">Response Comparison</div>
+                            <div className="comparison-grid">
+                                <div className="comparison-box expected">
+                                    <div className="comparison-header">
+                                        <div className="comparison-label">Expected Response</div>
+                                    </div>
+                                    <div className="comparison-text">
+                                        {currentItem.expected}
+                                    </div>
+                                </div>
+                                <div className="comparison-box actual">
+                                    <div className="comparison-header">
+                                        <div className="comparison-label">Actual Response</div>
+                                        <div className={`match-badge ${currentItem.expected === currentItem.actual ? 'match-yes' : 'match-no'}`}>
+                                            {currentItem.expected === currentItem.actual ? 'EXACT MATCH' : 'DIFFERS'}
+                                        </div>
+                                    </div>
+                                    <div className="comparison-text">
+                                        {currentItem.actual}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Intent & Entities */}
+                            <div className="section-title">Intent & Entity Analysis</div>
+                            <div className="intent-entity-grid">
+                                <div className="intent-entity-box">
+                                    <div style={{fontWeight: '700', marginBottom: '12px', display: 'flex', justifyContent: 'space-between'}}>
+                                        <span>Intent</span>
+                                        <span className={`match-badge ${currentItem.intent.expected === currentItem.intent.actual ? 'match-yes' : 'match-no'}`}>
+                                            {currentItem.intent.expected === currentItem.intent.actual ? 'MATCH' : 'MISMATCH'}
+                                        </span>
+                                    </div>
+                                    <div style={{fontSize: '13px', marginBottom: '8px'}}>
+                                        <div style={{color: '#718096', fontSize: '11px', marginBottom: '4px'}}>Expected:</div>
+                                        <div style={{fontWeight: '600'}}>{currentItem.intent.expected}</div>
+                                    </div>
+                                    <div style={{fontSize: '13px'}}>
+                                        <div style={{color: '#718096', fontSize: '11px', marginBottom: '4px'}}>Actual:</div>
+                                        <div style={{fontWeight: '600'}}>{currentItem.intent.actual}</div>
+                                    </div>
+                                    <div style={{marginTop: '12px', fontSize: '12px', color: '#718096'}}>
+                                        Confidence: <strong>{currentItem.intent.confidence}%</strong>
+                                    </div>
+                                </div>
+
+                                <div className="intent-entity-box">
+                                    <div style={{fontWeight: '700', marginBottom: '12px', display: 'flex', justifyContent: 'space-between'}}>
+                                        <span>Entities</span>
+                                        <span className={`match-badge ${currentItem.entityMatch ? 'match-yes' : 'match-no'}`}>
+                                            {currentItem.entityMatch ? 'MATCH' : 'MISMATCH'}
+                                        </span>
+                                    </div>
+                                    <div style={{fontSize: '11px', color: '#718096', marginBottom: '6px'}}>Expected:</div>
+                                    <div className="entity-list">
+                                        {currentItem.entities.expected.map((entity, idx) => (
+                                            <div key={idx} className="entity-item">
+                                                <div className="entity-name">{entity.name}</div>
+                                                <div className="entity-value">"{entity.value}"</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div style={{fontSize: '11px', color: '#718096', marginTop: '12px', marginBottom: '6px'}}>Actual:</div>
+                                    <div className="entity-list">
+                                        {currentItem.entities.actual.map((entity, idx) => (
+                                            <div key={idx} className="entity-item">
+                                                <div className="entity-name">{entity.name}</div>
+                                                <div className="entity-value">"{entity.value}"</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Notes Section */}
+                            <div className="notes-section">
+                                <div className="section-title"><i data-lucide="file-edit" style={{width: '16px', height: '16px', marginRight: '6px'}}></i> Review Notes</div>
+                                <textarea
+                                    className="notes-textarea"
+                                    placeholder="Add notes about this validation (optional)..."
+                                    value={notes}
+                                    onChange={(e) => setNotes(e.target.value)}
+                                ></textarea>
+                            </div>
+
+                            {/* Keyboard Shortcuts */}
+                            <div className="keyboard-shortcuts">
+                                <div style={{fontWeight: '700', marginRight: '16px'}}>Keyboard Shortcuts:</div>
+                                <div className="shortcut">
+                                    <span className="key">A</span> Approve
+                                </div>
+                                <div className="shortcut">
+                                    <span className="key">R</span> Reject
+                                </div>
+                                <div className="shortcut">
+                                    <span className="key">F</span> Flag
+                                </div>
+                                <div className="shortcut">
+                                    <span className="key">S</span> Skip
+                                </div>
+                                <div className="shortcut">
+                                    <span className="key">Space</span> Play/Pause
+                                </div>
+                            </div>
+
+                            {/* Similar Tests */}
+                            <div className="similar-tests">
+                                <div className="section-title"><i data-lucide="link" style={{width: '16px', height: '16px', marginRight: '6px'}}></i> Similar Test Cases ({currentItem.similarTests})</div>
+                                {[...Array(Math.min(3, currentItem.similarTests))].map((_, idx) => (
+                                    <div key={idx} className="similar-test-item">
+                                        <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '4px'}}>
+                                            <div style={{fontWeight: '600', fontSize: '12px', color: '#5BA9AC'}}>
+                                                TC-{1200 + idx}
+                                            </div>
+                                            <span className="badge badge-success">97% match</span>
+                                        </div>
+                                        <div style={{fontSize: '13px', color: '#1a202c'}}>
+                                            Similar {currentItem.category.toLowerCase()} test with comparable results
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Mount the component
+        try {
+            ReactDOM.render(<ValidationInterface />, document.getElementById('root'));
+
+            // Initialize Lucide icons
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        } catch (error) {
+            console.error('Error mounting React app:', error);
+            document.getElementById('root').innerHTML = `
+                <div style="background: white; padding: 20px; border-radius: 16px; margin: 20px; max-width: 800px;">
+                    <h1 style="color: #f56565;">Error Loading Validation Interface</h1>
+                    <p style="margin-top: 12px;">An error occurred while loading the interface. Please check the browser console for details.</p>
+                    <pre style="background: #f7fafc; padding: 12px; border-radius: 8px; margin-top: 12px; overflow: auto;">
+${error.toString()}
+                    </pre>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

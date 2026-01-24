@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Debug Test</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <div id="errors" style="color: red; padding: 20px; background: #fff; margin: 20px;"></div>
+
+    <script type="text/babel">
+        window.onerror = function(msg, url, line, col, error) {
+            document.getElementById('errors').innerHTML += `<p>Error: ${msg}<br>Line: ${line}<br>Details: ${error}</p>`;
+            return false;
+        };
+
+        const Test = () => {
+            return <div style={{padding: '20px', background: 'white'}}>
+                <h1>React is working!</h1>
+                <p>If you see this, React is rendering properly.</p>
+            </div>;
+        };
+
+        try {
+            ReactDOM.render(<Test />, document.getElementById('root'));
+            document.getElementById('errors').innerHTML = '<p style="color: green;">✓ No errors - React loaded successfully!</p>';
+        } catch (e) {
+            document.getElementById('errors').innerHTML = `<p>React Error: ${e.message}</p>`;
+        }
+    </script>
+</body>
+</html>

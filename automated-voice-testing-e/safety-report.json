@@ -1,0 +1,4803 @@
+
+
++===========================================================================================================================================================================================+
+
+
+DEPRECATED: this command (`check`) has been DEPRECATED, and will be unsupported beyond 01 June 2024.
+
+
+We highly encourage switching to the new `scan` command which is easier to use, more powerful, and can be set up to mimic the deprecated command if required.
+
+
++===========================================================================================================================================================================================+
+
+
+{
+    "report_meta": {
+        "scan_target": "environment",
+        "scanned": [
+            "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages"
+        ],
+        "scanned_full_path": [
+            "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages"
+        ],
+        "target_languages": [
+            "python"
+        ],
+        "policy_file": null,
+        "policy_file_source": "local",
+        "audit_and_monitor": false,
+        "api_key": false,
+        "account": "",
+        "local_database_path": null,
+        "safety_version": "3.7.0",
+        "timestamp": "2025-11-17 18:28:19",
+        "packages_found": 160,
+        "vulnerabilities_found": 22,
+        "vulnerabilities_ignored": 0,
+        "remediations_recommended": 0,
+        "telemetry": {
+            "safety_options": {
+                "json": {
+                    "--json": 1
+                }
+            },
+            "safety_version": "3.7.0",
+            "safety_source": "cli",
+            "os_type": "Linux",
+            "os_release": "6.14.0-1016-aws",
+            "os_description": "Linux-6.14.0-1016-aws-x86_64-with-glibc2.39",
+            "python_version": "3.12.3",
+            "safety_command": "check"
+        },
+        "git": {
+            "branch": "master",
+            "tag": "",
+            "commit": "89da2e6abae45882ccdd02622dff0a3f9ad51b1b",
+            "dirty": "True",
+            "origin": "git@github.com:GreyChimp/automated-voice-testing.git"
+        },
+        "project": null,
+        "json_version": "1.1",
+        "remediations_attempted": 0,
+        "remediations_completed": 0,
+        "remediation_mode": "NON_INTERACTIVE"
+    },
+    "scanned_packages": {
+        "gTTS": {
+            "name": "gTTS",
+            "version": "2.5.0",
+            "requirements": [
+                {
+                    "raw": "gTTS==2.5.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "gTTS",
+                    "specifier": "==2.5.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/gTTS-2.5.0.dist-info"
+                }
+            ]
+        },
+        "PyYAML": {
+            "name": "PyYAML",
+            "version": "6.0.3",
+            "requirements": [
+                {
+                    "raw": "PyYAML==6.0.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "PyYAML",
+                    "specifier": "==6.0.3",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pyyaml-6.0.3.dist-info"
+                }
+            ]
+        },
+        "safety": {
+            "name": "safety",
+            "version": "3.7.0",
+            "requirements": [
+                {
+                    "raw": "safety==3.7.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "safety",
+                    "specifier": "==3.7.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/safety-3.7.0.dist-info"
+                }
+            ]
+        },
+        "alembic": {
+            "name": "alembic",
+            "version": "1.13.1",
+            "requirements": [
+                {
+                    "raw": "alembic==1.13.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "alembic",
+                    "specifier": "==1.13.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/alembic-1.13.1.dist-info"
+                }
+            ]
+        },
+        "redis": {
+            "name": "redis",
+            "version": "4.6.0",
+            "requirements": [
+                {
+                    "raw": "redis==4.6.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "redis",
+                    "specifier": "==4.6.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/redis-4.6.0.dist-info"
+                }
+            ]
+        },
+        "wcwidth": {
+            "name": "wcwidth",
+            "version": "0.2.14",
+            "requirements": [
+                {
+                    "raw": "wcwidth==0.2.14",
+                    "extras": [],
+                    "marker": null,
+                    "name": "wcwidth",
+                    "specifier": "==0.2.14",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/wcwidth-0.2.14.dist-info"
+                }
+            ]
+        },
+        "httptools": {
+            "name": "httptools",
+            "version": "0.7.1",
+            "requirements": [
+                {
+                    "raw": "httptools==0.7.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "httptools",
+                    "specifier": "==0.7.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/httptools-0.7.1.dist-info"
+                }
+            ]
+        },
+        "celery": {
+            "name": "celery",
+            "version": "5.3.4",
+            "requirements": [
+                {
+                    "raw": "celery==5.3.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "celery",
+                    "specifier": "==5.3.4",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/celery-5.3.4.dist-info"
+                }
+            ]
+        },
+        "python-jose": {
+            "name": "python-jose",
+            "version": "3.3.0",
+            "requirements": [
+                {
+                    "raw": "python-jose==3.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "python-jose",
+                    "specifier": "==3.3.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/python_jose-3.3.0.dist-info"
+                }
+            ]
+        },
+        "regex": {
+            "name": "regex",
+            "version": "2025.10.23",
+            "requirements": [
+                {
+                    "raw": "regex==2025.10.23",
+                    "extras": [],
+                    "marker": null,
+                    "name": "regex",
+                    "specifier": "==2025.10.23",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/regex-2025.10.23.dist-info"
+                }
+            ]
+        },
+        "h11": {
+            "name": "h11",
+            "version": "0.16.0",
+            "requirements": [
+                {
+                    "raw": "h11==0.16.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "h11",
+                    "specifier": "==0.16.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/h11-0.16.0.dist-info"
+                }
+            ]
+        },
+        "s3transfer": {
+            "name": "s3transfer",
+            "version": "0.10.4",
+            "requirements": [
+                {
+                    "raw": "s3transfer==0.10.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "s3transfer",
+                    "specifier": "==0.10.4",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/s3transfer-0.10.4.dist-info"
+                }
+            ]
+        },
+        "anyio": {
+            "name": "anyio",
+            "version": "4.11.0",
+            "requirements": [
+                {
+                    "raw": "anyio==4.11.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "anyio",
+                    "specifier": "==4.11.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/anyio-4.11.0.dist-info"
+                }
+            ]
+        },
+        "fastapi": {
+            "name": "fastapi",
+            "version": "0.109.0",
+            "requirements": [
+                {
+                    "raw": "fastapi==0.109.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "fastapi",
+                    "specifier": "==0.109.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/fastapi-0.109.0.dist-info"
+                }
+            ]
+        },
+        "tenacity": {
+            "name": "tenacity",
+            "version": "8.2.3",
+            "requirements": [
+                {
+                    "raw": "tenacity==8.2.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tenacity",
+                    "specifier": "==8.2.3",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/tenacity-8.2.3.dist-info"
+                }
+            ]
+        },
+        "watchfiles": {
+            "name": "watchfiles",
+            "version": "1.1.1",
+            "requirements": [
+                {
+                    "raw": "watchfiles==1.1.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "watchfiles",
+                    "specifier": "==1.1.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/watchfiles-1.1.1.dist-info"
+                }
+            ]
+        },
+        "click": {
+            "name": "click",
+            "version": "8.1.8",
+            "requirements": [
+                {
+                    "raw": "click==8.1.8",
+                    "extras": [],
+                    "marker": null,
+                    "name": "click",
+                    "specifier": "==8.1.8",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/click-8.1.8.dist-info"
+                }
+            ]
+        },
+        "aiosqlite": {
+            "name": "aiosqlite",
+            "version": "0.21.0",
+            "requirements": [
+                {
+                    "raw": "aiosqlite==0.21.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "aiosqlite",
+                    "specifier": "==0.21.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/aiosqlite-0.21.0.dist-info"
+                }
+            ]
+        },
+        "kombu": {
+            "name": "kombu",
+            "version": "5.3.4",
+            "requirements": [
+                {
+                    "raw": "kombu==5.3.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "kombu",
+                    "specifier": "==5.3.4",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/kombu-5.3.4.dist-info"
+                }
+            ]
+        },
+        "asyncpg": {
+            "name": "asyncpg",
+            "version": "0.30.0",
+            "requirements": [
+                {
+                    "raw": "asyncpg==0.30.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "asyncpg",
+                    "specifier": "==0.30.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/asyncpg-0.30.0.dist-info"
+                }
+            ]
+        },
+        "mdurl": {
+            "name": "mdurl",
+            "version": "0.1.2",
+            "requirements": [
+                {
+                    "raw": "mdurl==0.1.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mdurl",
+                    "specifier": "==0.1.2",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/mdurl-0.1.2.dist-info"
+                }
+            ]
+        },
+        "nvidia-cublas-cu12": {
+            "name": "nvidia-cublas-cu12",
+            "version": "12.4.5.8",
+            "requirements": [
+                {
+                    "raw": "nvidia-cublas-cu12==12.4.5.8",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nvidia-cublas-cu12",
+                    "specifier": "==12.4.5.8",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/nvidia_cublas_cu12-12.4.5.8.dist-info"
+                }
+            ]
+        },
+        "safety-schemas": {
+            "name": "safety-schemas",
+            "version": "0.0.16",
+            "requirements": [
+                {
+                    "raw": "safety-schemas==0.0.16",
+                    "extras": [],
+                    "marker": null,
+                    "name": "safety-schemas",
+                    "specifier": "==0.0.16",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/safety_schemas-0.0.16.dist-info"
+                }
+            ]
+        },
+        "coverage": {
+            "name": "coverage",
+            "version": "7.11.0",
+            "requirements": [
+                {
+                    "raw": "coverage==7.11.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "coverage",
+                    "specifier": "==7.11.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/coverage-7.11.0.dist-info"
+                }
+            ]
+        },
+        "uvicorn": {
+            "name": "uvicorn",
+            "version": "0.27.0",
+            "requirements": [
+                {
+                    "raw": "uvicorn==0.27.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "uvicorn",
+                    "specifier": "==0.27.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/uvicorn-0.27.0.dist-info"
+                }
+            ]
+        },
+        "botocore": {
+            "name": "botocore",
+            "version": "1.34.27",
+            "requirements": [
+                {
+                    "raw": "botocore==1.34.27",
+                    "extras": [],
+                    "marker": null,
+                    "name": "botocore",
+                    "specifier": "==1.34.27",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/botocore-1.34.27.dist-info"
+                }
+            ]
+        },
+        "starlette": {
+            "name": "starlette",
+            "version": "0.35.1",
+            "requirements": [
+                {
+                    "raw": "starlette==0.35.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "starlette",
+                    "specifier": "==0.35.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/starlette-0.35.1.dist-info"
+                }
+            ]
+        },
+        "ruamel.yaml": {
+            "name": "ruamel.yaml",
+            "version": "0.18.16",
+            "requirements": [
+                {
+                    "raw": "ruamel.yaml==0.18.16",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ruamel.yaml",
+                    "specifier": "==0.18.16",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/ruamel.yaml-0.18.16.dist-info"
+                }
+            ]
+        },
+        "soundfile": {
+            "name": "soundfile",
+            "version": "0.12.1",
+            "requirements": [
+                {
+                    "raw": "soundfile==0.12.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "soundfile",
+                    "specifier": "==0.12.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/soundfile-0.12.1.dist-info"
+                }
+            ]
+        },
+        "setuptools": {
+            "name": "setuptools",
+            "version": "80.9.0",
+            "requirements": [
+                {
+                    "raw": "setuptools==80.9.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "setuptools",
+                    "specifier": "==80.9.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/setuptools-80.9.0.dist-info"
+                }
+            ]
+        },
+        "hf-xet": {
+            "name": "hf-xet",
+            "version": "1.2.0",
+            "requirements": [
+                {
+                    "raw": "hf-xet==1.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "hf-xet",
+                    "specifier": "==1.2.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/hf_xet-1.2.0.dist-info"
+                }
+            ]
+        },
+        "pip": {
+            "name": "pip",
+            "version": "24.0",
+            "requirements": [
+                {
+                    "raw": "pip==24.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pip",
+                    "specifier": "==24.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pip-24.0.dist-info"
+                }
+            ]
+        },
+        "cryptography": {
+            "name": "cryptography",
+            "version": "46.0.3",
+            "requirements": [
+                {
+                    "raw": "cryptography==46.0.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "cryptography",
+                    "specifier": "==46.0.3",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/cryptography-46.0.3.dist-info"
+                }
+            ]
+        },
+        "pathspec": {
+            "name": "pathspec",
+            "version": "0.12.1",
+            "requirements": [
+                {
+                    "raw": "pathspec==0.12.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pathspec",
+                    "specifier": "==0.12.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pathspec-0.12.1.dist-info"
+                }
+            ]
+        },
+        "networkx": {
+            "name": "networkx",
+            "version": "3.5",
+            "requirements": [
+                {
+                    "raw": "networkx==3.5",
+                    "extras": [],
+                    "marker": null,
+                    "name": "networkx",
+                    "specifier": "==3.5",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/networkx-3.5.dist-info"
+                }
+            ]
+        },
+        "nvidia-cusolver-cu12": {
+            "name": "nvidia-cusolver-cu12",
+            "version": "11.6.1.9",
+            "requirements": [
+                {
+                    "raw": "nvidia-cusolver-cu12==11.6.1.9",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nvidia-cusolver-cu12",
+                    "specifier": "==11.6.1.9",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/nvidia_cusolver_cu12-11.6.1.9.dist-info"
+                }
+            ]
+        },
+        "isort": {
+            "name": "isort",
+            "version": "5.13.2",
+            "requirements": [
+                {
+                    "raw": "isort==5.13.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "isort",
+                    "specifier": "==5.13.2",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/isort-5.13.2.dist-info"
+                }
+            ]
+        },
+        "nvidia-nvjitlink-cu12": {
+            "name": "nvidia-nvjitlink-cu12",
+            "version": "12.4.127",
+            "requirements": [
+                {
+                    "raw": "nvidia-nvjitlink-cu12==12.4.127",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nvidia-nvjitlink-cu12",
+                    "specifier": "==12.4.127",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/nvidia_nvjitlink_cu12-12.4.127.dist-info"
+                }
+            ]
+        },
+        "ecdsa": {
+            "name": "ecdsa",
+            "version": "0.19.1",
+            "requirements": [
+                {
+                    "raw": "ecdsa==0.19.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ecdsa",
+                    "specifier": "==0.19.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/ecdsa-0.19.1.dist-info"
+                }
+            ]
+        },
+        "safetensors": {
+            "name": "safetensors",
+            "version": "0.6.2",
+            "requirements": [
+                {
+                    "raw": "safetensors==0.6.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "safetensors",
+                    "specifier": "==0.6.2",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/safetensors-0.6.2.dist-info"
+                }
+            ]
+        },
+        "dparse": {
+            "name": "dparse",
+            "version": "0.6.4",
+            "requirements": [
+                {
+                    "raw": "dparse==0.6.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "dparse",
+                    "specifier": "==0.6.4",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/dparse-0.6.4.dist-info"
+                }
+            ]
+        },
+        "rsa": {
+            "name": "rsa",
+            "version": "4.9.1",
+            "requirements": [
+                {
+                    "raw": "rsa==4.9.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "rsa",
+                    "specifier": "==4.9.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/rsa-4.9.1.dist-info"
+                }
+            ]
+        },
+        "markdown-it-py": {
+            "name": "markdown-it-py",
+            "version": "4.0.0",
+            "requirements": [
+                {
+                    "raw": "markdown-it-py==4.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "markdown-it-py",
+                    "specifier": "==4.0.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/markdown_it_py-4.0.0.dist-info"
+                }
+            ]
+        },
+        "matplotlib-inline": {
+            "name": "matplotlib-inline",
+            "version": "0.2.1",
+            "requirements": [
+                {
+                    "raw": "matplotlib-inline==0.2.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "matplotlib-inline",
+                    "specifier": "==0.2.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/matplotlib_inline-0.2.1.dist-info"
+                }
+            ]
+        },
+        "charset-normalizer": {
+            "name": "charset-normalizer",
+            "version": "3.4.4",
+            "requirements": [
+                {
+                    "raw": "charset-normalizer==3.4.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "charset-normalizer",
+                    "specifier": "==3.4.4",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/charset_normalizer-3.4.4.dist-info"
+                }
+            ]
+        },
+        "pytest-cov": {
+            "name": "pytest-cov",
+            "version": "4.1.0",
+            "requirements": [
+                {
+                    "raw": "pytest-cov==4.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pytest-cov",
+                    "specifier": "==4.1.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pytest_cov-4.1.0.dist-info"
+                }
+            ]
+        },
+        "pillow": {
+            "name": "pillow",
+            "version": "12.0.0",
+            "requirements": [
+                {
+                    "raw": "pillow==12.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pillow",
+                    "specifier": "==12.0.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pillow-12.0.0.dist-info"
+                }
+            ]
+        },
+        "amqp": {
+            "name": "amqp",
+            "version": "5.3.1",
+            "requirements": [
+                {
+                    "raw": "amqp==5.3.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "amqp",
+                    "specifier": "==5.3.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/amqp-5.3.1.dist-info"
+                }
+            ]
+        },
+        "tzdata": {
+            "name": "tzdata",
+            "version": "2025.2",
+            "requirements": [
+                {
+                    "raw": "tzdata==2025.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tzdata",
+                    "specifier": "==2025.2",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/tzdata-2025.2.dist-info"
+                }
+            ]
+        },
+        "six": {
+            "name": "six",
+            "version": "1.17.0",
+            "requirements": [
+                {
+                    "raw": "six==1.17.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "six",
+                    "specifier": "==1.17.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/six-1.17.0.dist-info"
+                }
+            ]
+        },
+        "scikit-learn": {
+            "name": "scikit-learn",
+            "version": "1.4.0",
+            "requirements": [
+                {
+                    "raw": "scikit-learn==1.4.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "scikit-learn",
+                    "specifier": "==1.4.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/scikit_learn-1.4.0.dist-info"
+                }
+            ]
+        },
+        "click-plugins": {
+            "name": "click-plugins",
+            "version": "1.1.1.2",
+            "requirements": [
+                {
+                    "raw": "click-plugins==1.1.1.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "click-plugins",
+                    "specifier": "==1.1.1.2",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/click_plugins-1.1.1.2.dist-info"
+                }
+            ]
+        },
+        "annotated-types": {
+            "name": "annotated-types",
+            "version": "0.7.0",
+            "requirements": [
+                {
+                    "raw": "annotated-types==0.7.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "annotated-types",
+                    "specifier": "==0.7.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/annotated_types-0.7.0.dist-info"
+                }
+            ]
+        },
+        "black": {
+            "name": "black",
+            "version": "24.1.1",
+            "requirements": [
+                {
+                    "raw": "black==24.1.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "black",
+                    "specifier": "==24.1.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/black-24.1.1.dist-info"
+                }
+            ]
+        },
+        "decorator": {
+            "name": "decorator",
+            "version": "5.2.1",
+            "requirements": [
+                {
+                    "raw": "decorator==5.2.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "decorator",
+                    "specifier": "==5.2.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/decorator-5.2.1.dist-info"
+                }
+            ]
+        },
+        "requests": {
+            "name": "requests",
+            "version": "2.31.0",
+            "requirements": [
+                {
+                    "raw": "requests==2.31.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "requests",
+                    "specifier": "==2.31.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/requests-2.31.0.dist-info"
+                }
+            ]
+        },
+        "sympy": {
+            "name": "sympy",
+            "version": "1.13.1",
+            "requirements": [
+                {
+                    "raw": "sympy==1.13.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sympy",
+                    "specifier": "==1.13.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/sympy-1.13.1.dist-info"
+                }
+            ]
+        },
+        "bcrypt": {
+            "name": "bcrypt",
+            "version": "4.3.0",
+            "requirements": [
+                {
+                    "raw": "bcrypt==4.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "bcrypt",
+                    "specifier": "==4.3.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/bcrypt-4.3.0.dist-info"
+                }
+            ]
+        },
+        "marshmallow": {
+            "name": "marshmallow",
+            "version": "4.1.0",
+            "requirements": [
+                {
+                    "raw": "marshmallow==4.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "marshmallow",
+                    "specifier": "==4.1.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/marshmallow-4.1.0.dist-info"
+                }
+            ]
+        },
+        "pytest-asyncio": {
+            "name": "pytest-asyncio",
+            "version": "1.2.0",
+            "requirements": [
+                {
+                    "raw": "pytest-asyncio==1.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pytest-asyncio",
+                    "specifier": "==1.2.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pytest_asyncio-1.2.0.dist-info"
+                }
+            ]
+        },
+        "mpmath": {
+            "name": "mpmath",
+            "version": "1.3.0",
+            "requirements": [
+                {
+                    "raw": "mpmath==1.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mpmath",
+                    "specifier": "==1.3.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/mpmath-1.3.0.dist-info"
+                }
+            ]
+        },
+        "numpy": {
+            "name": "numpy",
+            "version": "1.26.3",
+            "requirements": [
+                {
+                    "raw": "numpy==1.26.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "numpy",
+                    "specifier": "==1.26.3",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/numpy-1.26.3.dist-info"
+                }
+            ]
+        },
+        "bidict": {
+            "name": "bidict",
+            "version": "0.23.1",
+            "requirements": [
+                {
+                    "raw": "bidict==0.23.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "bidict",
+                    "specifier": "==0.23.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/bidict-0.23.1.dist-info"
+                }
+            ]
+        },
+        "shellingham": {
+            "name": "shellingham",
+            "version": "1.5.4",
+            "requirements": [
+                {
+                    "raw": "shellingham==1.5.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "shellingham",
+                    "specifier": "==1.5.4",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/shellingham-1.5.4.dist-info"
+                }
+            ]
+        },
+        "typing-inspection": {
+            "name": "typing-inspection",
+            "version": "0.4.2",
+            "requirements": [
+                {
+                    "raw": "typing-inspection==0.4.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "typing-inspection",
+                    "specifier": "==0.4.2",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/typing_inspection-0.4.2.dist-info"
+                }
+            ]
+        },
+        "httpcore": {
+            "name": "httpcore",
+            "version": "1.0.9",
+            "requirements": [
+                {
+                    "raw": "httpcore==1.0.9",
+                    "extras": [],
+                    "marker": null,
+                    "name": "httpcore",
+                    "specifier": "==1.0.9",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/httpcore-1.0.9.dist-info"
+                }
+            ]
+        },
+        "vine": {
+            "name": "vine",
+            "version": "5.1.0",
+            "requirements": [
+                {
+                    "raw": "vine==5.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "vine",
+                    "specifier": "==5.1.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/vine-5.1.0.dist-info"
+                }
+            ]
+        },
+        "filelock": {
+            "name": "filelock",
+            "version": "3.20.0",
+            "requirements": [
+                {
+                    "raw": "filelock==3.20.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "filelock",
+                    "specifier": "==3.20.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/filelock-3.20.0.dist-info"
+                }
+            ]
+        },
+        "boto3": {
+            "name": "boto3",
+            "version": "1.34.27",
+            "requirements": [
+                {
+                    "raw": "boto3==1.34.27",
+                    "extras": [],
+                    "marker": null,
+                    "name": "boto3",
+                    "specifier": "==1.34.27",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/boto3-1.34.27.dist-info"
+                }
+            ]
+        },
+        "ipython": {
+            "name": "ipython",
+            "version": "8.20.0",
+            "requirements": [
+                {
+                    "raw": "ipython==8.20.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ipython",
+                    "specifier": "==8.20.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/ipython-8.20.0.dist-info"
+                }
+            ]
+        },
+        "nvidia-cusparse-cu12": {
+            "name": "nvidia-cusparse-cu12",
+            "version": "12.3.1.170",
+            "requirements": [
+                {
+                    "raw": "nvidia-cusparse-cu12==12.3.1.170",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nvidia-cusparse-cu12",
+                    "specifier": "==12.3.1.170",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/nvidia_cusparse_cu12-12.3.1.170.dist-info"
+                }
+            ]
+        },
+        "Jinja2": {
+            "name": "Jinja2",
+            "version": "3.1.6",
+            "requirements": [
+                {
+                    "raw": "Jinja2==3.1.6",
+                    "extras": [],
+                    "marker": null,
+                    "name": "Jinja2",
+                    "specifier": "==3.1.6",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/jinja2-3.1.6.dist-info"
+                }
+            ]
+        },
+        "prometheus-client": {
+            "name": "prometheus-client",
+            "version": "0.19.0",
+            "requirements": [
+                {
+                    "raw": "prometheus-client==0.19.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "prometheus-client",
+                    "specifier": "==0.19.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/prometheus_client-0.19.0.dist-info"
+                }
+            ]
+        },
+        "MarkupSafe": {
+            "name": "MarkupSafe",
+            "version": "3.0.3",
+            "requirements": [
+                {
+                    "raw": "MarkupSafe==3.0.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "MarkupSafe",
+                    "specifier": "==3.0.3",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/markupsafe-3.0.3.dist-info"
+                }
+            ]
+        },
+        "prompt_toolkit": {
+            "name": "prompt_toolkit",
+            "version": "3.0.52",
+            "requirements": [
+                {
+                    "raw": "prompt_toolkit==3.0.52",
+                    "extras": [],
+                    "marker": null,
+                    "name": "prompt_toolkit",
+                    "specifier": "==3.0.52",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/prompt_toolkit-3.0.52.dist-info"
+                }
+            ]
+        },
+        "typer": {
+            "name": "typer",
+            "version": "0.20.0",
+            "requirements": [
+                {
+                    "raw": "typer==0.20.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "typer",
+                    "specifier": "==0.20.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/typer-0.20.0.dist-info"
+                }
+            ]
+        },
+        "scipy": {
+            "name": "scipy",
+            "version": "1.16.2",
+            "requirements": [
+                {
+                    "raw": "scipy==1.16.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "scipy",
+                    "specifier": "==1.16.2",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/scipy-1.16.2.dist-info"
+                }
+            ]
+        },
+        "nltk": {
+            "name": "nltk",
+            "version": "3.9.2",
+            "requirements": [
+                {
+                    "raw": "nltk==3.9.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nltk",
+                    "specifier": "==3.9.2",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/nltk-3.9.2.dist-info"
+                }
+            ]
+        },
+        "nvidia-cuda-cupti-cu12": {
+            "name": "nvidia-cuda-cupti-cu12",
+            "version": "12.4.127",
+            "requirements": [
+                {
+                    "raw": "nvidia-cuda-cupti-cu12==12.4.127",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nvidia-cuda-cupti-cu12",
+                    "specifier": "==12.4.127",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/nvidia_cuda_cupti_cu12-12.4.127.dist-info"
+                }
+            ]
+        },
+        "tqdm": {
+            "name": "tqdm",
+            "version": "4.67.1",
+            "requirements": [
+                {
+                    "raw": "tqdm==4.67.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tqdm",
+                    "specifier": "==4.67.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/tqdm-4.67.1.dist-info"
+                }
+            ]
+        },
+        "python-dateutil": {
+            "name": "python-dateutil",
+            "version": "2.8.2",
+            "requirements": [
+                {
+                    "raw": "python-dateutil==2.8.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "python-dateutil",
+                    "specifier": "==2.8.2",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/python_dateutil-2.8.2.dist-info"
+                }
+            ]
+        },
+        "pytz": {
+            "name": "pytz",
+            "version": "2024.1",
+            "requirements": [
+                {
+                    "raw": "pytz==2024.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pytz",
+                    "specifier": "==2024.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pytz-2024.1.dist-info"
+                }
+            ]
+        },
+        "huggingface-hub": {
+            "name": "huggingface-hub",
+            "version": "0.36.0",
+            "requirements": [
+                {
+                    "raw": "huggingface-hub==0.36.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "huggingface-hub",
+                    "specifier": "==0.36.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/huggingface_hub-0.36.0.dist-info"
+                }
+            ]
+        },
+        "simple-websocket": {
+            "name": "simple-websocket",
+            "version": "1.1.0",
+            "requirements": [
+                {
+                    "raw": "simple-websocket==1.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "simple-websocket",
+                    "specifier": "==1.1.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/simple_websocket-1.1.0.dist-info"
+                }
+            ]
+        },
+        "sentencepiece": {
+            "name": "sentencepiece",
+            "version": "0.2.1",
+            "requirements": [
+                {
+                    "raw": "sentencepiece==0.2.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sentencepiece",
+                    "specifier": "==0.2.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/sentencepiece-0.2.1.dist-info"
+                }
+            ]
+        },
+        "platformdirs": {
+            "name": "platformdirs",
+            "version": "4.5.0",
+            "requirements": [
+                {
+                    "raw": "platformdirs==4.5.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "platformdirs",
+                    "specifier": "==4.5.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/platformdirs-4.5.0.dist-info"
+                }
+            ]
+        },
+        "urllib3": {
+            "name": "urllib3",
+            "version": "2.0.7",
+            "requirements": [
+                {
+                    "raw": "urllib3==2.0.7",
+                    "extras": [],
+                    "marker": null,
+                    "name": "urllib3",
+                    "specifier": "==2.0.7",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/urllib3-2.0.7.dist-info"
+                }
+            ]
+        },
+        "passlib": {
+            "name": "passlib",
+            "version": "1.7.4",
+            "requirements": [
+                {
+                    "raw": "passlib==1.7.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "passlib",
+                    "specifier": "==1.7.4",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/passlib-1.7.4.dist-info"
+                }
+            ]
+        },
+        "ipdb": {
+            "name": "ipdb",
+            "version": "0.13.13",
+            "requirements": [
+                {
+                    "raw": "ipdb==0.13.13",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ipdb",
+                    "specifier": "==0.13.13",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/ipdb-0.13.13.dist-info"
+                }
+            ]
+        },
+        "pycparser": {
+            "name": "pycparser",
+            "version": "2.23",
+            "requirements": [
+                {
+                    "raw": "pycparser==2.23",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pycparser",
+                    "specifier": "==2.23",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pycparser-2.23.dist-info"
+                }
+            ]
+        },
+        "jmespath": {
+            "name": "jmespath",
+            "version": "1.0.1",
+            "requirements": [
+                {
+                    "raw": "jmespath==1.0.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jmespath",
+                    "specifier": "==1.0.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/jmespath-1.0.1.dist-info"
+                }
+            ]
+        },
+        "cffi": {
+            "name": "cffi",
+            "version": "2.0.0",
+            "requirements": [
+                {
+                    "raw": "cffi==2.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "cffi",
+                    "specifier": "==2.0.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/cffi-2.0.0.dist-info"
+                }
+            ]
+        },
+        "greenlet": {
+            "name": "greenlet",
+            "version": "3.2.4",
+            "requirements": [
+                {
+                    "raw": "greenlet==3.2.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "greenlet",
+                    "specifier": "==3.2.4",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/greenlet-3.2.4.dist-info"
+                }
+            ]
+        },
+        "jedi": {
+            "name": "jedi",
+            "version": "0.19.2",
+            "requirements": [
+                {
+                    "raw": "jedi==0.19.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "jedi",
+                    "specifier": "==0.19.2",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/jedi-0.19.2.dist-info"
+                }
+            ]
+        },
+        "joblib": {
+            "name": "joblib",
+            "version": "1.5.2",
+            "requirements": [
+                {
+                    "raw": "joblib==1.5.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "joblib",
+                    "specifier": "==1.5.2",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/joblib-1.5.2.dist-info"
+                }
+            ]
+        },
+        "stevedore": {
+            "name": "stevedore",
+            "version": "5.5.0",
+            "requirements": [
+                {
+                    "raw": "stevedore==5.5.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "stevedore",
+                    "specifier": "==5.5.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/stevedore-5.5.0.dist-info"
+                }
+            ]
+        },
+        "tomlkit": {
+            "name": "tomlkit",
+            "version": "0.13.3",
+            "requirements": [
+                {
+                    "raw": "tomlkit==0.13.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tomlkit",
+                    "specifier": "==0.13.3",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/tomlkit-0.13.3.dist-info"
+                }
+            ]
+        },
+        "tokenizers": {
+            "name": "tokenizers",
+            "version": "0.22.1",
+            "requirements": [
+                {
+                    "raw": "tokenizers==0.22.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "tokenizers",
+                    "specifier": "==0.22.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/tokenizers-0.22.1.dist-info"
+                }
+            ]
+        },
+        "nvidia-cudnn-cu12": {
+            "name": "nvidia-cudnn-cu12",
+            "version": "9.1.0.70",
+            "requirements": [
+                {
+                    "raw": "nvidia-cudnn-cu12==9.1.0.70",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nvidia-cudnn-cu12",
+                    "specifier": "==9.1.0.70",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/nvidia_cudnn_cu12-9.1.0.70.dist-info"
+                }
+            ]
+        },
+        "websockets": {
+            "name": "websockets",
+            "version": "15.0.1",
+            "requirements": [
+                {
+                    "raw": "websockets==15.0.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "websockets",
+                    "specifier": "==15.0.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/websockets-15.0.1.dist-info"
+                }
+            ]
+        },
+        "mypy": {
+            "name": "mypy",
+            "version": "1.8.0",
+            "requirements": [
+                {
+                    "raw": "mypy==1.8.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mypy",
+                    "specifier": "==1.8.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/mypy-1.8.0.dist-info"
+                }
+            ]
+        },
+        "ptyprocess": {
+            "name": "ptyprocess",
+            "version": "0.7.0",
+            "requirements": [
+                {
+                    "raw": "ptyprocess==0.7.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ptyprocess",
+                    "specifier": "==0.7.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/ptyprocess-0.7.0.dist-info"
+                }
+            ]
+        },
+        "transformers": {
+            "name": "transformers",
+            "version": "4.57.1",
+            "requirements": [
+                {
+                    "raw": "transformers==4.57.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "transformers",
+                    "specifier": "==4.57.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/transformers-4.57.1.dist-info"
+                }
+            ]
+        },
+        "pytest-mock": {
+            "name": "pytest-mock",
+            "version": "3.12.0",
+            "requirements": [
+                {
+                    "raw": "pytest-mock==3.12.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pytest-mock",
+                    "specifier": "==3.12.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pytest_mock-3.12.0.dist-info"
+                }
+            ]
+        },
+        "iniconfig": {
+            "name": "iniconfig",
+            "version": "2.3.0",
+            "requirements": [
+                {
+                    "raw": "iniconfig==2.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "iniconfig",
+                    "specifier": "==2.3.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/iniconfig-2.3.0.dist-info"
+                }
+            ]
+        },
+        "python-socketio": {
+            "name": "python-socketio",
+            "version": "5.10.0",
+            "requirements": [
+                {
+                    "raw": "python-socketio==5.10.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "python-socketio",
+                    "specifier": "==5.10.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/python_socketio-5.10.0.dist-info"
+                }
+            ]
+        },
+        "nvidia-nccl-cu12": {
+            "name": "nvidia-nccl-cu12",
+            "version": "2.21.5",
+            "requirements": [
+                {
+                    "raw": "nvidia-nccl-cu12==2.21.5",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nvidia-nccl-cu12",
+                    "specifier": "==2.21.5",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/nvidia_nccl_cu12-2.21.5.dist-info"
+                }
+            ]
+        },
+        "pyasn1": {
+            "name": "pyasn1",
+            "version": "0.6.1",
+            "requirements": [
+                {
+                    "raw": "pyasn1==0.6.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pyasn1",
+                    "specifier": "==0.6.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pyasn1-0.6.1.dist-info"
+                }
+            ]
+        },
+        "idna": {
+            "name": "idna",
+            "version": "3.11",
+            "requirements": [
+                {
+                    "raw": "idna==3.11",
+                    "extras": [],
+                    "marker": null,
+                    "name": "idna",
+                    "specifier": "==3.11",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/idna-3.11.dist-info"
+                }
+            ]
+        },
+        "ruff": {
+            "name": "ruff",
+            "version": "0.1.14",
+            "requirements": [
+                {
+                    "raw": "ruff==0.1.14",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ruff",
+                    "specifier": "==0.1.14",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/ruff-0.1.14.dist-info"
+                }
+            ]
+        },
+        "nvidia-cufft-cu12": {
+            "name": "nvidia-cufft-cu12",
+            "version": "11.2.1.3",
+            "requirements": [
+                {
+                    "raw": "nvidia-cufft-cu12==11.2.1.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nvidia-cufft-cu12",
+                    "specifier": "==11.2.1.3",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/nvidia_cufft_cu12-11.2.1.3.dist-info"
+                }
+            ]
+        },
+        "sentence-transformers": {
+            "name": "sentence-transformers",
+            "version": "2.3.1",
+            "requirements": [
+                {
+                    "raw": "sentence-transformers==2.3.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sentence-transformers",
+                    "specifier": "==2.3.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/sentence_transformers-2.3.1.dist-info"
+                }
+            ]
+        },
+        "nvidia-nvtx-cu12": {
+            "name": "nvidia-nvtx-cu12",
+            "version": "12.4.127",
+            "requirements": [
+                {
+                    "raw": "nvidia-nvtx-cu12==12.4.127",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nvidia-nvtx-cu12",
+                    "specifier": "==12.4.127",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/nvidia_nvtx_cu12-12.4.127.dist-info"
+                }
+            ]
+        },
+        "stack-data": {
+            "name": "stack-data",
+            "version": "0.6.3",
+            "requirements": [
+                {
+                    "raw": "stack-data==0.6.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "stack-data",
+                    "specifier": "==0.6.3",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/stack_data-0.6.3.dist-info"
+                }
+            ]
+        },
+        "psycopg2-binary": {
+            "name": "psycopg2-binary",
+            "version": "2.9.9",
+            "requirements": [
+                {
+                    "raw": "psycopg2-binary==2.9.9",
+                    "extras": [],
+                    "marker": null,
+                    "name": "psycopg2-binary",
+                    "specifier": "==2.9.9",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/psycopg2_binary-2.9.9.dist-info"
+                }
+            ]
+        },
+        "Pygments": {
+            "name": "Pygments",
+            "version": "2.19.2",
+            "requirements": [
+                {
+                    "raw": "Pygments==2.19.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "Pygments",
+                    "specifier": "==2.19.2",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pygments-2.19.2.dist-info"
+                }
+            ]
+        },
+        "threadpoolctl": {
+            "name": "threadpoolctl",
+            "version": "3.6.0",
+            "requirements": [
+                {
+                    "raw": "threadpoolctl==3.6.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "threadpoolctl",
+                    "specifier": "==3.6.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/threadpoolctl-3.6.0.dist-info"
+                }
+            ]
+        },
+        "pexpect": {
+            "name": "pexpect",
+            "version": "4.9.0",
+            "requirements": [
+                {
+                    "raw": "pexpect==4.9.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pexpect",
+                    "specifier": "==4.9.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pexpect-4.9.0.dist-info"
+                }
+            ]
+        },
+        "sniffio": {
+            "name": "sniffio",
+            "version": "1.3.1",
+            "requirements": [
+                {
+                    "raw": "sniffio==1.3.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sniffio",
+                    "specifier": "==1.3.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/sniffio-1.3.1.dist-info"
+                }
+            ]
+        },
+        "parso": {
+            "name": "parso",
+            "version": "0.8.5",
+            "requirements": [
+                {
+                    "raw": "parso==0.8.5",
+                    "extras": [],
+                    "marker": null,
+                    "name": "parso",
+                    "specifier": "==0.8.5",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/parso-0.8.5.dist-info"
+                }
+            ]
+        },
+        "traitlets": {
+            "name": "traitlets",
+            "version": "5.14.3",
+            "requirements": [
+                {
+                    "raw": "traitlets==5.14.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "traitlets",
+                    "specifier": "==5.14.3",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/traitlets-5.14.3.dist-info"
+                }
+            ]
+        },
+        "httpx": {
+            "name": "httpx",
+            "version": "0.26.0",
+            "requirements": [
+                {
+                    "raw": "httpx==0.26.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "httpx",
+                    "specifier": "==0.26.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/httpx-0.26.0.dist-info"
+                }
+            ]
+        },
+        "packaging": {
+            "name": "packaging",
+            "version": "25.0",
+            "requirements": [
+                {
+                    "raw": "packaging==25.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "packaging",
+                    "specifier": "==25.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/packaging-25.0.dist-info"
+                }
+            ]
+        },
+        "certifi": {
+            "name": "certifi",
+            "version": "2025.10.5",
+            "requirements": [
+                {
+                    "raw": "certifi==2025.10.5",
+                    "extras": [],
+                    "marker": null,
+                    "name": "certifi",
+                    "specifier": "==2025.10.5",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/certifi-2025.10.5.dist-info"
+                }
+            ]
+        },
+        "click-didyoumean": {
+            "name": "click-didyoumean",
+            "version": "0.3.1",
+            "requirements": [
+                {
+                    "raw": "click-didyoumean==0.3.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "click-didyoumean",
+                    "specifier": "==0.3.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/click_didyoumean-0.3.1.dist-info"
+                }
+            ]
+        },
+        "rich": {
+            "name": "rich",
+            "version": "14.2.0",
+            "requirements": [
+                {
+                    "raw": "rich==14.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "rich",
+                    "specifier": "==14.2.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/rich-14.2.0.dist-info"
+                }
+            ]
+        },
+        "nvidia-cuda-nvrtc-cu12": {
+            "name": "nvidia-cuda-nvrtc-cu12",
+            "version": "12.4.127",
+            "requirements": [
+                {
+                    "raw": "nvidia-cuda-nvrtc-cu12==12.4.127",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nvidia-cuda-nvrtc-cu12",
+                    "specifier": "==12.4.127",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/nvidia_cuda_nvrtc_cu12-12.4.127.dist-info"
+                }
+            ]
+        },
+        "typing_extensions": {
+            "name": "typing_extensions",
+            "version": "4.15.0",
+            "requirements": [
+                {
+                    "raw": "typing_extensions==4.15.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "typing_extensions",
+                    "specifier": "==4.15.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/typing_extensions-4.15.0.dist-info"
+                }
+            ]
+        },
+        "bandit": {
+            "name": "bandit",
+            "version": "1.8.6",
+            "requirements": [
+                {
+                    "raw": "bandit==1.8.6",
+                    "extras": [],
+                    "marker": null,
+                    "name": "bandit",
+                    "specifier": "==1.8.6",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/bandit-1.8.6.dist-info"
+                }
+            ]
+        },
+        "python-json-logger": {
+            "name": "python-json-logger",
+            "version": "2.0.7",
+            "requirements": [
+                {
+                    "raw": "python-json-logger==2.0.7",
+                    "extras": [],
+                    "marker": null,
+                    "name": "python-json-logger",
+                    "specifier": "==2.0.7",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/python_json_logger-2.0.7.dist-info"
+                }
+            ]
+        },
+        "python-dotenv": {
+            "name": "python-dotenv",
+            "version": "1.0.1",
+            "requirements": [
+                {
+                    "raw": "python-dotenv==1.0.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "python-dotenv",
+                    "specifier": "==1.0.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/python_dotenv-1.0.1.dist-info"
+                }
+            ]
+        },
+        "pydantic-settings": {
+            "name": "pydantic-settings",
+            "version": "2.1.0",
+            "requirements": [
+                {
+                    "raw": "pydantic-settings==2.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pydantic-settings",
+                    "specifier": "==2.1.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pydantic_settings-2.1.0.dist-info"
+                }
+            ]
+        },
+        "click-repl": {
+            "name": "click-repl",
+            "version": "0.3.0",
+            "requirements": [
+                {
+                    "raw": "click-repl==0.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "click-repl",
+                    "specifier": "==0.3.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/click_repl-0.3.0.dist-info"
+                }
+            ]
+        },
+        "python-engineio": {
+            "name": "python-engineio",
+            "version": "4.12.3",
+            "requirements": [
+                {
+                    "raw": "python-engineio==4.12.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "python-engineio",
+                    "specifier": "==4.12.3",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/python_engineio-4.12.3.dist-info"
+                }
+            ]
+        },
+        "billiard": {
+            "name": "billiard",
+            "version": "4.2.2",
+            "requirements": [
+                {
+                    "raw": "billiard==4.2.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "billiard",
+                    "specifier": "==4.2.2",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/billiard-4.2.2.dist-info"
+                }
+            ]
+        },
+        "nvidia-cuda-runtime-cu12": {
+            "name": "nvidia-cuda-runtime-cu12",
+            "version": "12.4.127",
+            "requirements": [
+                {
+                    "raw": "nvidia-cuda-runtime-cu12==12.4.127",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nvidia-cuda-runtime-cu12",
+                    "specifier": "==12.4.127",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/nvidia_cuda_runtime_cu12-12.4.127.dist-info"
+                }
+            ]
+        },
+        "SQLAlchemy": {
+            "name": "SQLAlchemy",
+            "version": "2.0.25",
+            "requirements": [
+                {
+                    "raw": "SQLAlchemy==2.0.25",
+                    "extras": [],
+                    "marker": null,
+                    "name": "SQLAlchemy",
+                    "specifier": "==2.0.25",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/SQLAlchemy-2.0.25.dist-info"
+                }
+            ]
+        },
+        "python-multipart": {
+            "name": "python-multipart",
+            "version": "0.0.6",
+            "requirements": [
+                {
+                    "raw": "python-multipart==0.0.6",
+                    "extras": [],
+                    "marker": null,
+                    "name": "python-multipart",
+                    "specifier": "==0.0.6",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/python_multipart-0.0.6.dist-info"
+                }
+            ]
+        },
+        "uvloop": {
+            "name": "uvloop",
+            "version": "0.22.1",
+            "requirements": [
+                {
+                    "raw": "uvloop==0.22.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "uvloop",
+                    "specifier": "==0.22.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/uvloop-0.22.1.dist-info"
+                }
+            ]
+        },
+        "email-validator": {
+            "name": "email-validator",
+            "version": "2.1.0",
+            "requirements": [
+                {
+                    "raw": "email-validator==2.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "email-validator",
+                    "specifier": "==2.1.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/email_validator-2.1.0.dist-info"
+                }
+            ]
+        },
+        "pydantic_core": {
+            "name": "pydantic_core",
+            "version": "2.41.5",
+            "requirements": [
+                {
+                    "raw": "pydantic_core==2.41.5",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pydantic_core",
+                    "specifier": "==2.41.5",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pydantic_core-2.41.5.dist-info"
+                }
+            ]
+        },
+        "nvidia-curand-cu12": {
+            "name": "nvidia-curand-cu12",
+            "version": "10.3.5.147",
+            "requirements": [
+                {
+                    "raw": "nvidia-curand-cu12==10.3.5.147",
+                    "extras": [],
+                    "marker": null,
+                    "name": "nvidia-curand-cu12",
+                    "specifier": "==10.3.5.147",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/nvidia_curand_cu12-10.3.5.147.dist-info"
+                }
+            ]
+        },
+        "fsspec": {
+            "name": "fsspec",
+            "version": "2025.9.0",
+            "requirements": [
+                {
+                    "raw": "fsspec==2025.9.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "fsspec",
+                    "specifier": "==2025.9.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/fsspec-2025.9.0.dist-info"
+                }
+            ]
+        },
+        "pytest": {
+            "name": "pytest",
+            "version": "8.4.2",
+            "requirements": [
+                {
+                    "raw": "pytest==8.4.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pytest",
+                    "specifier": "==8.4.2",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pytest-8.4.2.dist-info"
+                }
+            ]
+        },
+        "hiredis": {
+            "name": "hiredis",
+            "version": "3.3.0",
+            "requirements": [
+                {
+                    "raw": "hiredis==3.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "hiredis",
+                    "specifier": "==3.3.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/hiredis-3.3.0.dist-info"
+                }
+            ]
+        },
+        "Mako": {
+            "name": "Mako",
+            "version": "1.3.10",
+            "requirements": [
+                {
+                    "raw": "Mako==1.3.10",
+                    "extras": [],
+                    "marker": null,
+                    "name": "Mako",
+                    "specifier": "==1.3.10",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/mako-1.3.10.dist-info"
+                }
+            ]
+        },
+        "pydub": {
+            "name": "pydub",
+            "version": "0.25.1",
+            "requirements": [
+                {
+                    "raw": "pydub==0.25.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pydub",
+                    "specifier": "==0.25.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pydub-0.25.1.dist-info"
+                }
+            ]
+        },
+        "annotated-doc": {
+            "name": "annotated-doc",
+            "version": "0.0.2",
+            "requirements": [
+                {
+                    "raw": "annotated-doc==0.0.2",
+                    "extras": [],
+                    "marker": null,
+                    "name": "annotated-doc",
+                    "specifier": "==0.0.2",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/annotated_doc-0.0.2.dist-info"
+                }
+            ]
+        },
+        "triton": {
+            "name": "triton",
+            "version": "3.1.0",
+            "requirements": [
+                {
+                    "raw": "triton==3.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "triton",
+                    "specifier": "==3.1.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/triton-3.1.0.dist-info"
+                }
+            ]
+        },
+        "Authlib": {
+            "name": "Authlib",
+            "version": "1.6.5",
+            "requirements": [
+                {
+                    "raw": "Authlib==1.6.5",
+                    "extras": [],
+                    "marker": null,
+                    "name": "Authlib",
+                    "specifier": "==1.6.5",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/authlib-1.6.5.dist-info"
+                }
+            ]
+        },
+        "asttokens": {
+            "name": "asttokens",
+            "version": "3.0.0",
+            "requirements": [
+                {
+                    "raw": "asttokens==3.0.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "asttokens",
+                    "specifier": "==3.0.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/asttokens-3.0.0.dist-info"
+                }
+            ]
+        },
+        "dnspython": {
+            "name": "dnspython",
+            "version": "2.8.0",
+            "requirements": [
+                {
+                    "raw": "dnspython==2.8.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "dnspython",
+                    "specifier": "==2.8.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/dnspython-2.8.0.dist-info"
+                }
+            ]
+        },
+        "pure_eval": {
+            "name": "pure_eval",
+            "version": "0.2.3",
+            "requirements": [
+                {
+                    "raw": "pure_eval==0.2.3",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pure_eval",
+                    "specifier": "==0.2.3",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pure_eval-0.2.3.dist-info"
+                }
+            ]
+        },
+        "pydantic": {
+            "name": "pydantic",
+            "version": "2.12.4",
+            "requirements": [
+                {
+                    "raw": "pydantic==2.12.4",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pydantic",
+                    "specifier": "==2.12.4",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pydantic-2.12.4.dist-info"
+                }
+            ]
+        },
+        "mypy_extensions": {
+            "name": "mypy_extensions",
+            "version": "1.1.0",
+            "requirements": [
+                {
+                    "raw": "mypy_extensions==1.1.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "mypy_extensions",
+                    "specifier": "==1.1.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/mypy_extensions-1.1.0.dist-info"
+                }
+            ]
+        },
+        "executing": {
+            "name": "executing",
+            "version": "2.2.1",
+            "requirements": [
+                {
+                    "raw": "executing==2.2.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "executing",
+                    "specifier": "==2.2.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/executing-2.2.1.dist-info"
+                }
+            ]
+        },
+        "ruamel.yaml.clib": {
+            "name": "ruamel.yaml.clib",
+            "version": "0.2.15",
+            "requirements": [
+                {
+                    "raw": "ruamel.yaml.clib==0.2.15",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ruamel.yaml.clib",
+                    "specifier": "==0.2.15",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/ruamel_yaml_clib-0.2.15.dist-info"
+                }
+            ]
+        },
+        "torch": {
+            "name": "torch",
+            "version": "2.5.1",
+            "requirements": [
+                {
+                    "raw": "torch==2.5.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "torch",
+                    "specifier": "==2.5.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/torch-2.5.1.dist-info"
+                }
+            ]
+        },
+        "pluggy": {
+            "name": "pluggy",
+            "version": "1.6.0",
+            "requirements": [
+                {
+                    "raw": "pluggy==1.6.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pluggy",
+                    "specifier": "==1.6.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pluggy-1.6.0.dist-info"
+                }
+            ]
+        },
+        "wsproto": {
+            "name": "wsproto",
+            "version": "1.2.0",
+            "requirements": [
+                {
+                    "raw": "wsproto==1.2.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "wsproto",
+                    "specifier": "==1.2.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/wsproto-1.2.0.dist-info"
+                }
+            ]
+        }
+    },
+    "affected_packages": {
+        "torch": {
+            "name": "torch",
+            "version": "2.5.1",
+            "requirements": [
+                {
+                    "raw": "torch==2.5.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "torch",
+                    "specifier": "==2.5.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/torch-2.5.1.dist-info"
+                }
+            ],
+            "found": null,
+            "insecure_versions": [
+                "1.0.0",
+                "1.0.1",
+                "1.1.0",
+                "1.10.0",
+                "1.10.1",
+                "1.10.2",
+                "1.11.0",
+                "1.12.0",
+                "1.12.1",
+                "1.13.0",
+                "1.13.1",
+                "1.2.0",
+                "1.3.0",
+                "1.3.1",
+                "1.4.0",
+                "1.5.0",
+                "1.5.1",
+                "1.6.0",
+                "1.7.0",
+                "1.7.1",
+                "1.8.0",
+                "1.8.1",
+                "1.9.0",
+                "1.9.1",
+                "2.0.0",
+                "2.0.1",
+                "2.1.0",
+                "2.1.1",
+                "2.1.2",
+                "2.2.0",
+                "2.2.1",
+                "2.2.2",
+                "2.3.0",
+                "2.3.1",
+                "2.4.0",
+                "2.4.1",
+                "2.5.0",
+                "2.5.1",
+                "2.6.0",
+                "2.7.0",
+                "2.7.1"
+            ],
+            "secure_versions": [
+                "2.9.0",
+                "2.8.0"
+            ],
+            "latest_version_without_known_vulnerabilities": "2.9.0",
+            "latest_version": "2.9.0",
+            "more_info_url": "https://data.safetycli.com/p/pypi/torch/97c/"
+        },
+        "python-multipart": {
+            "name": "python-multipart",
+            "version": "0.0.6",
+            "requirements": [
+                {
+                    "raw": "python-multipart==0.0.6",
+                    "extras": [],
+                    "marker": null,
+                    "name": "python-multipart",
+                    "specifier": "==0.0.6",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/python_multipart-0.0.6.dist-info"
+                }
+            ],
+            "found": null,
+            "insecure_versions": [
+                "0.0.1",
+                "0.0.10",
+                "0.0.11",
+                "0.0.12",
+                "0.0.13",
+                "0.0.14",
+                "0.0.15",
+                "0.0.16",
+                "0.0.17",
+                "0.0.2",
+                "0.0.3",
+                "0.0.4",
+                "0.0.5",
+                "0.0.6",
+                "0.0.7",
+                "0.0.8",
+                "0.0.9"
+            ],
+            "secure_versions": [
+                "0.0.20",
+                "0.0.19",
+                "0.0.18"
+            ],
+            "latest_version_without_known_vulnerabilities": "0.0.20",
+            "latest_version": "0.0.20",
+            "more_info_url": "https://data.safetycli.com/p/pypi/python-multipart/97c/"
+        },
+        "sentence-transformers": {
+            "name": "sentence-transformers",
+            "version": "2.3.1",
+            "requirements": [
+                {
+                    "raw": "sentence-transformers==2.3.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "sentence-transformers",
+                    "specifier": "==2.3.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/sentence_transformers-2.3.1.dist-info"
+                }
+            ],
+            "found": null,
+            "insecure_versions": [
+                "0.1.0",
+                "0.2.0",
+                "0.2.1",
+                "0.2.2",
+                "0.2.3",
+                "0.2.4",
+                "0.2.4.1",
+                "0.2.5",
+                "0.2.5.1",
+                "0.2.6",
+                "0.2.6.1",
+                "0.2.6.2",
+                "0.3.0",
+                "0.3.1",
+                "0.3.2",
+                "0.3.3",
+                "0.3.4",
+                "0.3.5",
+                "0.3.5.1",
+                "0.3.6",
+                "0.3.7",
+                "0.3.7.1",
+                "0.3.7.2",
+                "0.3.8",
+                "0.3.9",
+                "0.4.0",
+                "0.4.1",
+                "0.4.1.1",
+                "0.4.1.2",
+                "1.0.0",
+                "1.0.1",
+                "1.0.2",
+                "1.0.3",
+                "1.0.4",
+                "1.1.0",
+                "1.1.1",
+                "1.2.0",
+                "1.2.1",
+                "2.0.0",
+                "2.1.0",
+                "2.2.0",
+                "2.2.1",
+                "2.2.2",
+                "2.3.0",
+                "2.3.1",
+                "2.4.0",
+                "2.5.0",
+                "2.5.1",
+                "2.6.0",
+                "2.6.1",
+                "2.7.0",
+                "3.0.0",
+                "3.0.1"
+            ],
+            "secure_versions": [
+                "5.1.2",
+                "5.1.1",
+                "5.1.0",
+                "5.0.0",
+                "4.1.0",
+                "4.0.2",
+                "4.0.1",
+                "4.0.0",
+                "3.4.1",
+                "3.4.0",
+                "3.3.1",
+                "3.3.0",
+                "3.2.1",
+                "3.2.0",
+                "3.1.1",
+                "3.1.0"
+            ],
+            "latest_version_without_known_vulnerabilities": "5.1.2",
+            "latest_version": "5.1.2",
+            "more_info_url": "https://data.safetycli.com/p/pypi/sentence-transformers/97c/"
+        },
+        "python-socketio": {
+            "name": "python-socketio",
+            "version": "5.10.0",
+            "requirements": [
+                {
+                    "raw": "python-socketio==5.10.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "python-socketio",
+                    "specifier": "==5.10.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/python_socketio-5.10.0.dist-info"
+                }
+            ],
+            "found": null,
+            "insecure_versions": [
+                "0.1.0",
+                "0.2.0",
+                "0.3.0",
+                "0.4.0",
+                "0.4.1",
+                "0.4.2",
+                "0.5.0",
+                "0.5.1",
+                "0.5.2",
+                "0.6.0",
+                "0.6.1",
+                "0.7.0",
+                "0.8.0",
+                "0.8.1",
+                "0.8.2",
+                "0.9.0",
+                "0.9.1",
+                "0.9.2",
+                "1.0",
+                "1.1",
+                "1.2",
+                "1.3",
+                "1.4",
+                "1.4.1",
+                "1.4.2",
+                "1.4.3",
+                "1.4.4",
+                "1.5.0",
+                "1.5.1",
+                "1.6.0",
+                "1.6.1",
+                "1.6.2",
+                "1.6.3",
+                "1.7.0",
+                "1.7.1",
+                "1.7.2",
+                "1.7.3",
+                "1.7.4",
+                "1.7.5",
+                "1.7.6",
+                "1.7.7",
+                "1.8.0",
+                "1.8.1",
+                "1.8.2",
+                "1.8.3",
+                "1.8.4",
+                "1.9.0",
+                "2.0.0",
+                "2.1.0",
+                "2.1.1",
+                "2.1.2",
+                "3.0.0",
+                "3.0.1",
+                "3.1.0",
+                "3.1.1",
+                "3.1.2",
+                "4.0.0",
+                "4.0.1",
+                "4.0.2",
+                "4.0.3",
+                "4.1.0",
+                "4.2.0",
+                "4.2.1",
+                "4.3.0",
+                "4.3.1",
+                "4.4.0",
+                "4.5.0",
+                "4.5.1",
+                "4.6.0",
+                "4.6.1",
+                "5.0.0",
+                "5.0.1",
+                "5.0.2",
+                "5.0.3",
+                "5.0.4",
+                "5.1.0",
+                "5.10.0",
+                "5.11.0",
+                "5.11.1",
+                "5.11.2",
+                "5.11.3",
+                "5.11.4",
+                "5.12.0",
+                "5.12.1",
+                "5.13.0",
+                "5.2.0",
+                "5.2.1",
+                "5.3.0",
+                "5.4.0",
+                "5.4.1",
+                "5.5.0",
+                "5.5.1",
+                "5.5.2",
+                "5.6.0",
+                "5.7.0",
+                "5.7.1",
+                "5.7.2",
+                "5.8.0",
+                "5.9.0"
+            ],
+            "secure_versions": [
+                "5.14.3",
+                "5.14.2",
+                "5.14.1",
+                "5.14.0"
+            ],
+            "latest_version_without_known_vulnerabilities": "5.14.3",
+            "latest_version": "5.14.3",
+            "more_info_url": "https://data.safetycli.com/p/pypi/python-socketio/97c/"
+        },
+        "urllib3": {
+            "name": "urllib3",
+            "version": "2.0.7",
+            "requirements": [
+                {
+                    "raw": "urllib3==2.0.7",
+                    "extras": [],
+                    "marker": null,
+                    "name": "urllib3",
+                    "specifier": "==2.0.7",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/urllib3-2.0.7.dist-info"
+                }
+            ],
+            "found": null,
+            "insecure_versions": [
+                "0.2",
+                "0.3",
+                "0.3.1",
+                "0.4.0",
+                "0.4.1",
+                "1.0",
+                "1.0.1",
+                "1.0.2",
+                "1.1",
+                "1.10",
+                "1.10.1",
+                "1.10.2",
+                "1.10.3",
+                "1.10.4",
+                "1.11",
+                "1.12",
+                "1.13",
+                "1.13.1",
+                "1.14",
+                "1.15",
+                "1.15.1",
+                "1.16",
+                "1.17",
+                "1.18",
+                "1.18.1",
+                "1.19",
+                "1.19.1",
+                "1.2",
+                "1.20",
+                "1.21",
+                "1.2.1",
+                "1.21.1",
+                "1.22",
+                "1.2.2",
+                "1.23",
+                "1.24",
+                "1.24.1",
+                "1.24.2",
+                "1.24.3",
+                "1.25",
+                "1.25.1",
+                "1.25.10",
+                "1.25.11",
+                "1.25.2",
+                "1.25.3",
+                "1.25.4",
+                "1.25.5",
+                "1.25.6",
+                "1.25.7",
+                "1.25.8",
+                "1.25.9",
+                "1.26.0",
+                "1.26.1",
+                "1.26.10",
+                "1.26.11",
+                "1.26.12",
+                "1.26.13",
+                "1.26.14",
+                "1.26.15",
+                "1.26.16",
+                "1.26.17",
+                "1.26.18",
+                "1.26.19",
+                "1.26.2",
+                "1.26.20",
+                "1.26.3",
+                "1.26.4",
+                "1.26.5",
+                "1.26.6",
+                "1.26.7",
+                "1.26.8",
+                "1.26.9",
+                "1.3",
+                "1.4",
+                "1.5",
+                "1.6",
+                "1.7",
+                "1.7.1",
+                "1.8",
+                "1.8.2",
+                "1.8.3",
+                "1.9",
+                "1.9.1",
+                "2.0.0",
+                "2.0.0a1",
+                "2.0.0a2",
+                "2.0.0a3",
+                "2.0.0a4",
+                "2.0.1",
+                "2.0.2",
+                "2.0.3",
+                "2.0.4",
+                "2.0.5",
+                "2.0.6",
+                "2.0.7",
+                "2.1.0",
+                "2.2.0",
+                "2.2.1",
+                "2.2.2",
+                "2.2.3",
+                "2.3.0",
+                "2.4.0"
+            ],
+            "secure_versions": [
+                "2.5.0"
+            ],
+            "latest_version_without_known_vulnerabilities": "2.5.0",
+            "latest_version": "2.5.0",
+            "more_info_url": "https://data.safetycli.com/p/pypi/urllib3/97c/"
+        },
+        "requests": {
+            "name": "requests",
+            "version": "2.31.0",
+            "requirements": [
+                {
+                    "raw": "requests==2.31.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "requests",
+                    "specifier": "==2.31.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/requests-2.31.0.dist-info"
+                }
+            ],
+            "found": null,
+            "insecure_versions": [
+                "0.0.1",
+                "0.10.0",
+                "0.10.1",
+                "0.10.2",
+                "0.10.3",
+                "0.10.4",
+                "0.10.6",
+                "0.10.7",
+                "0.10.8",
+                "0.11.1",
+                "0.11.2",
+                "0.12.0",
+                "0.12.1",
+                "0.13.0",
+                "0.13.1",
+                "0.13.2",
+                "0.13.3",
+                "0.13.4",
+                "0.13.5",
+                "0.13.6",
+                "0.13.7",
+                "0.13.8",
+                "0.13.9",
+                "0.14.0",
+                "0.14.1",
+                "0.14.2",
+                "0.2.0",
+                "0.2.1",
+                "0.2.2",
+                "0.2.3",
+                "0.2.4",
+                "0.3.0",
+                "0.3.1",
+                "0.3.2",
+                "0.3.3",
+                "0.3.4",
+                "0.4.0",
+                "0.4.1",
+                "0.5.0",
+                "0.5.1",
+                "0.6.0",
+                "0.6.1",
+                "0.6.2",
+                "0.6.3",
+                "0.6.4",
+                "0.6.5",
+                "0.6.6",
+                "0.7.0",
+                "0.7.1",
+                "0.7.2",
+                "0.7.3",
+                "0.7.4",
+                "0.7.5",
+                "0.7.6",
+                "0.8.0",
+                "0.8.1",
+                "0.8.2",
+                "0.8.3",
+                "0.8.4",
+                "0.8.5",
+                "0.8.6",
+                "0.8.7",
+                "0.8.8",
+                "0.8.9",
+                "0.9.0",
+                "0.9.1",
+                "0.9.2",
+                "0.9.3",
+                "1.0.0",
+                "1.0.1",
+                "1.0.2",
+                "1.0.3",
+                "1.0.4",
+                "1.1.0",
+                "1.2.0",
+                "1.2.1",
+                "1.2.2",
+                "1.2.3",
+                "2.0.0",
+                "2.0.1",
+                "2.1.0",
+                "2.10.0",
+                "2.11.0",
+                "2.11.1",
+                "2.12.0",
+                "2.12.1",
+                "2.12.2",
+                "2.12.3",
+                "2.12.4",
+                "2.12.5",
+                "2.13.0",
+                "2.14.0",
+                "2.14.1",
+                "2.14.2",
+                "2.15.0",
+                "2.15.1",
+                "2.16.0",
+                "2.16.1",
+                "2.16.2",
+                "2.16.3",
+                "2.16.4",
+                "2.16.5",
+                "2.17.0",
+                "2.17.1",
+                "2.17.2",
+                "2.17.3",
+                "2.18.0",
+                "2.18.1",
+                "2.18.2",
+                "2.18.3",
+                "2.18.4",
+                "2.19.0",
+                "2.19.1",
+                "2.2.0",
+                "2.20.0",
+                "2.20.1",
+                "2.2.1",
+                "2.21.0",
+                "2.22.0",
+                "2.23.0",
+                "2.24.0",
+                "2.25.0",
+                "2.25.1",
+                "2.26.0",
+                "2.27.0",
+                "2.27.1",
+                "2.28.0",
+                "2.28.1",
+                "2.28.2",
+                "2.29.0",
+                "2.3.0",
+                "2.30.0",
+                "2.31.0",
+                "2.32.0",
+                "2.32.1",
+                "2.32.2",
+                "2.32.3",
+                "2.4.0",
+                "2.4.1",
+                "2.4.2",
+                "2.4.3",
+                "2.5.0",
+                "2.5.1",
+                "2.5.2",
+                "2.5.3",
+                "2.6.0",
+                "2.6.1",
+                "2.6.2",
+                "2.7.0",
+                "2.8.0",
+                "2.8.1",
+                "2.9.0",
+                "2.9.1",
+                "2.9.2"
+            ],
+            "secure_versions": [
+                "2.32.5",
+                "2.32.4"
+            ],
+            "latest_version_without_known_vulnerabilities": "2.32.5",
+            "latest_version": "2.32.5",
+            "more_info_url": "https://data.safetycli.com/p/pypi/requests/97c/"
+        },
+        "black": {
+            "name": "black",
+            "version": "24.1.1",
+            "requirements": [
+                {
+                    "raw": "black==24.1.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "black",
+                    "specifier": "==24.1.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/black-24.1.1.dist-info"
+                }
+            ],
+            "found": null,
+            "insecure_versions": [
+                "18.3a0",
+                "18.3a1",
+                "18.3a2",
+                "18.3a3",
+                "18.3a4",
+                "18.4a0",
+                "18.4a1",
+                "18.4a2",
+                "18.4a3",
+                "18.4a4",
+                "18.5b0",
+                "18.5b1",
+                "18.6b0",
+                "18.6b1",
+                "18.6b2",
+                "18.6b3",
+                "18.6b4",
+                "18.9b0",
+                "19.10b0",
+                "19.3b0",
+                "20.8b0",
+                "20.8b1",
+                "21.10b0",
+                "21.11b0",
+                "21.11b1",
+                "21.12b0",
+                "21.4b0",
+                "21.4b1",
+                "21.4b2",
+                "21.5b0",
+                "21.5b1",
+                "21.5b2",
+                "21.6b0",
+                "21.7b0",
+                "21.8b0",
+                "21.9b0",
+                "22.1.0",
+                "22.10.0",
+                "22.12.0",
+                "22.3.0",
+                "22.6.0",
+                "22.8.0",
+                "23.1.0",
+                "23.10.0",
+                "23.10.1",
+                "23.11.0",
+                "23.12.0",
+                "23.12.1",
+                "23.1a1",
+                "23.3.0",
+                "23.7.0",
+                "23.9.0",
+                "23.9.1",
+                "24.1.0",
+                "24.1.1",
+                "24.1a1",
+                "24.2.0"
+            ],
+            "secure_versions": [
+                "25.11.0",
+                "25.9.0",
+                "25.1.0",
+                "24.10.0",
+                "24.8.0",
+                "24.4.2",
+                "24.4.1",
+                "24.4.0",
+                "24.3.0"
+            ],
+            "latest_version_without_known_vulnerabilities": "25.11.0",
+            "latest_version": "25.11.0",
+            "more_info_url": "https://data.safetycli.com/p/pypi/black/97c/"
+        },
+        "scikit-learn": {
+            "name": "scikit-learn",
+            "version": "1.4.0",
+            "requirements": [
+                {
+                    "raw": "scikit-learn==1.4.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "scikit-learn",
+                    "specifier": "==1.4.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/scikit_learn-1.4.0.dist-info"
+                }
+            ],
+            "found": null,
+            "insecure_versions": [
+                "0.10",
+                "0.11",
+                "0.12",
+                "0.12.1",
+                "0.13",
+                "0.13.1",
+                "0.14",
+                "0.14.1",
+                "0.15.0",
+                "0.15.1",
+                "0.15.2",
+                "0.16.0",
+                "0.16.1",
+                "0.17",
+                "0.17.1",
+                "0.18",
+                "0.18.1",
+                "0.18.2",
+                "0.19.0",
+                "0.19.1",
+                "0.19.2",
+                "0.20.0",
+                "0.20.1",
+                "0.20.2",
+                "0.20.3",
+                "0.20.4",
+                "0.21.0",
+                "0.21.1",
+                "0.21.2",
+                "0.21.3",
+                "0.22",
+                "0.22.1",
+                "0.22.2",
+                "0.22.2.post1",
+                "0.23.0",
+                "0.23.1",
+                "0.23.2",
+                "0.24.0",
+                "0.24.1",
+                "0.24.2",
+                "0.9",
+                "1.0",
+                "1.0.1",
+                "1.0.2",
+                "1.1.0",
+                "1.1.1",
+                "1.1.2",
+                "1.1.3",
+                "1.2.0",
+                "1.2.0rc1",
+                "1.2.1",
+                "1.2.2",
+                "1.3.0",
+                "1.3.0rc1",
+                "1.3.1",
+                "1.3.2",
+                "1.4.0",
+                "1.4.0rc1",
+                "1.4.1.post1",
+                "1.4.2",
+                "1.5.0rc1"
+            ],
+            "secure_versions": [
+                "1.7.2",
+                "1.7.1",
+                "1.7.0",
+                "1.7.0rc1",
+                "1.6.1",
+                "1.6.0",
+                "1.6.0rc1",
+                "1.5.2",
+                "1.5.1",
+                "1.5.0"
+            ],
+            "latest_version_without_known_vulnerabilities": "1.7.2",
+            "latest_version": "1.7.2",
+            "more_info_url": "https://data.safetycli.com/p/pypi/scikit-learn/97c/"
+        },
+        "ecdsa": {
+            "name": "ecdsa",
+            "version": "0.19.1",
+            "requirements": [
+                {
+                    "raw": "ecdsa==0.19.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "ecdsa",
+                    "specifier": "==0.19.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/ecdsa-0.19.1.dist-info"
+                }
+            ],
+            "found": null,
+            "insecure_versions": [
+                "0.10",
+                "0.11",
+                "0.12",
+                "0.13",
+                "0.13.1",
+                "0.13.2",
+                "0.13.3",
+                "0.14",
+                "0.14.1",
+                "0.15",
+                "0.16.0",
+                "0.16.1",
+                "0.17.0",
+                "0.18.0",
+                "0.18.0b1",
+                "0.18.0b2",
+                "0.19.0",
+                "0.19.1",
+                "0.6",
+                "0.7",
+                "0.8",
+                "0.9"
+            ],
+            "secure_versions": [],
+            "latest_version_without_known_vulnerabilities": "",
+            "latest_version": "0.19.1",
+            "more_info_url": "https://data.safetycli.com/p/pypi/ecdsa/97c/"
+        },
+        "pip": {
+            "name": "pip",
+            "version": "24.0",
+            "requirements": [
+                {
+                    "raw": "pip==24.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "pip",
+                    "specifier": "==24.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pip-24.0.dist-info"
+                }
+            ],
+            "found": null,
+            "insecure_versions": [
+                "0.2",
+                "0.2.1",
+                "0.3",
+                "0.3.1",
+                "0.4",
+                "0.5",
+                "0.5.1",
+                "0.6",
+                "0.6.1",
+                "0.6.2",
+                "0.6.3",
+                "0.7",
+                "0.7.1",
+                "0.7.2",
+                "0.8",
+                "0.8.1",
+                "0.8.2",
+                "0.8.3",
+                "1.0",
+                "10.0.0",
+                "10.0.0b1",
+                "10.0.0b2",
+                "10.0.1",
+                "1.0.1",
+                "1.0.2",
+                "1.1",
+                "1.2",
+                "1.2.1",
+                "1.3",
+                "1.3.1",
+                "1.4",
+                "1.4.1",
+                "1.5",
+                "1.5.1",
+                "1.5.2",
+                "1.5.3",
+                "1.5.4",
+                "1.5.5",
+                "1.5.6",
+                "18.0",
+                "18.1",
+                "19.0",
+                "19.0.1",
+                "19.0.2",
+                "19.0.3",
+                "19.1",
+                "19.1.1",
+                "19.2",
+                "19.2.1",
+                "19.2.2",
+                "19.2.3",
+                "19.3",
+                "19.3.1",
+                "20.0",
+                "20.0.1",
+                "20.0.2",
+                "20.1",
+                "20.1.1",
+                "20.1b1",
+                "20.2",
+                "20.2.1",
+                "20.2.2",
+                "20.2.3",
+                "20.2.4",
+                "20.2b1",
+                "20.3",
+                "20.3.1",
+                "20.3.2",
+                "20.3.3",
+                "20.3.4",
+                "20.3b1",
+                "21.0",
+                "21.0.1",
+                "21.1",
+                "21.1.1",
+                "21.1.2",
+                "21.1.3",
+                "21.2",
+                "21.2.1",
+                "21.2.2",
+                "21.2.3",
+                "21.2.4",
+                "21.3",
+                "21.3.1",
+                "22.0",
+                "22.0.1",
+                "22.0.2",
+                "22.0.3",
+                "22.0.4",
+                "22.1",
+                "22.1.1",
+                "22.1.2",
+                "22.1b1",
+                "22.2",
+                "22.2.1",
+                "22.2.2",
+                "22.3",
+                "22.3.1",
+                "23.0",
+                "23.0.1",
+                "23.1",
+                "23.1.1",
+                "23.1.2",
+                "23.2",
+                "23.2.1",
+                "23.3",
+                "23.3.1",
+                "23.3.2",
+                "24.0",
+                "24.1",
+                "24.1.1",
+                "24.1.2",
+                "24.1b1",
+                "24.1b2",
+                "24.2",
+                "24.3",
+                "24.3.1",
+                "25.0",
+                "25.0.1",
+                "25.1",
+                "25.1.1",
+                "6.0",
+                "6.0.1",
+                "6.0.2",
+                "6.0.3",
+                "6.0.4",
+                "6.0.5",
+                "6.0.6",
+                "6.0.7",
+                "6.0.8",
+                "6.1.0",
+                "6.1.1",
+                "7.0.0",
+                "7.0.1",
+                "7.0.2",
+                "7.0.3",
+                "7.1.0",
+                "7.1.1",
+                "7.1.2",
+                "8.0.0",
+                "8.0.1",
+                "8.0.2",
+                "8.0.3",
+                "8.1.0",
+                "8.1.1",
+                "8.1.2",
+                "9.0.0",
+                "9.0.1",
+                "9.0.2",
+                "9.0.3"
+            ],
+            "secure_versions": [
+                "25.3",
+                "25.2"
+            ],
+            "latest_version_without_known_vulnerabilities": "25.3",
+            "latest_version": "25.3",
+            "more_info_url": "https://data.safetycli.com/p/pypi/pip/97c/"
+        },
+        "starlette": {
+            "name": "starlette",
+            "version": "0.35.1",
+            "requirements": [
+                {
+                    "raw": "starlette==0.35.1",
+                    "extras": [],
+                    "marker": null,
+                    "name": "starlette",
+                    "specifier": "==0.35.1",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/starlette-0.35.1.dist-info"
+                }
+            ],
+            "found": null,
+            "insecure_versions": [
+                "0.1.0",
+                "0.10.0",
+                "0.10.1",
+                "0.10.2",
+                "0.10.3",
+                "0.10.4",
+                "0.10.5",
+                "0.10.6",
+                "0.10.7",
+                "0.1.1",
+                "0.1.10",
+                "0.11.0",
+                "0.1.11",
+                "0.11.1",
+                "0.1.12",
+                "0.11.2",
+                "0.1.13",
+                "0.11.3",
+                "0.1.14",
+                "0.11.4",
+                "0.1.15",
+                "0.1.16",
+                "0.1.17",
+                "0.1.2",
+                "0.12.0",
+                "0.12.0b1",
+                "0.12.0b2",
+                "0.12.0b3",
+                "0.12.1",
+                "0.12.10",
+                "0.12.11",
+                "0.12.12",
+                "0.12.13",
+                "0.12.2",
+                "0.12.3",
+                "0.12.4",
+                "0.12.5",
+                "0.12.6",
+                "0.12.7",
+                "0.12.8",
+                "0.12.9",
+                "0.1.3",
+                "0.13.0",
+                "0.13.1",
+                "0.13.2",
+                "0.13.3",
+                "0.13.4",
+                "0.13.5",
+                "0.13.6",
+                "0.13.7",
+                "0.13.8",
+                "0.1.4",
+                "0.14.0",
+                "0.14.1",
+                "0.14.2",
+                "0.1.5",
+                "0.15.0",
+                "0.1.6",
+                "0.16.0",
+                "0.1.7",
+                "0.17.0",
+                "0.17.1",
+                "0.1.8",
+                "0.18.0",
+                "0.1.9",
+                "0.19.0",
+                "0.19.1",
+                "0.2.0",
+                "0.20.0",
+                "0.20.1",
+                "0.20.2",
+                "0.20.3",
+                "0.20.4",
+                "0.2.1",
+                "0.21.0",
+                "0.2.2",
+                "0.22.0",
+                "0.2.3",
+                "0.23.0",
+                "0.23.1",
+                "0.24.0",
+                "0.25.0",
+                "0.26.0",
+                "0.26.0.post1",
+                "0.26.1",
+                "0.27.0",
+                "0.28.0",
+                "0.29.0",
+                "0.3.0",
+                "0.30.0",
+                "0.3.1",
+                "0.31.0",
+                "0.31.1",
+                "0.3.2",
+                "0.32.0",
+                "0.32.0.post1",
+                "0.3.3",
+                "0.33.0",
+                "0.3.4",
+                "0.34.0",
+                "0.3.5",
+                "0.35.0",
+                "0.35.1",
+                "0.3.6",
+                "0.36.0",
+                "0.36.1",
+                "0.36.2",
+                "0.36.3",
+                "0.3.7",
+                "0.37.0",
+                "0.37.1",
+                "0.37.2",
+                "0.38.0",
+                "0.38.1",
+                "0.38.2",
+                "0.38.3",
+                "0.38.4",
+                "0.38.5",
+                "0.38.6",
+                "0.39.0",
+                "0.39.1",
+                "0.39.2",
+                "0.4.0",
+                "0.40.0",
+                "0.4.1",
+                "0.41.0",
+                "0.41.1",
+                "0.41.2",
+                "0.41.3",
+                "0.4.2",
+                "0.42.0",
+                "0.43.0",
+                "0.44.0",
+                "0.45.0",
+                "0.45.1",
+                "0.45.2",
+                "0.45.3",
+                "0.46.0",
+                "0.46.1",
+                "0.46.2",
+                "0.47.0",
+                "0.47.1",
+                "0.47.2",
+                "0.47.3",
+                "0.48.0",
+                "0.49.0",
+                "0.5.0",
+                "0.5.1",
+                "0.5.2",
+                "0.5.3",
+                "0.5.4",
+                "0.5.5",
+                "0.6.0",
+                "0.6.1",
+                "0.6.2",
+                "0.6.3",
+                "0.7.0",
+                "0.7.1",
+                "0.7.2",
+                "0.7.3",
+                "0.7.4",
+                "0.8.0",
+                "0.8.1",
+                "0.8.2",
+                "0.8.3",
+                "0.8.4",
+                "0.8.5",
+                "0.8.6",
+                "0.8.7",
+                "0.8.8",
+                "0.9.0",
+                "0.9.1",
+                "0.9.10",
+                "0.9.11",
+                "0.9.2",
+                "0.9.3",
+                "0.9.4",
+                "0.9.5",
+                "0.9.6",
+                "0.9.7",
+                "0.9.8",
+                "0.9.9"
+            ],
+            "secure_versions": [
+                "0.50.0",
+                "0.49.3",
+                "0.49.2",
+                "0.49.1"
+            ],
+            "latest_version_without_known_vulnerabilities": "0.50.0",
+            "latest_version": "0.50.0",
+            "more_info_url": "https://data.safetycli.com/p/pypi/starlette/97c/"
+        },
+        "python-jose": {
+            "name": "python-jose",
+            "version": "3.3.0",
+            "requirements": [
+                {
+                    "raw": "python-jose==3.3.0",
+                    "extras": [],
+                    "marker": null,
+                    "name": "python-jose",
+                    "specifier": "==3.3.0",
+                    "url": null,
+                    "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/python_jose-3.3.0.dist-info"
+                }
+            ],
+            "found": null,
+            "insecure_versions": [
+                "0.1.0",
+                "0.1.1",
+                "0.1.2",
+                "0.1.3",
+                "0.1.4",
+                "0.1.5",
+                "0.1.6",
+                "0.1.7",
+                "0.1.8",
+                "0.2.0",
+                "0.3.0",
+                "0.4.0",
+                "0.5.0",
+                "0.5.1",
+                "0.5.2",
+                "0.5.3",
+                "0.5.4",
+                "0.5.5",
+                "0.5.6",
+                "0.6.1",
+                "0.6.2",
+                "0.7.0",
+                "1.0.0",
+                "1.1.0",
+                "1.2.0",
+                "1.3.0",
+                "1.3.1",
+                "1.3.2",
+                "1.4.0",
+                "2.0.0",
+                "2.0.1",
+                "2.0.2",
+                "3.0.0",
+                "3.0.1",
+                "3.1.0",
+                "3.2.0",
+                "3.3.0"
+            ],
+            "secure_versions": [
+                "3.5.0",
+                "3.4.0"
+            ],
+            "latest_version_without_known_vulnerabilities": "3.5.0",
+            "latest_version": "3.5.0",
+            "more_info_url": "https://data.safetycli.com/p/pypi/python-jose/97c/"
+        }
+    },
+    "announcements": [],
+    "vulnerabilities": [
+        {
+            "vulnerability_id": "76769",
+            "package_name": "torch",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                "<2.8.0"
+            ],
+            "all_vulnerable_specs": [
+                "<2.8.0"
+            ],
+            "analyzed_version": "2.5.1",
+            "analyzed_requirement": {
+                "raw": "torch==2.5.1",
+                "extras": [],
+                "marker": null,
+                "name": "torch",
+                "specifier": "==2.5.1",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/torch-2.5.1.dist-info"
+            },
+            "advisory": "*Disputed* A vulnerability, which was classified as problematic, was found in PyTorch 2.6.0. Affected is the function torch.nn.functional.ctc_loss of the file aten/src/ATen/native/LossCTC.cpp. The manipulation leads to denial of service. An attack has to be approached locally. The exploit has been disclosed to the public and may be used. The name of the patch is 46fc5d8e360127361211cb237d5f9eef0223e567. It is recommended to apply a patch to fix this issue.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": "CVE-2025-3730",
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/76769/97c"
+        },
+        {
+            "vulnerability_id": "76771",
+            "package_name": "torch",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                "<2.6.0"
+            ],
+            "all_vulnerable_specs": [
+                "<2.6.0"
+            ],
+            "analyzed_version": "2.5.1",
+            "analyzed_requirement": {
+                "raw": "torch==2.5.1",
+                "extras": [],
+                "marker": null,
+                "name": "torch",
+                "specifier": "==2.5.1",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/torch-2.5.1.dist-info"
+            },
+            "advisory": "PyTorch is a Python package that provides tensor computation with strong GPU acceleration and deep neural networks built on a tape-based autograd system. In version 2.5.1 and prior, a Remote Command Execution (RCE) vulnerability exists in PyTorch when loading a model using torch.load with weights_only=True. This issue has been patched in version 2.6.0.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": "CVE-2025-32434",
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/76771/97c"
+        },
+        {
+            "vulnerability_id": "78828",
+            "package_name": "torch",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                "<2.7.1-rc1"
+            ],
+            "all_vulnerable_specs": [
+                "<2.7.1-rc1"
+            ],
+            "analyzed_version": "2.5.1",
+            "analyzed_requirement": {
+                "raw": "torch==2.5.1",
+                "extras": [],
+                "marker": null,
+                "name": "torch",
+                "specifier": "==2.5.1",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/torch-2.5.1.dist-info"
+            },
+            "advisory": "Affected versions of the PyTorch package are vulnerable to Denial of Service (DoS) due to improper handling in the MKLDNN pooling implementation. The torch.mkldnn_max_pool2d function fails to properly validate input parameters, allowing crafted inputs to trigger resource exhaustion or crashes in the underlying MKLDNN library. An attacker with local access can exploit this vulnerability by passing specially crafted tensor dimensions or parameters to the max pooling function, causing the application to become unresponsive or crash.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": "CVE-2025-2953",
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/78828/97c"
+        },
+        {
+            "vulnerability_id": "74427",
+            "package_name": "python-multipart",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                "<0.0.18"
+            ],
+            "all_vulnerable_specs": [
+                "<0.0.18"
+            ],
+            "analyzed_version": "0.0.6",
+            "analyzed_requirement": {
+                "raw": "python-multipart==0.0.6",
+                "extras": [],
+                "marker": null,
+                "name": "python-multipart",
+                "specifier": "==0.0.6",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/python_multipart-0.0.6.dist-info"
+            },
+            "advisory": "Affected versions of python-multipart are vulnerable to Allocation of Resources Without Limits or Throttling (CWE-770). An attacker can send specially crafted multipart/form-data requests containing excessive CR (\\r) or LF (\\n) characters before the first boundary or after the last boundary. This can lead to uncontrolled CPU usage and high memory consumption, causing the processing thread or event loop in ASGI applications to stall, resulting in a denial of service (DoS). The vulnerability exists in the MultipartParser's handling of line breaks around boundaries, where it processes each CRLF byte individually and logs warnings for each occurrence. To exploit this, an attacker simply needs to send large amounts of malformed multipart data with numerous CRLF characters. Upgrading to version 0.0.19 resolves this issue by preventing excessive resource allocation and logging when CRLF bytes are present.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": "CVE-2024-53981",
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/74427/97c"
+        },
+        {
+            "vulnerability_id": "66706",
+            "package_name": "python-multipart",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                ">=0,<0.0.7"
+            ],
+            "all_vulnerable_specs": [
+                ">=0,<0.0.7"
+            ],
+            "analyzed_version": "0.0.6",
+            "analyzed_requirement": {
+                "raw": "python-multipart==0.0.6",
+                "extras": [],
+                "marker": null,
+                "name": "python-multipart",
+                "specifier": "==0.0.6",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/python_multipart-0.0.6.dist-info"
+            },
+            "advisory": "A vulnerability in versions of python-multipart before 0.0.7 involves a Regular Expression Denial of Service (ReDoS) triggered by custom Content-Type headers. This issue allows an attacker to cause a significant consumption of system resources while processing such headers, effectively preventing the processing of other requests. This ReDoS vulnerability stems from the way regular expressions evaluate certain input patterns, which can lead to extensive backtracking, thereby causing the application to slow down significantly, consuming a disproportionate amount of CPU time and facilitating a denial of service condition.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": null,
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/66706/97c"
+        },
+        {
+            "vulnerability_id": "73169",
+            "package_name": "sentence-transformers",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                "<3.1.0"
+            ],
+            "all_vulnerable_specs": [
+                "<3.1.0"
+            ],
+            "analyzed_version": "2.3.1",
+            "analyzed_requirement": {
+                "raw": "sentence-transformers==2.3.1",
+                "extras": [],
+                "marker": null,
+                "name": "sentence-transformers",
+                "specifier": "==2.3.1",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/sentence_transformers-2.3.1.dist-info"
+            },
+            "advisory": "Sentence-transformers affected versions are vulnerable to arbitrary code execution when loading PyTorch model files. The `torch.load()` function, used without the `weights_only=True` parameter, could deserialize malicious Python objects from manipulated model files. This vulnerability potentially allows attackers to execute arbitrary code on the system.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": null,
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/73169/97c"
+        },
+        {
+            "vulnerability_id": "80185",
+            "package_name": "python-socketio",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                ">=0.8.0,<5.14.0"
+            ],
+            "all_vulnerable_specs": [
+                ">=0.8.0,<5.14.0"
+            ],
+            "analyzed_version": "5.10.0",
+            "analyzed_requirement": {
+                "raw": "python-socketio==5.10.0",
+                "extras": [],
+                "marker": null,
+                "name": "python-socketio",
+                "specifier": "==5.10.0",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/python_socketio-5.10.0.dist-info"
+            },
+            "advisory": "Affected versions of the python-socketio package are vulnerable to Deserialization of Untrusted Data due to unsafe use of pickle when decoding inter-server messages from a shared message queue. In multi-server configurations that use a queue backend (e.g., Redis) for internal communications, the Pub/Sub path deserializes queue messages with pickle.loads() without validating trust or content, enabling execution via crafted __reduce__ payloads.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": "CVE-2025-61765",
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/80185/97c"
+        },
+        {
+            "vulnerability_id": "77744",
+            "package_name": "urllib3",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                "<2.5.0"
+            ],
+            "all_vulnerable_specs": [
+                "<2.5.0"
+            ],
+            "analyzed_version": "2.0.7",
+            "analyzed_requirement": {
+                "raw": "urllib3==2.0.7",
+                "extras": [],
+                "marker": null,
+                "name": "urllib3",
+                "specifier": "==2.0.7",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/urllib3-2.0.7.dist-info"
+            },
+            "advisory": "urllib3 is a user-friendly HTTP client library for Python. Prior to 2.5.0, it is possible to disable redirects for all requests by instantiating a PoolManager and specifying retries in a way that disable redirects. By default, requests and botocore users are not affected. An application attempting to mitigate SSRF or open redirect vulnerabilities by disabling redirects at the PoolManager level will remain vulnerable. This issue has been patched in version 2.5.0.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": "CVE-2025-50181",
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/77744/97c"
+        },
+        {
+            "vulnerability_id": "71608",
+            "package_name": "urllib3",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                ">=2.0.0a1,<=2.2.1"
+            ],
+            "all_vulnerable_specs": [
+                "<=1.26.18",
+                ">=2.0.0a1,<=2.2.1"
+            ],
+            "analyzed_version": "2.0.7",
+            "analyzed_requirement": {
+                "raw": "urllib3==2.0.7",
+                "extras": [],
+                "marker": null,
+                "name": "urllib3",
+                "specifier": "==2.0.7",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/urllib3-2.0.7.dist-info"
+            },
+            "advisory": "Urllib3's ProxyManager ensures that the Proxy-Authorization header is correctly directed only to configured proxies. However, when HTTP requests bypass urllib3's proxy support, there's a risk of inadvertently setting the Proxy-Authorization header, which remains ineffective without a forwarding or tunneling proxy. Urllib3 does not recognize this header as carrying authentication data, failing to remove it during cross-origin redirects. While this scenario is uncommon and poses low risk to most users, urllib3 now proactively removes the Proxy-Authorization header during cross-origin redirects as a precautionary measure. Users are advised to utilize urllib3's proxy support or disable automatic redirects to handle the Proxy-Authorization header securely. Despite these precautions, urllib3 defaults to stripping the header to safeguard users who may inadvertently misconfigure requests.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": "CVE-2024-37891",
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/71608/97c"
+        },
+        {
+            "vulnerability_id": "71064",
+            "package_name": "requests",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                "<2.32.2"
+            ],
+            "all_vulnerable_specs": [
+                "<2.32.2"
+            ],
+            "analyzed_version": "2.31.0",
+            "analyzed_requirement": {
+                "raw": "requests==2.31.0",
+                "extras": [],
+                "marker": null,
+                "name": "requests",
+                "specifier": "==2.31.0",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/requests-2.31.0.dist-info"
+            },
+            "advisory": "Affected versions of Requests, when making requests through a Requests `Session`, if the first request is made with `verify=False` to disable cert verification, all subsequent requests to the same host will continue to ignore cert verification regardless of changes to the value of `verify`. This behavior will continue for the lifecycle of the connection in the connection pool. Requests 2.32.0 fixes the issue, but versions 2.32.0 and 2.32.1 were yanked due to conflicts with CVE-2024-35195 mitigation.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": "CVE-2024-35195",
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/71064/97c"
+        },
+        {
+            "vulnerability_id": "77680",
+            "package_name": "requests",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                "<2.32.4"
+            ],
+            "all_vulnerable_specs": [
+                "<2.32.4"
+            ],
+            "analyzed_version": "2.31.0",
+            "analyzed_requirement": {
+                "raw": "requests==2.31.0",
+                "extras": [],
+                "marker": null,
+                "name": "requests",
+                "specifier": "==2.31.0",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/requests-2.31.0.dist-info"
+            },
+            "advisory": "Requests is an HTTP library. Due to a URL parsing issue, Requests releases prior to 2.32.4 may leak .netrc credentials to third parties for specific maliciously-crafted URLs. Users should upgrade to version 2.32.4 to receive a fix. For older versions of Requests, use of the .netrc file can be disabled with `trust_env=False` on one's Requests Session.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": "CVE-2024-47081",
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/77680/97c"
+        },
+        {
+            "vulnerability_id": "66742",
+            "package_name": "black",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                "<24.3.0"
+            ],
+            "all_vulnerable_specs": [
+                "<24.3.0"
+            ],
+            "analyzed_version": "24.1.1",
+            "analyzed_requirement": {
+                "raw": "black==24.1.1",
+                "extras": [],
+                "marker": null,
+                "name": "black",
+                "specifier": "==24.1.1",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/black-24.1.1.dist-info"
+            },
+            "advisory": "Affected versions of Black are vulnerable to Regular Expression Denial of Service (ReDoS) via the lines_with_leading_tabs_expanded function in the strings.py file. An attacker could exploit this vulnerability by crafting a malicious input that causes a denial of service.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": "CVE-2024-21503",
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/66742/97c"
+        },
+        {
+            "vulnerability_id": "71596",
+            "package_name": "scikit-learn",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                "<1.5.0"
+            ],
+            "all_vulnerable_specs": [
+                "<1.5.0"
+            ],
+            "analyzed_version": "1.4.0",
+            "analyzed_requirement": {
+                "raw": "scikit-learn==1.4.0",
+                "extras": [],
+                "marker": null,
+                "name": "scikit-learn",
+                "specifier": "==1.4.0",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/scikit_learn-1.4.0.dist-info"
+            },
+            "advisory": "A sensitive data leakage vulnerability was identified in affected versions of scikit-learn TfidfVectorizer. The vulnerability arises from the unexpected storage of all tokens present in the training data within the `stop_words_` attribute, rather than only storing the subset of tokens required for the TF-IDF technique to function. This behavior leads to the potential leakage of sensitive information, as the `stop_words_` attribute could contain tokens that were meant to be discarded and not stored, such as passwords or keys. The impact of this vulnerability varies based on the nature of the data being processed by the vectorizer.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": "CVE-2024-5206",
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/71596/97c"
+        },
+        {
+            "vulnerability_id": "64459",
+            "package_name": "ecdsa",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                ">=0"
+            ],
+            "all_vulnerable_specs": [
+                ">=0"
+            ],
+            "analyzed_version": "0.19.1",
+            "analyzed_requirement": {
+                "raw": "ecdsa==0.19.1",
+                "extras": [],
+                "marker": null,
+                "name": "ecdsa",
+                "specifier": "==0.19.1",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/ecdsa-0.19.1.dist-info"
+            },
+            "advisory": "The python-ecdsa library, which implements ECDSA cryptography in Python, is vulnerable to the Minerva attack (CVE-2024-23342). This vulnerability arises because scalar multiplication is not performed in constant time, affecting ECDSA signatures, key generation, and ECDH operations. ECDSA signature verification remains unaffected. The project maintainers have stated that there is no plan to release a fix for this vulnerability, citing their security policy:\r\n\"As stated in the security policy, side-channel vulnerabilities are outside the scope of the project. This is not due to a lack of interest in side-channel secure implementations but rather because the main goal of the project is to be pure Python. Implementing side-channel-free code in pure Python is impossible. Therefore, we do not plan to release a fix for this vulnerability.\"\r\nNOTE: The specs we include in this advisory differ from the publicly available on other sources. That's because research by Safety CLI Cybersecurity Team confirms that there is no plan to address this vulnerability.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": "CVE-2024-23342",
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/64459/97c"
+        },
+        {
+            "vulnerability_id": "64396",
+            "package_name": "ecdsa",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                ">=0"
+            ],
+            "all_vulnerable_specs": [
+                ">=0"
+            ],
+            "analyzed_version": "0.19.1",
+            "analyzed_requirement": {
+                "raw": "ecdsa==0.19.1",
+                "extras": [],
+                "marker": null,
+                "name": "ecdsa",
+                "specifier": "==0.19.1",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/ecdsa-0.19.1.dist-info"
+            },
+            "advisory": "Ecdsa does not protects against side-channel attacks. This is because Python does not provide side-channel secure primitives (with the exception of hmac.compare_digest()), making side-channel secure programming impossible. For a sophisticated attacker observing just one operation with a private key will be sufficient to completely reconstruct the private key.\r\nhttps://pypi.org/project/ecdsa/#Security",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": null,
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/64396/97c"
+        },
+        {
+            "vulnerability_id": "75180",
+            "package_name": "pip",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                "<25.0"
+            ],
+            "all_vulnerable_specs": [
+                "<25.0"
+            ],
+            "analyzed_version": "24.0",
+            "analyzed_requirement": {
+                "raw": "pip==24.0",
+                "extras": [],
+                "marker": null,
+                "name": "pip",
+                "specifier": "==24.0",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pip-24.0.dist-info"
+            },
+            "advisory": "Pip solves a security vulnerability that previously allowed maliciously crafted wheel files to execute unauthorized code during installation.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": null,
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/75180/97c"
+        },
+        {
+            "vulnerability_id": "79883",
+            "package_name": "pip",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                "<25.2"
+            ],
+            "all_vulnerable_specs": [
+                "<25.2"
+            ],
+            "analyzed_version": "24.0",
+            "analyzed_requirement": {
+                "raw": "pip==24.0",
+                "extras": [],
+                "marker": null,
+                "name": "pip",
+                "specifier": "==24.0",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pip-24.0.dist-info"
+            },
+            "advisory": "Affected versions of the pip package are vulnerable to Arbitrary File Overwrite due to improper validation of symbolic link targets in the fallback tar extraction code. In src/pip/_internal/utils/unpacking.py, the _untar_without_filter routine used when the Python tarfile module lacks PEP 706 (no tarfile.data_filter) extracted symlink members with tar._extract_member without verifying that link destinations resolve under the extraction root, a check later added via the is_symlink_target_in_tar helper.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": "CVE-2025-8869",
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/79883/97c"
+        },
+        {
+            "vulnerability_id": "73725",
+            "package_name": "starlette",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                "<0.40.0"
+            ],
+            "all_vulnerable_specs": [
+                "<0.40.0"
+            ],
+            "analyzed_version": "0.35.1",
+            "analyzed_requirement": {
+                "raw": "starlette==0.35.1",
+                "extras": [],
+                "marker": null,
+                "name": "starlette",
+                "specifier": "==0.35.1",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/starlette-0.35.1.dist-info"
+            },
+            "advisory": "Affected versions of the Starlette framework are vulnerable to Denial of Service (DoS) attacks due to the lack of restrictions on multipart part sizes. The vulnerability resides in the MultiPartParser class, which previously did not enforce size limits on incoming data. This issue is mitigated by introducing a max_part_size constraint and raises exceptions when limits are exceeded.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": "CVE-2024-47874",
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/73725/97c"
+        },
+        {
+            "vulnerability_id": "68094",
+            "package_name": "starlette",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                "<=0.36.1"
+            ],
+            "all_vulnerable_specs": [
+                "<=0.36.1"
+            ],
+            "analyzed_version": "0.35.1",
+            "analyzed_requirement": {
+                "raw": "starlette==0.35.1",
+                "extras": [],
+                "marker": null,
+                "name": "starlette",
+                "specifier": "==0.35.1",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/starlette-0.35.1.dist-info"
+            },
+            "advisory": "When using form data, `python-multipart` employs a Regular Expression to parse the HTTP `Content-Type` header. This creates a vulnerability where an attacker can send a specially crafted `Content-Type` option, causing significant CPU resource consumption and indefinitely stalling the server by locking the main event loop, rendering the server unable to process further requests. This issue particularly affects FastAPI servers parsing form data, leading to a Denial of Service (DoS) condition when the number of malicious requests exceeds the number of available server workers. However, this vulnerability does not impact the processing of JSON data through the `/submit_json` endpoint. It is specific to a defined set of versions of FastAPI and `python-multipart` when handling form data.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": null,
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/68094/97c"
+        },
+        {
+            "vulnerability_id": "78279",
+            "package_name": "starlette",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                ">=0.13.5, <0.47.2"
+            ],
+            "all_vulnerable_specs": [
+                ">=0.13.5, <0.47.2"
+            ],
+            "analyzed_version": "0.35.1",
+            "analyzed_requirement": {
+                "raw": "starlette==0.35.1",
+                "extras": [],
+                "marker": null,
+                "name": "starlette",
+                "specifier": "==0.35.1",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/starlette-0.35.1.dist-info"
+            },
+            "advisory": "Affected versions of the `starlette` package are vulnerable to Denial of Service (DoS) due to improper handling of large file uploads in multi-part form parsing. The vulnerability exists in the `UploadFile` class, where the logic fails to adequately check if additional bytes will trigger a file rollover, leading to blocking of the main thread. An attacker can exploit this by uploading large files that exceed the default max spool size, causing the event thread to block and preventing the application from accepting new connections.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": "CVE-2025-54121",
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/78279/97c"
+        },
+        {
+            "vulnerability_id": "70715",
+            "package_name": "python-jose",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                "<3.4.0"
+            ],
+            "all_vulnerable_specs": [
+                "<3.4.0"
+            ],
+            "analyzed_version": "3.3.0",
+            "analyzed_requirement": {
+                "raw": "python-jose==3.3.0",
+                "extras": [],
+                "marker": null,
+                "name": "python-jose",
+                "specifier": "==3.3.0",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/python_jose-3.3.0.dist-info"
+            },
+            "advisory": "Affected versions of Python-jose have a algorithm confusion vulnerability with OpenSSH ECDSA keys and other key formats. This is similar to CVE-2022-29217.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": "CVE-2024-33663",
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/70715/97c"
+        },
+        {
+            "vulnerability_id": "70716",
+            "package_name": "python-jose",
+            "ignored": {},
+            "ignored_reason": null,
+            "ignored_expires": null,
+            "vulnerable_spec": [
+                "<3.4.0"
+            ],
+            "all_vulnerable_specs": [
+                "<3.4.0"
+            ],
+            "analyzed_version": "3.3.0",
+            "analyzed_requirement": {
+                "raw": "python-jose==3.3.0",
+                "extras": [],
+                "marker": null,
+                "name": "python-jose",
+                "specifier": "==3.3.0",
+                "url": null,
+                "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/python_jose-3.3.0.dist-info"
+            },
+            "advisory": "Affected versions of Python-jose allow attackers to cause a denial of service (resource consumption) during a decode via a crafted JSON Web Encryption (JWE) token with a high compression ratio, aka a \"JWT bomb.\" This is similar to CVE-2024-21319.",
+            "is_transitive": false,
+            "published_date": null,
+            "fixed_versions": [],
+            "closest_versions_without_known_vulnerabilities": [],
+            "resources": [],
+            "CVE": "CVE-2024-33664",
+            "severity": null,
+            "affected_versions": [],
+            "more_info_url": "https://data.safetycli.com/v/70716/97c"
+        }
+    ],
+    "ignored_vulnerabilities": [],
+    "remediations": {
+        "torch": {
+            "requirements": {
+                "==2.5.1": {
+                    "vulnerabilities_found": 3,
+                    "version": "2.5.1",
+                    "requirement": {
+                        "raw": "torch==2.5.1",
+                        "extras": [],
+                        "marker": null,
+                        "name": "torch",
+                        "specifier": "==2.5.1",
+                        "url": null,
+                        "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/torch-2.5.1.dist-info"
+                    },
+                    "more_info_url": "https://data.safetycli.com/p/pypi/torch/97c/"
+                }
+            },
+            "current_version": null,
+            "vulnerabilities_found": null,
+            "recommended_version": null,
+            "other_recommended_versions": [],
+            "more_info_url": null
+        },
+        "python-multipart": {
+            "requirements": {
+                "==0.0.6": {
+                    "vulnerabilities_found": 2,
+                    "version": "0.0.6",
+                    "requirement": {
+                        "raw": "python-multipart==0.0.6",
+                        "extras": [],
+                        "marker": null,
+                        "name": "python-multipart",
+                        "specifier": "==0.0.6",
+                        "url": null,
+                        "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/python_multipart-0.0.6.dist-info"
+                    },
+                    "more_info_url": "https://data.safetycli.com/p/pypi/python-multipart/97c/"
+                }
+            },
+            "current_version": null,
+            "vulnerabilities_found": null,
+            "recommended_version": null,
+            "other_recommended_versions": [],
+            "more_info_url": null
+        },
+        "sentence-transformers": {
+            "requirements": {
+                "==2.3.1": {
+                    "vulnerabilities_found": 1,
+                    "version": "2.3.1",
+                    "requirement": {
+                        "raw": "sentence-transformers==2.3.1",
+                        "extras": [],
+                        "marker": null,
+                        "name": "sentence-transformers",
+                        "specifier": "==2.3.1",
+                        "url": null,
+                        "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/sentence_transformers-2.3.1.dist-info"
+                    },
+                    "more_info_url": "https://data.safetycli.com/p/pypi/sentence-transformers/97c/"
+                }
+            },
+            "current_version": null,
+            "vulnerabilities_found": null,
+            "recommended_version": null,
+            "other_recommended_versions": [],
+            "more_info_url": null
+        },
+        "python-socketio": {
+            "requirements": {
+                "==5.10.0": {
+                    "vulnerabilities_found": 1,
+                    "version": "5.10.0",
+                    "requirement": {
+                        "raw": "python-socketio==5.10.0",
+                        "extras": [],
+                        "marker": null,
+                        "name": "python-socketio",
+                        "specifier": "==5.10.0",
+                        "url": null,
+                        "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/python_socketio-5.10.0.dist-info"
+                    },
+                    "more_info_url": "https://data.safetycli.com/p/pypi/python-socketio/97c/"
+                }
+            },
+            "current_version": null,
+            "vulnerabilities_found": null,
+            "recommended_version": null,
+            "other_recommended_versions": [],
+            "more_info_url": null
+        },
+        "urllib3": {
+            "requirements": {
+                "==2.0.7": {
+                    "vulnerabilities_found": 2,
+                    "version": "2.0.7",
+                    "requirement": {
+                        "raw": "urllib3==2.0.7",
+                        "extras": [],
+                        "marker": null,
+                        "name": "urllib3",
+                        "specifier": "==2.0.7",
+                        "url": null,
+                        "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/urllib3-2.0.7.dist-info"
+                    },
+                    "more_info_url": "https://data.safetycli.com/p/pypi/urllib3/97c/"
+                }
+            },
+            "current_version": null,
+            "vulnerabilities_found": null,
+            "recommended_version": null,
+            "other_recommended_versions": [],
+            "more_info_url": null
+        },
+        "requests": {
+            "requirements": {
+                "==2.31.0": {
+                    "vulnerabilities_found": 2,
+                    "version": "2.31.0",
+                    "requirement": {
+                        "raw": "requests==2.31.0",
+                        "extras": [],
+                        "marker": null,
+                        "name": "requests",
+                        "specifier": "==2.31.0",
+                        "url": null,
+                        "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/requests-2.31.0.dist-info"
+                    },
+                    "more_info_url": "https://data.safetycli.com/p/pypi/requests/97c/"
+                }
+            },
+            "current_version": null,
+            "vulnerabilities_found": null,
+            "recommended_version": null,
+            "other_recommended_versions": [],
+            "more_info_url": null
+        },
+        "black": {
+            "requirements": {
+                "==24.1.1": {
+                    "vulnerabilities_found": 1,
+                    "version": "24.1.1",
+                    "requirement": {
+                        "raw": "black==24.1.1",
+                        "extras": [],
+                        "marker": null,
+                        "name": "black",
+                        "specifier": "==24.1.1",
+                        "url": null,
+                        "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/black-24.1.1.dist-info"
+                    },
+                    "more_info_url": "https://data.safetycli.com/p/pypi/black/97c/"
+                }
+            },
+            "current_version": null,
+            "vulnerabilities_found": null,
+            "recommended_version": null,
+            "other_recommended_versions": [],
+            "more_info_url": null
+        },
+        "scikit-learn": {
+            "requirements": {
+                "==1.4.0": {
+                    "vulnerabilities_found": 1,
+                    "version": "1.4.0",
+                    "requirement": {
+                        "raw": "scikit-learn==1.4.0",
+                        "extras": [],
+                        "marker": null,
+                        "name": "scikit-learn",
+                        "specifier": "==1.4.0",
+                        "url": null,
+                        "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/scikit_learn-1.4.0.dist-info"
+                    },
+                    "more_info_url": "https://data.safetycli.com/p/pypi/scikit-learn/97c/"
+                }
+            },
+            "current_version": null,
+            "vulnerabilities_found": null,
+            "recommended_version": null,
+            "other_recommended_versions": [],
+            "more_info_url": null
+        },
+        "ecdsa": {
+            "requirements": {
+                "==0.19.1": {
+                    "vulnerabilities_found": 2,
+                    "version": "0.19.1",
+                    "requirement": {
+                        "raw": "ecdsa==0.19.1",
+                        "extras": [],
+                        "marker": null,
+                        "name": "ecdsa",
+                        "specifier": "==0.19.1",
+                        "url": null,
+                        "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/ecdsa-0.19.1.dist-info"
+                    },
+                    "more_info_url": "https://data.safetycli.com/p/pypi/ecdsa/97c/"
+                }
+            },
+            "current_version": null,
+            "vulnerabilities_found": null,
+            "recommended_version": null,
+            "other_recommended_versions": [],
+            "more_info_url": null
+        },
+        "pip": {
+            "requirements": {
+                "==24.0": {
+                    "vulnerabilities_found": 2,
+                    "version": "24.0",
+                    "requirement": {
+                        "raw": "pip==24.0",
+                        "extras": [],
+                        "marker": null,
+                        "name": "pip",
+                        "specifier": "==24.0",
+                        "url": null,
+                        "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/pip-24.0.dist-info"
+                    },
+                    "more_info_url": "https://data.safetycli.com/p/pypi/pip/97c/"
+                }
+            },
+            "current_version": null,
+            "vulnerabilities_found": null,
+            "recommended_version": null,
+            "other_recommended_versions": [],
+            "more_info_url": null
+        },
+        "starlette": {
+            "requirements": {
+                "==0.35.1": {
+                    "vulnerabilities_found": 3,
+                    "version": "0.35.1",
+                    "requirement": {
+                        "raw": "starlette==0.35.1",
+                        "extras": [],
+                        "marker": null,
+                        "name": "starlette",
+                        "specifier": "==0.35.1",
+                        "url": null,
+                        "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/starlette-0.35.1.dist-info"
+                    },
+                    "more_info_url": "https://data.safetycli.com/p/pypi/starlette/97c/"
+                }
+            },
+            "current_version": null,
+            "vulnerabilities_found": null,
+            "recommended_version": null,
+            "other_recommended_versions": [],
+            "more_info_url": null
+        },
+        "python-jose": {
+            "requirements": {
+                "==3.3.0": {
+                    "vulnerabilities_found": 2,
+                    "version": "3.3.0",
+                    "requirement": {
+                        "raw": "python-jose==3.3.0",
+                        "extras": [],
+                        "marker": null,
+                        "name": "python-jose",
+                        "specifier": "==3.3.0",
+                        "url": null,
+                        "found": "/home/ubuntu/workspace/automated-testing/venv/lib/python3.12/site-packages/python_jose-3.3.0.dist-info"
+                    },
+                    "more_info_url": "https://data.safetycli.com/p/pypi/python-jose/97c/"
+                }
+            },
+            "current_version": null,
+            "vulnerabilities_found": null,
+            "recommended_version": null,
+            "other_recommended_versions": [],
+            "more_info_url": null
+        }
+    },
+    "remediations_results": {
+        "vulnerabilities_fixed": [],
+        "remediations_applied": {},
+        "remediations_skipped": {}
+    }
+}
+
+
++===========================================================================================================================================================================================+
+
+
+DEPRECATED: this command (`check`) has been DEPRECATED, and will be unsupported beyond 01 June 2024.
+
+
+We highly encourage switching to the new `scan` command which is easier to use, more powerful, and can be set up to mimic the deprecated command if required.
+
+
++===========================================================================================================================================================================================+
+
+
