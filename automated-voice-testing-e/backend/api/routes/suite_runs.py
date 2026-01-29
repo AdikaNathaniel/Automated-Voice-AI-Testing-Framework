@@ -43,7 +43,7 @@ router = APIRouter(prefix="/suite-runs", tags=["Suite Runs"])
 
 # Security scheme for Bearer token
 security = HTTPBearer()
-_RUN_CONTROL_ROLES = {Role.ORG_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value}
+_RUN_CONTROL_ROLES = {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value}
 
 
 # =============================================================================
@@ -527,6 +527,29 @@ async def cancel_suite_run(
     """
     _ensure_run_controller(current_user)
     tenant_id = _get_effective_tenant_id(current_user)
+
+    # qa_lead can only cancel their own executions
+    if current_user.role == Role.QA_LEAD.value:
+        from models.suite_run import SuiteRun as SuiteRunModel
+        from sqlalchemy import select
+        result = await db.execute(
+            select(SuiteRunModel).where(
+                SuiteRunModel.id == suite_run_id,
+                SuiteRunModel.tenant_id == tenant_id,
+            )
+        )
+        run = result.scalar_one_or_none()
+        if not run:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Suite run {suite_run_id} not found"
+            )
+        if run.created_by and str(run.created_by) != str(current_user.id):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You can only cancel your own executions.",
+            )
+
     try:
         suite_run = await orchestration_service.cancel_suite_run(
             db=db,

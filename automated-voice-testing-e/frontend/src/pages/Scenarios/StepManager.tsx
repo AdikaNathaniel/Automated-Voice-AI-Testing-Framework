@@ -40,6 +40,7 @@ import {
 } from 'lucide-react';
 import LanguageVariantManager, { type LanguageVariant } from './LanguageVariantManager';
 import apiClient from '../../services/api';
+import { multiTurnService } from '../../services/multiTurn.service';
 
 export interface NoiseAppliedInfo {
   profile: string;
@@ -497,6 +498,63 @@ export const StepManager: React.FC<StepManagerProps> = ({
   const [normalizeConfig, setNormalizeConfig] = useState<Record<string, { enabled: boolean; target_db: number }>>({});
   const [batchUploading, setBatchUploading] = useState<Record<string, boolean>>({});
   const [batchNormalizeEnabled, setBatchNormalizeEnabled] = useState<Record<string, boolean>>({});
+  const [ttsPlaying, setTtsPlaying] = useState<Record<number, boolean>>({});
+  const [ttsLoading, setTtsLoading] = useState<Record<number, boolean>>({});
+  const ttsAudioRef = useRef<Record<number, HTMLAudioElement | null>>({});
+
+  const handleTtsPlay = useCallback(async (stepIndex: number, text: string, language: string) => {
+    // If already playing, stop
+    if (ttsPlaying[stepIndex] && ttsAudioRef.current[stepIndex]) {
+      ttsAudioRef.current[stepIndex]!.pause();
+      ttsAudioRef.current[stepIndex]!.currentTime = 0;
+      setTtsPlaying((prev) => ({ ...prev, [stepIndex]: false }));
+      return;
+    }
+
+    if (!text.trim()) return;
+
+    try {
+      setTtsLoading((prev) => ({ ...prev, [stepIndex]: true }));
+      const langCode = language.split('-')[0] || 'en';
+      const blob = await multiTurnService.synthesizeUtterance(text, langCode);
+      const url = URL.createObjectURL(blob);
+
+      // Clean up previous audio
+      if (ttsAudioRef.current[stepIndex]) {
+        ttsAudioRef.current[stepIndex]!.pause();
+        URL.revokeObjectURL(ttsAudioRef.current[stepIndex]!.src);
+      }
+
+      const audio = new Audio(url);
+      ttsAudioRef.current[stepIndex] = audio;
+      audio.onended = () => {
+        setTtsPlaying((prev) => ({ ...prev, [stepIndex]: false }));
+        URL.revokeObjectURL(url);
+      };
+      audio.onerror = () => {
+        setTtsPlaying((prev) => ({ ...prev, [stepIndex]: false }));
+        URL.revokeObjectURL(url);
+      };
+      await audio.play();
+      setTtsPlaying((prev) => ({ ...prev, [stepIndex]: true }));
+    } catch (error) {
+      console.error('TTS playback failed:', error);
+    } finally {
+      setTtsLoading((prev) => ({ ...prev, [stepIndex]: false }));
+    }
+  }, [ttsPlaying]);
+
+  // Clean up TTS audio on unmount
+  useEffect(() => {
+    return () => {
+      Object.values(ttsAudioRef.current).forEach((audio) => {
+        if (audio) {
+          audio.pause();
+          URL.revokeObjectURL(audio.src);
+        }
+      });
+    };
+  }, []);
 
   // Fetch noise profiles on mount
   useEffect(() => {
@@ -1381,9 +1439,33 @@ export const StepManager: React.FC<StepManagerProps> = ({
                       )}
                     </div>
                     {step.user_utterance && (
-                      <p className="text-sm text-[var(--color-content-muted)] truncate mt-0.5">
-                        "{step.user_utterance}"
-                      </p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <p className="text-sm text-[var(--color-content-muted)] truncate">
+                          "{step.user_utterance}"
+                        </p>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleTtsPlay(
+                              index,
+                              step.user_utterance,
+                              step.step_metadata?.primary_language || 'en-US'
+                            );
+                          }}
+                          disabled={ttsLoading[index]}
+                          className="flex-shrink-0 p-1 rounded-md text-[var(--color-content-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-interactive-hover)] transition-colors disabled:opacity-50"
+                          title={ttsPlaying[index] ? 'Stop' : 'Play utterance'}
+                        >
+                          {ttsLoading[index] ? (
+                            <Loader2 size={14} className="animate-spin" />
+                          ) : ttsPlaying[index] ? (
+                            <Square size={14} />
+                          ) : (
+                            <Play size={14} />
+                          )}
+                        </button>
+                      </div>
                     )}
                   </div>
 

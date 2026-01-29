@@ -32,7 +32,7 @@ from api.auth.roles import Role
 
 router = APIRouter(prefix="/regressions", tags=["Regressions"])
 
-_REGRESSION_MUTATION_ROLES = {Role.ORG_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value}
+_REGRESSION_MUTATION_ROLES = {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value}
 
 
 def _ensure_can_mutate_regression(user: UserResponse) -> None:

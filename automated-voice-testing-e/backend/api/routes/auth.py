@@ -66,7 +66,7 @@ REFRESH_TOKEN_EXPIRE_DAYS = settings.JWT_REFRESH_EXPIRATION_DAYS
 
 
 def _ensure_admin_user(user: UserResponse) -> None:
-    if user.role != Role.ORG_ADMIN.value:
+    if user.role not in {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value}:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin privileges required for this action.",
@@ -112,6 +112,14 @@ async def register(
         HTTPException: 400 if email or username already exists
     """
     _ensure_admin_user(current_user)
+
+    # Prevent org_admin from assigning super_admin role
+    requested_role = data.role.value if isinstance(data.role, Role) else data.role
+    if requested_role == Role.SUPER_ADMIN.value and current_user.role != Role.SUPER_ADMIN.value:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only super_admin can assign the super_admin role.",
+        )
 
     try:
         # Create user

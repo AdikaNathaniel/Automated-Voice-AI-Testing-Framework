@@ -32,7 +32,7 @@ router = APIRouter(prefix="/configurations", tags=["Configurations"])
 
 _CONFIG_CACHE_PREFIX = "api:configurations:list"
 _settings = get_settings()
-_PRIVILEGED_ROLES = {Role.ORG_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value}
+_PRIVILEGED_ROLES = {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value}
 
 
 def _get_effective_tenant_id(user: UserResponse) -> UUID:

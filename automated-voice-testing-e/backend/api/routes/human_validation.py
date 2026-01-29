@@ -51,7 +51,7 @@ router = APIRouter(prefix="/validation", tags=["Human Validation"])
 # Security scheme for Bearer token
 security = HTTPBearer()
 
-_VALIDATION_ROLES = {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value, Role.VALIDATOR.value}
+_VALIDATION_ROLES = {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value, Role.VALIDATOR.value}
 
 
 def _ensure_can_validate(user: UserResponse) -> None:

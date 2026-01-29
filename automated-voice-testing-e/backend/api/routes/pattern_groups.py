@@ -33,7 +33,7 @@ from celery.result import AsyncResult
 
 router = APIRouter(prefix="/pattern-groups", tags=["Pattern Groups"])
 
-_PATTERN_GROUP_MUTATION_ROLES = {Role.ORG_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value}
+_PATTERN_GROUP_MUTATION_ROLES = {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value}
 
 
 def _ensure_can_mutate_pattern_group(user: UserResponse) -> None:

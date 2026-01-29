@@ -128,7 +128,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
   const listRef = useRef<HTMLUListElement>(null);
   const measureRef = useRef<HTMLDivElement>(null);
 
-  const selectedOption = options.find((opt) => opt.value === value);
+  const selectedOption = (options || []).find((opt) => opt.value === value);
 
   // Measure the width of all options to set minimum width
   useEffect(() => {

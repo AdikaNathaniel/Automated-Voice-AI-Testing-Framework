@@ -26,7 +26,9 @@ from typing import Annotated, Optional, List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query, UploadFile, File
+from fastapi.responses import Response
 from fastapi.security import HTTPBearer
+from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.database import get_db
@@ -58,7 +60,8 @@ router = APIRouter(prefix="/scenarios", tags=["Scenarios"])
 
 # Security scheme for Bearer token
 security = HTTPBearer()
-_SCENARIO_MUTATION_ROLES = {Role.ORG_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value}
+_SCENARIO_MUTATION_ROLES = {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value}
+_EXPORT_ROLES = {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value}
 
 
 def _get_effective_tenant_id(user: UserResponse) -> UUID:
@@ -87,6 +90,20 @@ def _ensure_can_mutate_scenario(user: UserResponse) -> None:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin or QA lead role required to modify scenarios.",
+        )
+
+
+def _ensure_owns_resource(user: UserResponse, resource, resource_name: str = "resource") -> None:
+    """
+    For qa_lead users, verify they own the resource (created_by matches user.id).
+    Admins (super_admin, org_admin) can modify any resource.
+    """
+    if user.role in {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value}:
+        return
+    if hasattr(resource, "created_by") and resource.created_by and str(resource.created_by) != str(user.id):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"You can only modify your own {resource_name}.",
         )
 
 
@@ -224,6 +241,40 @@ async def list_noise_profiles(
         )
 
 
+class TTSSynthesizeRequest(BaseModel):
+    text: str = Field(..., min_length=1, max_length=5000, description="Text to synthesize")
+    language: str = Field(default="en", max_length=10, description="Language code (e.g. en, es, fr)")
+
+
+@router.post(
+    "/tts/synthesize",
+    summary="Synthesize speech from text",
+    description="Convert text to speech audio using TTS engine. Returns MP3 audio."
+)
+async def synthesize_speech(
+    request: TTSSynthesizeRequest,
+    current_user: Annotated[UserResponse, Depends(get_current_user_with_db)]
+) -> Response:
+    """Synthesize text to speech audio."""
+    try:
+        from services.tts_service import TTSService
+        tts = TTSService()
+        audio_bytes = tts.text_to_speech(request.text, lang=request.language)
+        return Response(
+            content=audio_bytes,
+            media_type="audio/mpeg",
+            headers={"Content-Disposition": "inline; filename=tts_output.mp3"}
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except Exception as e:
+        logger.error(f"TTS synthesis failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Text-to-speech synthesis failed"
+        )
+
+
 @router.get(
     "/{scenario_id}",
     response_model=ScenarioScriptResponse,
@@ -296,18 +347,21 @@ async def update_scenario(
     _ensure_can_mutate_scenario(current_user)
     tenant_id = _get_effective_tenant_id(current_user)
 
+    # Fetch scenario first to check ownership for qa_lead
+    existing = await scenario_service.get(db=db, scenario_id=scenario_id, tenant_id=tenant_id)
+    if not existing:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Scenario {scenario_id} not found"
+        )
+    _ensure_owns_resource(current_user, existing, "scenario")
+
     scenario = await scenario_service.update(
         db=db,
         scenario_id=scenario_id,
         data=data,
         tenant_id=tenant_id
     )
-
-    if not scenario:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Scenario {scenario_id} not found"
-        )
 
     return ScenarioScriptResponse.model_validate(scenario)
 
@@ -338,17 +392,20 @@ async def delete_scenario(
     _ensure_can_mutate_scenario(current_user)
     tenant_id = _get_effective_tenant_id(current_user)
 
+    # Fetch scenario first to check ownership for qa_lead
+    existing = await scenario_service.get(db=db, scenario_id=scenario_id, tenant_id=tenant_id)
+    if not existing:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Scenario {scenario_id} not found"
+        )
+    _ensure_owns_resource(current_user, existing, "scenario")
+
     deleted = await scenario_service.delete(
         db=db,
         scenario_id=scenario_id,
         tenant_id=tenant_id
     )
-
-    if not deleted:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Scenario {scenario_id} not found"
-        )
 
 
 # =============================================================================
@@ -475,7 +532,15 @@ async def export_scenario_json(
 
     Returns:
         JSON string representation of the scenario
+
+    Raises:
+        HTTPException: 403 if user lacks export permission
     """
+    if current_user.role not in _EXPORT_ROLES:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to export data.",
+        )
     from fastapi.responses import Response
 
     tenant_id = _get_effective_tenant_id(current_user)
@@ -522,7 +587,15 @@ async def export_scenario_yaml(
 
     Returns:
         YAML string representation of the scenario
+
+    Raises:
+        HTTPException: 403 if user lacks export permission
     """
+    if current_user.role not in _EXPORT_ROLES:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to export data.",
+        )
     from fastapi.responses import Response
 
     tenant_id = _get_effective_tenant_id(current_user)
@@ -1283,6 +1356,15 @@ async def delete_step_audio(
     """
     _ensure_can_mutate_scenario(current_user)
     tenant_id = _get_effective_tenant_id(current_user)
+
+    # qa_lead can only delete audio from their own scenarios
+    scenario = await scenario_service.get(db=db, scenario_id=scenario_id, tenant_id=tenant_id)
+    if not scenario:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Scenario {scenario_id} not found"
+        )
+    _ensure_owns_resource(current_user, scenario, "audio file")
 
     # Get step
     step = await scenario_service.get_step(

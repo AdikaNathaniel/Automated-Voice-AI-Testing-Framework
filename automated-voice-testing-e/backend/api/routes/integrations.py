@@ -24,9 +24,21 @@ from api.schemas.auth import UserResponse
 from models.audit_trail import log_audit_trail
 from models.notification_config import NotificationConfig
 from models.integration_config import IntegrationConfig
+from api.auth.roles import Role
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/integrations", tags=["integrations"])
+
+_INTEGRATION_ADMIN_ROLES = {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value}
+
+
+def _ensure_integration_admin(user: UserResponse) -> None:
+    """Verify user has permission to manage integrations."""
+    if user.role not in _INTEGRATION_ADMIN_ROLES:
+        raise HTTPException(
+            status_code=403,
+            detail="Admin privileges required to manage integrations.",
+        )
 
 
 def _get_effective_tenant_id(user: UserResponse) -> UUID:
@@ -231,6 +243,7 @@ async def start_github_connection(
     Returns an authorization URL that the frontend should redirect the user to.
     The state parameter contains the tenant_id so the callback can identify the user.
     """
+    _ensure_integration_admin(current_user)
     import base64
     import json
     import secrets
@@ -422,6 +435,7 @@ async def disconnect_github_post(
     current_user: UserResponse = Depends(get_current_user_with_db),
 ) -> SuccessResponse:
     """Disconnect GitHub integration (POST version for frontend compatibility)."""
+    _ensure_integration_admin(current_user)
     tenant_id = _get_effective_tenant_id(current_user)
     logger.info(f"[INTEGRATIONS] Disconnecting GitHub for tenant {tenant_id}")
 
@@ -447,6 +461,7 @@ async def update_github_sync_settings(
     current_user: UserResponse = Depends(get_current_user_with_db),
 ) -> SuccessResponse:
     """Update GitHub sync settings."""
+    _ensure_integration_admin(current_user)
     tenant_id = _get_effective_tenant_id(current_user)
     logger.info(f"[INTEGRATIONS] Updating GitHub sync settings for tenant {tenant_id}")
 
@@ -561,6 +576,7 @@ async def update_github_config(
     current_user: UserResponse = Depends(get_current_user_with_db),
 ) -> SuccessResponse:
     """Update GitHub integration configuration in database."""
+    _ensure_integration_admin(current_user)
     tenant_id = _get_effective_tenant_id(current_user)
     logger.info(f"[INTEGRATIONS] Updating GitHub config for tenant {tenant_id}")
 
@@ -624,6 +640,7 @@ async def disconnect_github(
     current_user: UserResponse = Depends(get_current_user_with_db),
 ) -> SuccessResponse:
     """Disconnect GitHub integration."""
+    _ensure_integration_admin(current_user)
     tenant_id = _get_effective_tenant_id(current_user)
     logger.info(f"[INTEGRATIONS] Disconnecting GitHub for tenant {tenant_id}")
 
@@ -723,6 +740,7 @@ async def update_jira_config_put(
     current_user: UserResponse = Depends(get_current_user_with_db),
 ) -> SuccessResponse:
     """Update Jira integration configuration (PUT for frontend compatibility)."""
+    _ensure_integration_admin(current_user)
     tenant_id = _get_effective_tenant_id(current_user)
     logger.info(f"[INTEGRATIONS] Updating Jira config for tenant {tenant_id}")
 
@@ -799,6 +817,7 @@ async def update_jira_config_post(
     current_user: UserResponse = Depends(get_current_user_with_db),
 ) -> SuccessResponse:
     """Update Jira integration configuration (POST - legacy support)."""
+    _ensure_integration_admin(current_user)
     tenant_id = _get_effective_tenant_id(current_user)
     logger.info(f"[INTEGRATIONS] Updating Jira config (POST) for tenant {tenant_id}")
 
@@ -839,6 +858,7 @@ async def disconnect_jira(
     current_user: UserResponse = Depends(get_current_user_with_db),
 ) -> SuccessResponse:
     """Disconnect Jira integration."""
+    _ensure_integration_admin(current_user)
     tenant_id = _get_effective_tenant_id(current_user)
     logger.info(f"[INTEGRATIONS] Disconnecting Jira for tenant {tenant_id}")
 
@@ -945,6 +965,7 @@ async def update_slack_config(
     current_user: UserResponse = Depends(get_current_user_with_db),
 ) -> SlackIntegrationConfigResponse:
     """Update Slack integration configuration in database."""
+    _ensure_integration_admin(current_user)
     tenant_id = _get_effective_tenant_id(current_user)
     logger.info(f"[INTEGRATIONS] Updating Slack config for tenant {tenant_id}")
 
@@ -1013,6 +1034,7 @@ async def disconnect_slack(
     current_user: UserResponse = Depends(get_current_user_with_db),
 ) -> SlackIntegrationConfigResponse:
     """Disconnect Slack integration."""
+    _ensure_integration_admin(current_user)
     tenant_id = _get_effective_tenant_id(current_user)
     logger.info(f"[INTEGRATIONS] Disconnecting Slack for tenant {tenant_id}")
 

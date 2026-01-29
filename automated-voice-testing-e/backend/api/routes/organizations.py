@@ -44,7 +44,7 @@ router = APIRouter(prefix="/organizations", tags=["Organizations"])
 _SUPER_ADMIN_ROLES = {Role.SUPER_ADMIN.value}
 
 # Roles that can manage org members (within their own org)
-_ORG_ADMIN_ROLES = {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value, Role.ORG_ADMIN.value}
+_ORG_ADMIN_ROLES = {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value}
 
 
 def _ensure_super_admin(user: UserResponse) -> None:

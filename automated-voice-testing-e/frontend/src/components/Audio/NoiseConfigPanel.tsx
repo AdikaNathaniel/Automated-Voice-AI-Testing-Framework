@@ -225,7 +225,7 @@ export const NoiseConfigPanel: React.FC<NoiseConfigPanelProps> = ({
         setLoadingProfiles(true);
         setProfilesError(null);
         const profiles = await multiTurnService.getNoiseProfiles();
-        setNoiseProfiles(profiles);
+        setNoiseProfiles(profiles || []);
       } catch (error) {
         console.error('Failed to fetch noise profiles:', error);
         setProfilesError('Failed to load noise profiles. Please try again.');
@@ -247,13 +247,13 @@ export const NoiseConfigPanel: React.FC<NoiseConfigPanelProps> = ({
   };
 
   // Get selected noise profile info
-  const selectedNoiseProfile = noiseProfiles.find((p) => p.name === config.profile);
+  const selectedNoiseProfile = (noiseProfiles || []).find((p) => p.name === config.profile);
 
   // Get effective SNR for display
   const effectiveSnr = config.snr_db ?? selectedNoiseProfile?.default_snr_db ?? 15;
 
   // Group profiles by category
-  const profilesByCategory = noiseProfiles.reduce(
+  const profilesByCategory = (noiseProfiles || []).reduce(
     (acc, profile) => {
       if (!acc[profile.category]) {
         acc[profile.category] = [];

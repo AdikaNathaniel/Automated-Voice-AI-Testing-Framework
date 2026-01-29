@@ -35,7 +35,7 @@ from services.llm_provider_config_service import LLMProviderConfigService
 
 router = APIRouter(prefix="/llm-providers", tags=["LLM Providers"])
 
-_ADMIN_ROLES = {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value}
+_ADMIN_ROLES = {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value}
 
 
 def _get_effective_tenant_id(user: UserResponse) -> UUID:

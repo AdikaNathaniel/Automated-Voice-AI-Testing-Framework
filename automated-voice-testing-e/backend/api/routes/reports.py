@@ -6,10 +6,14 @@ from __future__ import annotations
 
 import base64
 from datetime import date
-from typing import Dict, Iterable, Optional
+from typing import Annotated, Dict, Iterable, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
+
+from api.dependencies import get_current_user_with_db
+from api.schemas.auth import UserResponse
+from api.auth.roles import Role
 
 from services.custom_report_builder import (
     CustomReportBuilderService,
@@ -22,6 +26,8 @@ from services.custom_report_builder import (
 from services.pdf_report_service import PDFReportService
 
 router = APIRouter(prefix="/reports", tags=["Reports"])
+
+_EXPORT_ROLES = {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value}
 
 
 class CustomReportPayload(BaseModel):
@@ -73,10 +79,16 @@ def _build_metrics_provider():
     response_model=CustomReportResponse,
     response_model_exclude_none=True,
 )
-def create_custom_report(
+async def create_custom_report(
     payload: CustomReportPayload,
+    current_user: Annotated[UserResponse, Depends(get_current_user_with_db)],
     builder: Optional[CustomReportBuilderService] = Depends(get_custom_report_builder_service),
 ) -> CustomReportResponse:
+    if current_user.role not in _EXPORT_ROLES:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to export reports.",
+        )
     if builder is None:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

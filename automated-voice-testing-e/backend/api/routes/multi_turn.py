@@ -46,7 +46,7 @@ security = HTTPBearer()
 logger = logging.getLogger(__name__)
 
 # Roles that can approve/reject scenarios
-_APPROVAL_ROLES = {Role.ORG_ADMIN.value, Role.QA_LEAD.value}
+_APPROVAL_ROLES = {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value}
 
 
 def _get_effective_tenant_id(user: UserResponse) -> UUID:
@@ -104,7 +104,7 @@ def _ensure_can_review_scenario(
         )
 
     # Prevent self-approval unless user is ADMIN
-    if user.role != Role.ORG_ADMIN.value:
+    if user.role not in {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value}:
         if scenario.created_by and str(scenario.created_by) == str(user.id):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

@@ -59,7 +59,7 @@ router = APIRouter(prefix="/test-suites", tags=["Test Suites"])
 
 # Security scheme for Bearer token
 security = HTTPBearer()
-_SUITE_MUTATION_ROLES = {Role.ORG_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value}
+_SUITE_MUTATION_ROLES = {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value}
 
 
 # =============================================================================

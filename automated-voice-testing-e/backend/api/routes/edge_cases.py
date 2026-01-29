@@ -33,7 +33,7 @@ from api.auth.roles import Role
 
 router = APIRouter(prefix="/edge-cases", tags=["Edge Cases"])
 
-_EDGE_CASE_MUTATION_ROLES = {Role.ORG_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value}
+_EDGE_CASE_MUTATION_ROLES = {Role.SUPER_ADMIN.value, Role.ORG_ADMIN.value, Role.QA_LEAD.value}
 
 
 def _get_effective_tenant_id(user: UserResponse) -> UUID:

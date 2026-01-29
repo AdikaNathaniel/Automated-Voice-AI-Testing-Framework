@@ -255,6 +255,22 @@ class MultiTurnService {
     );
     return response.data.data;
   }
+
+  /**
+   * Synthesize text to speech audio
+   *
+   * @param text - Text to convert to speech
+   * @param language - Language code (e.g. 'en', 'es', 'fr')
+   * @returns Promise with audio Blob (MP3)
+   */
+  async synthesizeUtterance(text: string, language: string = 'en'): Promise<Blob> {
+    const response = await apiClient.post(
+      `/scenarios/tts/synthesize`,
+      { text, language },
+      { responseType: 'blob' }
+    );
+    return response.data;
+  }
 }
 
 // Export singleton instance
