@@ -179,6 +179,52 @@ async def list_scenarios(
 
 
 @router.get(
+    "/noise-profiles",
+    response_model=List[NoiseProfileInfo],
+    summary="List noise profiles",
+    description="Get all available noise profiles for scenario configuration"
+)
+async def list_noise_profiles(
+    current_user: Annotated[UserResponse, Depends(get_current_user_with_db)]
+) -> List[NoiseProfileInfo]:
+    """
+    List available noise profiles.
+
+    Returns a list of all noise profiles that can be used for
+    background noise simulation during scenario execution.
+
+    Returns:
+        List of noise profile information
+    """
+    try:
+        from services.noise_profile_library_service import NoiseProfileLibraryService
+        library = NoiseProfileLibraryService()
+        profile_names = library.list_profiles()
+
+        result = []
+        for profile_key in profile_names:
+            p = library.get_profile(profile_key)
+            result.append(NoiseProfileInfo(
+                name=profile_key,
+                category=p.get("category", "general"),
+                description=p.get("description"),
+                default_snr_db=float(p.get("typical_snr", 15.0)),
+                difficulty=p.get("asr_difficulty", "medium"),
+                estimated_wer_increase=None
+            ))
+        return result
+    except ImportError:
+        logger.warning("NoiseProfileLibraryService not available")
+        return []
+    except Exception as e:
+        logger.error(f"Failed to get noise profiles: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve noise profiles"
+        )
+
+
+@router.get(
     "/{scenario_id}",
     response_model=ScenarioScriptResponse,
     summary="Get scenario",
@@ -1646,47 +1692,3 @@ async def preview_noise_audio(
     })
 
 
-@router.get(
-    "/noise-profiles",
-    response_model=List[NoiseProfileInfo],
-    summary="List noise profiles",
-    description="Get all available noise profiles for scenario configuration"
-)
-async def list_noise_profiles(
-    current_user: Annotated[UserResponse, Depends(get_current_user_with_db)]
-) -> List[NoiseProfileInfo]:
-    """
-    List available noise profiles.
-
-    Returns a list of all noise profiles that can be used for
-    background noise simulation during scenario execution.
-
-    Returns:
-        List of noise profile information
-    """
-    try:
-        from services.noise_profile_library_service import NoiseProfileLibrary
-        library = NoiseProfileLibrary()
-        profiles = library.get_all_profiles()
-
-        return [
-            NoiseProfileInfo(
-                name=p["name"],
-                category=p.get("category", "general"),
-                description=p.get("description"),
-                default_snr_db=p.get("default_snr_db", 15.0),
-                difficulty=p.get("difficulty", "medium"),
-                estimated_wer_increase=p.get("estimated_wer_increase")
-            )
-            for p in profiles
-        ]
-    except ImportError:
-        # If noise profile library not available, return empty list
-        logger.warning("NoiseProfileLibrary not available")
-        return []
-    except Exception as e:
-        logger.error(f"Failed to get noise profiles: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to retrieve noise profiles"
-        )

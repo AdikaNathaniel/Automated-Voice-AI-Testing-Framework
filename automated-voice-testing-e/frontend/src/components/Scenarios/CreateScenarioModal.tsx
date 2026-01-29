@@ -430,7 +430,7 @@ export const CreateScenarioModal: React.FC<CreateScenarioModalProps> = ({
   // Language variant management
   const addLanguageVariant = (stepIndex: number, languageCode: string) => {
     const step = formData.steps[stepIndex];
-    if (step.step_metadata.language_variants.some((v) => v.language_code === languageCode)) return;
+    if ((step.step_metadata.language_variants || []).some((v) => v.language_code === languageCode)) return;
 
     updateStep(stepIndex, {
       step_metadata: {
@@ -461,7 +461,7 @@ export const CreateScenarioModal: React.FC<CreateScenarioModalProps> = ({
 
   const updateLanguageVariant = (stepIndex: number, languageCode: string, utterance: string) => {
     const step = formData.steps[stepIndex];
-    const newVariants = step.step_metadata.language_variants.map((v) =>
+    const newVariants = (step.step_metadata.language_variants || []).map((v) =>
       v.language_code === languageCode ? { ...v, user_utterance: utterance } : v
     );
     updateStep(stepIndex, {
@@ -471,7 +471,7 @@ export const CreateScenarioModal: React.FC<CreateScenarioModalProps> = ({
 
   const setPrimaryLanguage = (stepIndex: number, languageCode: string) => {
     const step = formData.steps[stepIndex];
-    const primaryVariant = step.step_metadata.language_variants.find(
+    const primaryVariant = step.step_metadata.language_variants?.find(
       (v) => v.language_code === languageCode
     );
     updateStep(stepIndex, {
@@ -485,13 +485,13 @@ export const CreateScenarioModal: React.FC<CreateScenarioModalProps> = ({
     const step = formData.steps[stepIndex];
     return SUPPORTED_LANGUAGES
       .map((l) => l.code)
-      .filter((code) => !step.step_metadata.language_variants.some((v) => v.language_code === code));
+      .filter((code) => !(step.step_metadata.language_variants || []).some((v) => v.language_code === code));
   };
 
   // Open translate selector for a step
   const openTranslateSelector = (stepIndex: number) => {
     const step = formData.steps[stepIndex];
-    const primaryVariant = step.step_metadata.language_variants.find(
+    const primaryVariant = step.step_metadata.language_variants?.find(
       (v) => v.language_code === step.step_metadata.primary_language
     );
 
@@ -537,7 +537,7 @@ export const CreateScenarioModal: React.FC<CreateScenarioModalProps> = ({
     }
 
     const step = formData.steps[stepIndex];
-    const primaryVariant = step.step_metadata.language_variants.find(
+    const primaryVariant = step.step_metadata.language_variants?.find(
       (v) => v.language_code === step.step_metadata.primary_language
     );
 
@@ -559,7 +559,7 @@ export const CreateScenarioModal: React.FC<CreateScenarioModalProps> = ({
       const translations = response.data.data.translations;
 
       // Filter out languages that already exist (backend always includes source language)
-      const existingLangCodes = step.step_metadata.language_variants.map((v) => v.language_code);
+      const existingLangCodes = (step.step_metadata.language_variants || []).map((v) => v.language_code);
       const newVariants = Object.entries(translations)
         .filter(([lang]) => !existingLangCodes.includes(lang))
         .map(([lang, trans]: [string, any]) => ({
@@ -772,7 +772,7 @@ export const CreateScenarioModal: React.FC<CreateScenarioModalProps> = ({
   const validateSteps = (): boolean => {
     for (let i = 0; i < formData.steps.length; i++) {
       const step = formData.steps[i];
-      const primaryVariant = step.step_metadata.language_variants.find(
+      const primaryVariant = step.step_metadata.language_variants?.find(
         (v) => v.language_code === step.step_metadata.primary_language
       );
       if (!primaryVariant?.user_utterance.trim()) {
@@ -1320,7 +1320,7 @@ export const CreateScenarioModal: React.FC<CreateScenarioModalProps> = ({
 
                   {/* Language Variants */}
                   <div className="space-y-3">
-                    {step.step_metadata.language_variants.map((variant) => {
+                    {(step.step_metadata.language_variants || []).map((variant) => {
                       const langInfo = getLanguageInfo(variant.language_code);
                       const isPrimary = variant.language_code === step.step_metadata.primary_language;
 
@@ -1391,7 +1391,7 @@ export const CreateScenarioModal: React.FC<CreateScenarioModalProps> = ({
                     >
                       <option value="">+ Add language...</option>
                       {SUPPORTED_LANGUAGES.filter(
-                        (l) => !step.step_metadata.language_variants.some((v) => v.language_code === l.code)
+                        (l) => !(step.step_metadata.language_variants || []).some((v) => v.language_code === l.code)
                       ).map((lang) => (
                         <option key={lang.code} value={lang.code}>
                           {lang.flag} {lang.name}
@@ -1437,7 +1437,7 @@ export const CreateScenarioModal: React.FC<CreateScenarioModalProps> = ({
                   className="w-full"
                 >
                   {formData.steps.map((step, index) => {
-                    const primaryVariant = step.step_metadata.language_variants.find(
+                    const primaryVariant = step.step_metadata.language_variants?.find(
                       (v) => v.language_code === step.step_metadata.primary_language
                     );
                     return (
@@ -1915,7 +1915,7 @@ export const CreateScenarioModal: React.FC<CreateScenarioModalProps> = ({
                   </h4>
                   <div className="space-y-3">
                     {formData.steps.map((step, index) => {
-                      const primaryVariant = step.step_metadata.language_variants.find(
+                      const primaryVariant = step.step_metadata.language_variants?.find(
                         (v) => v.language_code === step.step_metadata.primary_language
                       );
                       const langCount = step.step_metadata.language_variants.length;

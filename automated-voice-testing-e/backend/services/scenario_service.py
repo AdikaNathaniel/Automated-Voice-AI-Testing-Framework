@@ -15,11 +15,13 @@ Example:
 from typing import Optional, List
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from models.scenario_script import ScenarioScript, ScenarioStep
+from models.multi_turn_execution import StepExecution
+from models.expected_outcome import ExpectedOutcome
 from api.schemas.scenario import (
     ScenarioScriptCreate,
     ScenarioScriptUpdate,
@@ -224,7 +226,12 @@ class ScenarioService:
         tenant_id: Optional[UUID] = None
     ) -> bool:
         """
-        Delete a scenario script.
+        Delete a scenario script and all related records.
+
+        Properly handles cascade deletion:
+        1. Delete step_executions referencing scenario steps
+        2. Delete expected_outcomes referencing scenario steps
+        3. Delete the scenario (cascades to steps)
 
         Args:
             db: Database session
@@ -238,6 +245,29 @@ class ScenarioService:
         if not scenario:
             return False
 
+        # Get all step IDs for this scenario
+        step_query = select(ScenarioStep.id).where(
+            ScenarioStep.script_id == scenario_id
+        )
+        step_result = await db.execute(step_query)
+        step_ids = [row[0] for row in step_result.fetchall()]
+
+        if step_ids:
+            # 1. Delete step_executions referencing these steps
+            await db.execute(
+                delete(StepExecution).where(
+                    StepExecution.step_id.in_(step_ids)
+                )
+            )
+
+            # 2. Delete expected_outcomes referencing these steps
+            await db.execute(
+                delete(ExpectedOutcome).where(
+                    ExpectedOutcome.scenario_step_id.in_(step_ids)
+                )
+            )
+
+        # 3. Delete the scenario (cascades to steps)
         await db.delete(scenario)
         await db.commit()
 

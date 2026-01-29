@@ -719,6 +719,11 @@ async def delete_scenario(
     """
     Delete a scenario script and all its steps.
 
+    Properly handles cascade deletion of related records:
+    1. Delete step_executions referencing scenario steps
+    2. Delete expected_outcomes referencing scenario steps
+    3. Delete the scenario (cascades to steps)
+
     Args:
         script_id: Scenario script ID
         db: Database session
@@ -727,8 +732,10 @@ async def delete_scenario(
     Returns:
         Success confirmation
     """
-    from sqlalchemy import select
-    from models.scenario_script import ScenarioScript
+    from sqlalchemy import select, delete
+    from models.scenario_script import ScenarioScript, ScenarioStep
+    from models.multi_turn_execution import StepExecution
+    from models.expected_outcome import ExpectedOutcome
 
     # Get existing scenario (with tenant filtering)
     tenant_id = _get_effective_tenant_id(current_user)
@@ -747,6 +754,32 @@ async def delete_scenario(
 
     try:
         scenario_name = scenario.name
+
+        # Get all step IDs for this scenario
+        step_query = select(ScenarioStep.id).where(
+            ScenarioStep.script_id == script_id
+        )
+        step_result = await db.execute(step_query)
+        step_ids = [row[0] for row in step_result.fetchall()]
+
+        if step_ids:
+            # 1. Delete step_executions referencing these steps
+            await db.execute(
+                delete(StepExecution).where(
+                    StepExecution.step_id.in_(step_ids)
+                )
+            )
+            logger.debug(f"[SCENARIO] Deleted step_executions for {len(step_ids)} steps")
+
+            # 2. Delete expected_outcomes referencing these steps
+            await db.execute(
+                delete(ExpectedOutcome).where(
+                    ExpectedOutcome.scenario_step_id.in_(step_ids)
+                )
+            )
+            logger.debug(f"[SCENARIO] Deleted expected_outcomes for {len(step_ids)} steps")
+
+        # 3. Delete the scenario (cascades to steps)
         await db.delete(scenario)
         await db.commit()
 
